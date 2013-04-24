@@ -2,9 +2,8 @@ module LinuxAdmin
   module Common
     def self.run(cmd)
       begin
-        pid = Kernel.spawn(cmd)
-        Process.wait pid
-        $?.exitstatus
+        pid, status = Process.wait2 Kernel.spawn(cmd)
+        status.exitstatus
       rescue
         return 1
       end
