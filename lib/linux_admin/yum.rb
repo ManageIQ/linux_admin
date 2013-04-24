@@ -1,11 +1,18 @@
 module LinuxAdmin
   module Yum
-    def self.check  # Will return 100 when updates are available.
-      Common.run("yum check-update")
+    def self.updates_available?
+      case Common.run("yum check-update")
+      when 0;   false
+      when 100; true
+      else raise "Error: Exit Code #{status}"
+      end
     end
 
     def self.update
-      Common.run("yum -y update")
+      case Common.run("yum -y update")
+      when 0; true
+      else raise "Error: Exit Code #{status}"
+      end
     end
   end
 end
