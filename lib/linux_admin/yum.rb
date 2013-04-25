@@ -1,18 +1,16 @@
 module LinuxAdmin
   module Yum
     def self.updates_available?
-      case Common.run("yum check-update")
+      exitstatus = Common.run("yum check-update", :return_exitstatus => true)
+      case exitstatus
       when 0;   false
       when 100; true
-      else raise "Error: Exit Code #{status}"
+      else raise "Error: Exit Code #{exitstatus}"
       end
     end
 
     def self.update
-      case Common.run("yum -y update")
-      when 0; true
-      else raise "Error: Exit Code #{status}"
-      end
+      Common.run("yum -y update")
     end
   end
 end
