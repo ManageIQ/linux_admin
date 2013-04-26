@@ -23,3 +23,7 @@ end
 def data_file_path(to)
   File.expand_path(to, File.join(File.dirname(__FILE__), "data"))
 end
+
+def sample_output(to)
+  File.read(data_file_path(to))
+end
