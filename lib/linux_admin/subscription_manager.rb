@@ -3,7 +3,7 @@ require 'date'
 module LinuxAdmin
   module SubscriptionManager
     def self.registered?
-      Common.run("subscription-manager identity")
+      Common.run("subscription-manager identity", :return_exitstatus => true) == 0
     end
 
     def self.refresh
