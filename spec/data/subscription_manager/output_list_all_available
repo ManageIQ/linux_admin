@@ -1,0 +1,42 @@
++-------------------------------------------+
+    Available Subscriptions
++-------------------------------------------+
+Subscription Name:      Example Subscription
+SKU:                    SER0123
+Pool Id:                82c042fca983889b10178893f29b06e3
+Quantity:               1690
+Service Level:          None
+Service Type:           None
+Multi-Entitlement:      No
+Ends:                   01/01/2022
+System Type:            Physical
+
+Subscription Name:      My Private Subscription
+SKU:                    SER9876
+Pool Id:                4f738052ec866192c775c62f408ab868
+Quantity:               Unlimited
+Service Level:          None
+Service Type:           None
+Multi-Entitlement:      No
+Ends:                   06/04/2013
+System Type:            Virtual
+
+Subscription Name:      Shared Subscription - With other characters, (2 sockets) (Up to 1 guest)
+SKU:                    RH0123456
+Pool Id:                3d81297f352305b9a3521981029d7d83
+Quantity:               1
+Service Level:          Self-support
+Service Type:           L1-L3
+Multi-Entitlement:      No
+Ends:                   05/15/2013
+System Type:            Virtual
+
+Subscription Name:      Example Subscription, Premium (up to 2 sockets) 3 year
+SKU:                    MCT0123A9
+Pool Id:                87cefe63b67984d5c7e401d833d2f87f
+Quantity:               1
+Service Level:          Premium
+Service Type:           L1-L3
+Multi-Entitlement:      No
+Ends:                   07/05/2013
+System Type:            Virtual
