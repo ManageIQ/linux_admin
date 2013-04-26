@@ -2,8 +2,12 @@ module LinuxAdmin
   module Common
     def self.run(cmd, options = {})
       begin
-        pid, status = Process.wait2(Kernel.spawn(cmd))
-        if options[:return_exitstatus] || status.exitstatus == 0
+        r, w = IO.pipe
+        pid, status = Process.wait2(Kernel.spawn(cmd, :err => [:child, :out], :out => w))
+        w.close
+        if options[:return_output] && status.exitstatus == 0
+          r.read
+        elsif options[:return_exitstatus] || status.exitstatus == 0
           status.exitstatus
         else
           raise "Error: Exit Code #{status.exitstatus}"

@@ -27,5 +27,19 @@ describe LinuxAdmin::Common do
         expect(described_class.run("XXXXX", :return_exitstatus => true)).to be_nil
       end
     end
+
+    context "with :return_output => true" do
+      it "command ok exit ok" do
+        expect(described_class.run("echo \"Hello World\"", :return_output => true)).to eq("Hello World\n")
+      end
+
+      it "command ok exit bad" do
+        expect { described_class.run("false", :return_output => true) }.to raise_error
+      end
+
+      it "command bad" do
+        expect { described_class.run("XXXXX", :return_output => true) }.to raise_error
+      end
+    end
   end
 end
