@@ -1,4 +1,5 @@
 # LinuxAdmin
+[![Gem Version](https://badge.fury.io/rb/linux_admin.png)](http://badge.fury.io/rb/linux_admin)
 [![Build Status](https://travis-ci.org/ManageIQ/linux_admin.png)](https://travis-ci.org/ManageIQ/linux_admin)
 [![Code Climate](https://codeclimate.com/github/ManageIQ/linux_admin.png)](https://codeclimate.com/github/ManageIQ/linux_admin)
 [![Coverage Status](https://coveralls.io/repos/ManageIQ/linux_admin/badge.png?branch=master)](https://coveralls.io/r/ManageIQ/linux_admin)
