@@ -1,4 +1,5 @@
 # LinuxAdmin
+[![Build Status](https://travis-ci.org/ManageIQ/linux_admin.png)](https://travis-ci.org/ManageIQ/linux_admin)
 
 LinuxAdmin is a module to simplify management of linux systems.
 It should be a single place to manage various system level configurations,
