@@ -9,6 +9,9 @@ LinuxAdmin is a module to simplify management of linux systems.
 It should be a single place to manage various system level configurations,
 registration, updates, etc.
 
+## Supported Rubies
+* MRI 1.9
+
 ## Installation
 
 Add this line to your application's Gemfile:
