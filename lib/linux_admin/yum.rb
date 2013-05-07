@@ -9,6 +9,18 @@ module LinuxAdmin
       Common.run(create_cmd)
     end
 
+    def self.download_packages(path, package_string, options={})
+      Common.run("mkdir -p #{path}")
+
+      case options[:mirror_type]
+      when :package; mirror_cmd = "yum repotrack -p #{path}"
+      else; raise "mirror_type required"
+      end
+      mirror_cmd << " -a #{options[:arch]}" if options[:arch]
+      mirror_cmd << " #{package_string}.strip"
+      Common.run(mirror_cmd)
+    end
+
     def self.updates_available?
       exitstatus = Common.run("yum check-update", :return_exitstatus => true)
       case exitstatus

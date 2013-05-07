@@ -6,6 +6,18 @@ describe LinuxAdmin::Yum do
     expect(described_class.create_repo("some_path")).to be_true
   end
 
+  context ".download_packages" do
+    it "with valid input" do
+      LinuxAdmin::Common.stub(:run => true)
+      expect(described_class.download_packages("some_path", "pkg_a pkg_b", :mirror_type => :package)).to be_true
+    end
+
+    it "without mirror type" do
+      LinuxAdmin::Common.stub(:run => true)
+      expect { described_class.download_packages("some_path", "pkg_a pkg_b") }.to raise_error
+    end
+  end
+
   context ".updates_available?" do
     it "updates are available" do
       LinuxAdmin::Common.stub(:run => 100)
