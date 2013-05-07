@@ -1,6 +1,11 @@
 require 'spec_helper'
 
 describe LinuxAdmin::Yum do
+  it ".create_repo" do
+    LinuxAdmin::Common.stub(:run => true)
+    expect(described_class.create_repo("some_path")).to be_true
+  end
+
   context ".updates_available?" do
     it "updates are available" do
       LinuxAdmin::Common.stub(:run => 100)
