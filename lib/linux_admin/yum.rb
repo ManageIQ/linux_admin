@@ -21,8 +21,10 @@ module LinuxAdmin
       Common.run(mirror_cmd)
     end
 
-    def self.updates_available?
-      exitstatus = Common.run("yum check-update", :return_exitstatus => true)
+    def self.updates_available?(*pkgs)
+      cmd = "yum check-update"
+      cmd << " #{pkgs.join(" ").strip}" unless pkgs.empty?
+      exitstatus = Common.run(cmd, :return_exitstatus => true)
       case exitstatus
       when 0;   false
       when 100; true
@@ -30,8 +32,9 @@ module LinuxAdmin
       end
     end
 
-    def self.update
-      Common.run("yum -y update")
+    def self.update(*packages)
+      cmd = ["yum -y update", packages]
+      Common.run(LinuxAdmin::Common.sanitize(cmd))
     end
   end
 end

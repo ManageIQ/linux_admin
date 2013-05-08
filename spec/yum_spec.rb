@@ -19,6 +19,11 @@ describe LinuxAdmin::Yum do
   end
 
   context ".updates_available?" do
+    it "check updates for a specific package" do
+      LinuxAdmin::Common.should_receive(:run).once.with("yum check-update abc", :return_exitstatus => true).and_return(100)
+      expect(described_class.updates_available?("abc")).to be_true
+    end
+
     it "updates are available" do
       LinuxAdmin::Common.stub(:run => 100)
       expect(described_class.updates_available?).to be_true
@@ -40,8 +45,15 @@ describe LinuxAdmin::Yum do
     end
   end
 
-  it ".update" do
-    LinuxAdmin::Common.should_receive(:run).once
-    described_class.update
+  context ".update" do
+    it "no arguments" do
+      LinuxAdmin::Common.should_receive(:run).once.with("yum -y update").and_return(0)
+      described_class.update
+    end
+
+    it "with arguments" do
+      LinuxAdmin::Common.should_receive(:run).once.with("yum -y update 1 2 3").and_return(0)
+      described_class.update("1 2", "3")
+    end
   end
 end
