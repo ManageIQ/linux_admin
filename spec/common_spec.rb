@@ -1,6 +1,12 @@
 require 'spec_helper'
 
 describe LinuxAdmin::Common do
+  context ".write" do
+    it "no file no content" do
+      expect { described_class.write("", "") }.to raise_error(ArgumentError)
+    end
+  end
+
   context ".run" do
     it "command ok exit ok" do
       expect(described_class.run("true")).to be_true
