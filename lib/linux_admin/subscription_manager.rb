@@ -11,13 +11,19 @@ module LinuxAdmin
     end
 
     def self.register(options = {})
+      raise ArgumentError, "username and password are required" unless options[:username] && options[:password]
       cmd = "subscription-manager register"
-      cmd << " --username=#{options[:username]} --password=#{options[:password]}" if options[:username] && options[:password]
+      cmd << " --username=#{LinuxAdmin::Common.sanitize(options[:username])} --password=#{LinuxAdmin::Common.sanitize(options[:password])}" if options[:username] && options[:password]
+      cmd << " --org=#{LinuxAdmin::Common.sanitize(options[:org])}"                       if options[:org] && options[:server_url]
+      cmd << " --proxy=#{LinuxAdmin::Common.sanitize(options[:proxy_address])}"           if options[:proxy_address]
+      cmd << " --proxyuser=#{LinuxAdmin::Common.sanitize(options[:proxy_username])}"      if options[:proxy_username]
+      cmd << " --proxypassword=#{LinuxAdmin::Common.sanitize(options[:proxy_password])}"  if options[:proxy_password]
+      cmd << " --serverurl=#{LinuxAdmin::Common.sanitize(options[:server_url])}"          if options[:server_url]
       Common.run(cmd)
     end
 
     def self.subscribe(pool_id)
-      Common.run("subscription-manager attach --pool #{pool_id}")
+      Common.run(LinuxAdmin::Common.sanitize("subscription-manager attach --pool #{pool_id}"))
     end
 
     def self.available_subscriptions

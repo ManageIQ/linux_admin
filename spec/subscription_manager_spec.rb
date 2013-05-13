@@ -3,30 +3,35 @@ require 'spec_helper'
 describe LinuxAdmin::SubscriptionManager do
   context ".registered?" do
     it "system with subscription-manager commands" do
-      LinuxAdmin::Common.stub(:run => 0)
+      LinuxAdmin::Common.should_receive(:run).once.with("subscription-manager identity", {:return_exitstatus=>true}).and_return(0)
       expect(described_class.registered?).to be_true
     end
 
     it "system without subscription-manager commands" do
-      LinuxAdmin::Common.stub(:run => 255)
+      LinuxAdmin::Common.should_receive(:run).once.with("subscription-manager identity", {:return_exitstatus=>true}).and_return(255)
       expect(described_class.registered?).to be_false
     end
   end
 
   it ".refresh" do
-    LinuxAdmin::Common.should_receive(:run).once
+    LinuxAdmin::Common.should_receive(:run).once.with("subscription-manager refresh").and_return(0)
     described_class.refresh
   end
 
   context ".register" do
     it "no username" do
-      LinuxAdmin::Common.should_receive(:run).once.with("subscription-manager register")
-      described_class.register
+      expect { described_class.register }.to raise_error(ArgumentError)
     end
 
     it "with username and password" do
-      LinuxAdmin::Common.should_receive(:run).once.with("subscription-manager register --username=SomeUser --password=SomePass")
-      described_class.register(:username => "SomeUser", :password => "SomePass")
+      LinuxAdmin::Common.should_receive(:run).once.with("subscription-manager register --username=SomeUser --password=SomePass --org=IT --proxy=1.2.3.4 --proxyuser=ProxyUser --proxypassword=ProxyPass --serverurl=192.168.1.1").and_return(0)
+      described_class.register( :username       => "SomeUser",
+                                :password       => "SomePass",
+                                :org            => "IT",
+                                :proxy_address  => "1.2.3.4",
+                                :proxy_username => "ProxyUser",
+                                :proxy_password => "ProxyPass",
+                                :server_url     => "192.168.1.1")
     end
   end
 
@@ -36,7 +41,7 @@ describe LinuxAdmin::SubscriptionManager do
   end
 
   it ".available_subscriptions" do
-    LinuxAdmin::Common.stub(:run => sample_output("subscription_manager/output_list_all_available"))
+    LinuxAdmin::Common.should_receive(:run).once.with("subscription-manager list --all --available", :return_output => true).and_return(sample_output("subscription_manager/output_list_all_available"))
     expect(described_class.available_subscriptions).to eq({
       "82c042fca983889b10178893f29b06e3" => {
         :subscription_name => "Example Subscription",
