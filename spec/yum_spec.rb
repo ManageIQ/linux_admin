@@ -104,4 +104,17 @@ describe LinuxAdmin::Yum do
       described_class.update("1 2", "3")
     end
   end
+
+  context ".version_available" do
+    it "no packages" do
+      expect { described_class.version_available }.to raise_error
+    end
+
+    it "with packages" do
+      LinuxAdmin::Common.should_receive(:run).once.with("repoquery --qf=\"%{name} %{version}\" curl", {:return_output=>true}).and_return(sample_output("yum/output_repoquery"))
+      expect(described_class.version_available("curl")).to eq({ "curl"                  => "7.19.7",
+                                                                "subscription-manager"  => "1.1.23.1",
+                                                                "wget"                  => "1.12"})
+    end
+  end
 end

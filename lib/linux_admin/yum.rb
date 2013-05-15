@@ -48,6 +48,20 @@ module LinuxAdmin
       Common.run(LinuxAdmin::Common.sanitize(cmd))
     end
 
+    def self.version_available(*packages)
+      raise ArgumentError, "packages requires at least one package name" unless packages
+
+      cmd = "repoquery --qf=\"%{name} %{version}\""
+      cmd << " #{LinuxAdmin::Common.sanitize(packages)}"
+      output = Common.run(cmd, :return_output => true)
+
+      items = output.split("\n")
+      items.each_with_object({}) do |i, versions|
+        name, version = i.split(" ", 2)
+        versions[name.strip] = version.strip
+      end
+    end
+
     private
 
     def self.parse_repo_dir(dir)
