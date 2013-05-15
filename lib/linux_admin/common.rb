@@ -6,7 +6,7 @@ class LinuxAdmin
     end
 
     def write(file, content)
-      raise ArgumentError, "file and content can not be empty" if file.strip.empty? || file.strip.nil? || content.strip.empty? || content.strip.nil?
+      raise ArgumentError, "file and content can not be empty" if file.blank? || content.blank?
       File.open(file, "w") do |f|
         f.write(content)
       end
