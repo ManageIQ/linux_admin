@@ -1,5 +1,10 @@
 module LinuxAdmin
   module Common
+    def self.sanitize(input)
+      out = [input].flatten.delete_if { |i| i.nil?}.map { |i| i.split(" ")}.flatten
+      Shellwords.join(out)
+    end
+
     def self.write(file, content)
       raise ArgumentError, "file and content can not be empty" if file.strip.empty? || file.strip.nil? || content.strip.empty? || content.strip.nil?
       File.open(file, "w") do |f|
