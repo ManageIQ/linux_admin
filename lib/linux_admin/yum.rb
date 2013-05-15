@@ -1,24 +1,24 @@
 require 'fileutils'
 require 'inifile'
 
-module LinuxAdmin
-  module Yum
+class LinuxAdmin
+  class Yum < LinuxAdmin
     def self.create_repo(path, options={})
       raise ArgumentError, "path is required" unless path
 
-      FileUtils.mkdir_p(LinuxAdmin::Common.sanitize(path))
+      FileUtils.mkdir_p(sanitize(path))
 
       cmd = ["yum createrepo", path]
       cmd.push(" --database")             unless options[:no_database]
       cmd.push(" --unique-md-filenames")  unless options[:no_unique_file_names]
-      Common.run(LinuxAdmin::Common.sanitize(cmd))
+      run(sanitize(cmd))
     end
 
     def self.download_packages(path, packages, options={:mirror_type => :package})
       raise ArgumentError, "path is required"       unless path
       raise ArgumentError, "packages are required"  unless packages
 
-      FileUtils.mkdir_p(LinuxAdmin::Common.sanitize(path))
+      FileUtils.mkdir_p(sanitize(path))
 
       cmd = case options[:mirror_type]
             when :package;  ["yum repotrack -p", path]
@@ -26,7 +26,7 @@ module LinuxAdmin
             end
       cmd.push("-a", options[:arch]) if options[:arch]
       cmd.push(packages)
-      Common.run(LinuxAdmin::Common.sanitize(cmd))
+      run(sanitize(cmd))
     end
 
     def self.repo_settings
@@ -35,7 +35,7 @@ module LinuxAdmin
 
     def self.updates_available?(*packages)
       cmd = ["yum check-update", packages]
-      exitstatus = Common.run(LinuxAdmin::Common.sanitize(cmd), :return_exitstatus => true)
+      exitstatus = run(sanitize(cmd), :return_exitstatus => true)
       case exitstatus
       when 0;   false
       when 100; true
@@ -45,15 +45,15 @@ module LinuxAdmin
 
     def self.update(*packages)
       cmd = ["yum -y update", packages]
-      Common.run(LinuxAdmin::Common.sanitize(cmd))
+      run(sanitize(cmd))
     end
 
     def self.version_available(*packages)
       raise ArgumentError, "packages requires at least one package name" unless packages
 
       cmd = "repoquery --qf=\"%{name} %{version}\""
-      cmd << " #{LinuxAdmin::Common.sanitize(packages)}"
-      output = Common.run(cmd, :return_output => true)
+      cmd << " #{sanitize(packages)}"
+      output = run(cmd, :return_output => true)
 
       items = output.split("\n")
       items.each_with_object({}) do |i, versions|

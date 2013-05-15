@@ -1,18 +1,18 @@
-module LinuxAdmin
+class LinuxAdmin
   module Common
-    def self.sanitize(input)
+    def sanitize(input)
       out = [input].flatten.delete_if { |i| i.nil?}.map { |i| i.split(" ")}.flatten
       Shellwords.join(out)
     end
 
-    def self.write(file, content)
+    def write(file, content)
       raise ArgumentError, "file and content can not be empty" if file.strip.empty? || file.strip.nil? || content.strip.empty? || content.strip.nil?
       File.open(file, "w") do |f|
         f.write(content)
       end
     end
 
-    def self.run(cmd, options = {})
+    def run(cmd, options = {})
       begin
         out = launch(cmd)
         if options[:return_output] && exitstatus == 0
@@ -37,14 +37,14 @@ module LinuxAdmin
     # http://stackoverflow.com/questions/13829830/ruby-process-spawn-stdout-pipe-buffer-size-limit/13846146#13846146
     THREAD_SYNC_KEY = "LinuxAdmin-exitstatus"
 
-    def self.launch(cmd)
+    def launch(cmd)
       pipe_r, pipe_w = IO.pipe
       pid = Kernel.spawn(cmd, :err => [:child, :out], :out => pipe_w)
       wait_for_process(pid, pipe_w)
       wait_for_output(pipe_r)
     end
 
-    def self.wait_for_process(pid, pipe_w)
+    def wait_for_process(pid, pipe_w)
       self.exitstatus = :not_done
       Thread.new(Thread.current) do |parent_thread|
         _, status = Process.wait2(pid)
@@ -53,17 +53,17 @@ module LinuxAdmin
       end
     end
 
-    def self.wait_for_output(pipe_r)
+    def wait_for_output(pipe_r)
       out = pipe_r.read
       sleep(0.1) while exitstatus == :not_done
       return out
     end
 
-    def self.exitstatus
+    def exitstatus
       Thread.current[THREAD_SYNC_KEY]
     end
 
-    def self.exitstatus=(value)
+    def exitstatus=(value)
       Thread.current[THREAD_SYNC_KEY] = value
     end
   end

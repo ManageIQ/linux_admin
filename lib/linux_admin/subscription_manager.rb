@@ -1,33 +1,33 @@
 require 'date'
 
-module LinuxAdmin
-  module SubscriptionManager
+class LinuxAdmin
+  class SubscriptionManager < LinuxAdmin
     def self.registered?
-      Common.run("subscription-manager identity", :return_exitstatus => true) == 0
+      run("subscription-manager identity", :return_exitstatus => true) == 0
     end
 
     def self.refresh
-      Common.run("subscription-manager refresh")
+      run("subscription-manager refresh")
     end
 
     def self.register(options = {})
       raise ArgumentError, "username and password are required" unless options[:username] && options[:password]
       cmd = "subscription-manager register"
-      cmd << " --username=#{LinuxAdmin::Common.sanitize(options[:username])} --password=#{LinuxAdmin::Common.sanitize(options[:password])}" if options[:username] && options[:password]
-      cmd << " --org=#{LinuxAdmin::Common.sanitize(options[:org])}"                       if options[:org] && options[:server_url]
-      cmd << " --proxy=#{LinuxAdmin::Common.sanitize(options[:proxy_address])}"           if options[:proxy_address]
-      cmd << " --proxyuser=#{LinuxAdmin::Common.sanitize(options[:proxy_username])}"      if options[:proxy_username]
-      cmd << " --proxypassword=#{LinuxAdmin::Common.sanitize(options[:proxy_password])}"  if options[:proxy_password]
-      cmd << " --serverurl=#{LinuxAdmin::Common.sanitize(options[:server_url])}"          if options[:server_url]
-      Common.run(cmd)
+      cmd << " --username=#{sanitize(options[:username])} --password=#{sanitize(options[:password])}" if options[:username] && options[:password]
+      cmd << " --org=#{sanitize(options[:org])}"                       if options[:org] && options[:server_url]
+      cmd << " --proxy=#{sanitize(options[:proxy_address])}"           if options[:proxy_address]
+      cmd << " --proxyuser=#{sanitize(options[:proxy_username])}"      if options[:proxy_username]
+      cmd << " --proxypassword=#{sanitize(options[:proxy_password])}"  if options[:proxy_password]
+      cmd << " --serverurl=#{sanitize(options[:server_url])}"          if options[:server_url]
+      run(cmd)
     end
 
     def self.subscribe(pool_id)
-      Common.run(LinuxAdmin::Common.sanitize("subscription-manager attach --pool #{pool_id}"))
+      run(sanitize("subscription-manager attach --pool #{pool_id}"))
     end
 
     def self.available_subscriptions
-      output = Common.run("subscription-manager list --all --available", :return_output => true)
+      output = run("subscription-manager list --all --available", :return_output => true)
       output.split("\n\n").each_with_object({}) do |subscription, subscriptions_hash|
         hash = {}
         subscription.each_line do |line|

@@ -7,19 +7,19 @@ describe LinuxAdmin::Yum do
 
   context ".create_repo" do
     it "default arguments" do
-      LinuxAdmin::Common.should_receive(:run).once.with("yum createrepo some/path --database --unique-md-filenames").and_return true
+      described_class.should_receive(:run).once.with("yum createrepo some/path --database --unique-md-filenames").and_return true
       expect(described_class.create_repo("some/path")).to be_true
     end
 
     it "bare create" do
-      LinuxAdmin::Common.should_receive(:run).once.with("yum createrepo some/path").and_return true
+      described_class.should_receive(:run).once.with("yum createrepo some/path").and_return true
       expect(described_class.create_repo("some/path", :no_database => true, :no_unique_file_names => true)).to be_true
     end
   end
 
   context ".download_packages" do
     it "with valid input" do
-      LinuxAdmin::Common.should_receive(:run).once.with("yum repotrack -p some/path pkg_a pkg_b").and_return true
+      described_class.should_receive(:run).once.with("yum repotrack -p some/path pkg_a pkg_b").and_return true
       expect(described_class.download_packages("some/path", "pkg_a pkg_b")).to be_true
     end
 
@@ -68,39 +68,39 @@ describe LinuxAdmin::Yum do
 
   context ".updates_available?" do
     it "check updates for a specific package" do
-      LinuxAdmin::Common.should_receive(:run).once.with("yum check-update abc", :return_exitstatus => true).and_return(100)
+      described_class.should_receive(:run).once.with("yum check-update abc", :return_exitstatus => true).and_return(100)
       expect(described_class.updates_available?("abc")).to be_true
     end
 
     it "updates are available" do
-      LinuxAdmin::Common.stub(:run => 100)
+      described_class.stub(:run => 100)
       expect(described_class.updates_available?).to be_true
     end
 
     it "updates not available" do
-      LinuxAdmin::Common.stub(:run => 0)
+      described_class.stub(:run => 0)
       expect(described_class.updates_available?).to be_false
     end
 
     it "other exit code" do
-      LinuxAdmin::Common.stub(:run => 255)
+      described_class.stub(:run => 255)
       expect { described_class.updates_available? }.to raise_error
     end
 
     it "other error" do
-      LinuxAdmin::Common.stub(:run).and_raise(RuntimeError)
+      described_class.stub(:run).and_raise(RuntimeError)
       expect { described_class.updates_available? }.to raise_error
     end
   end
 
   context ".update" do
     it "no arguments" do
-      LinuxAdmin::Common.should_receive(:run).once.with("yum -y update").and_return(0)
+      described_class.should_receive(:run).once.with("yum -y update").and_return(0)
       described_class.update
     end
 
     it "with arguments" do
-      LinuxAdmin::Common.should_receive(:run).once.with("yum -y update 1 2 3").and_return(0)
+      described_class.should_receive(:run).once.with("yum -y update 1 2 3").and_return(0)
       described_class.update("1 2", "3")
     end
   end
@@ -111,7 +111,7 @@ describe LinuxAdmin::Yum do
     end
 
     it "with packages" do
-      LinuxAdmin::Common.should_receive(:run).once.with("repoquery --qf=\"%{name} %{version}\" curl", {:return_output=>true}).and_return(sample_output("yum/output_repoquery"))
+      described_class.should_receive(:run).once.with("repoquery --qf=\"%{name} %{version}\" curl", {:return_output=>true}).and_return(sample_output("yum/output_repoquery"))
       expect(described_class.version_available("curl")).to eq({ "curl"                  => "7.19.7",
                                                                 "subscription-manager"  => "1.1.23.1",
                                                                 "wget"                  => "1.12"})

@@ -1,7 +1,7 @@
-module LinuxAdmin
-  module Rpm
+class LinuxAdmin
+  class Rpm < LinuxAdmin
     def self.list_installed
-      raw = Common.run("rpm -qa --qf \"%{NAME},%{VERSION}-%{RELEASE}\n\"", :return_output => true)
+      raw = run("rpm -qa --qf \"%{NAME},%{VERSION}-%{RELEASE}\n\"", :return_output => true)
       raw.split("\n").each_with_object({}) do |line, pkg_hash|
         name, ver = line.split(",")
         pkg_hash[name] = ver

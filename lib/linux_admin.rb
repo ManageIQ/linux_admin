@@ -8,7 +8,9 @@ require 'linux_admin/subscription_manager'
 require 'linux_admin/version'
 require 'linux_admin/yum'
 
-module LinuxAdmin
+class LinuxAdmin
+  extend Common
+
   def self.registered?
     !!self.registration_type
   end

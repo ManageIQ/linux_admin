@@ -3,18 +3,18 @@ require 'spec_helper'
 describe LinuxAdmin::SubscriptionManager do
   context ".registered?" do
     it "system with subscription-manager commands" do
-      LinuxAdmin::Common.should_receive(:run).once.with("subscription-manager identity", {:return_exitstatus=>true}).and_return(0)
+      described_class.should_receive(:run).once.with("subscription-manager identity", {:return_exitstatus=>true}).and_return(0)
       expect(described_class.registered?).to be_true
     end
 
     it "system without subscription-manager commands" do
-      LinuxAdmin::Common.should_receive(:run).once.with("subscription-manager identity", {:return_exitstatus=>true}).and_return(255)
+      described_class.should_receive(:run).once.with("subscription-manager identity", {:return_exitstatus=>true}).and_return(255)
       expect(described_class.registered?).to be_false
     end
   end
 
   it ".refresh" do
-    LinuxAdmin::Common.should_receive(:run).once.with("subscription-manager refresh").and_return(0)
+    described_class.should_receive(:run).once.with("subscription-manager refresh").and_return(0)
     described_class.refresh
   end
 
@@ -24,7 +24,7 @@ describe LinuxAdmin::SubscriptionManager do
     end
 
     it "with username and password" do
-      LinuxAdmin::Common.should_receive(:run).once.with("subscription-manager register --username=SomeUser --password=SomePass --org=IT --proxy=1.2.3.4 --proxyuser=ProxyUser --proxypassword=ProxyPass --serverurl=192.168.1.1").and_return(0)
+      described_class.should_receive(:run).once.with("subscription-manager register --username=SomeUser --password=SomePass --org=IT --proxy=1.2.3.4 --proxyuser=ProxyUser --proxypassword=ProxyPass --serverurl=192.168.1.1").and_return(0)
       described_class.register( :username       => "SomeUser",
                                 :password       => "SomePass",
                                 :org            => "IT",
@@ -36,12 +36,12 @@ describe LinuxAdmin::SubscriptionManager do
   end
 
   it ".subscribe" do
-    LinuxAdmin::Common.should_receive(:run).once
+    described_class.should_receive(:run).once
     described_class.subscribe(nil)
   end
 
   it ".available_subscriptions" do
-    LinuxAdmin::Common.should_receive(:run).once.with("subscription-manager list --all --available", :return_output => true).and_return(sample_output("subscription_manager/output_list_all_available"))
+    described_class.should_receive(:run).once.with("subscription-manager list --all --available", :return_output => true).and_return(sample_output("subscription_manager/output_list_all_available"))
     expect(described_class.available_subscriptions).to eq({
       "82c042fca983889b10178893f29b06e3" => {
         :subscription_name => "Example Subscription",
