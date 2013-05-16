@@ -24,14 +24,16 @@ describe LinuxAdmin::SubscriptionManager do
     end
 
     it "with username and password" do
-      described_class.should_receive(:run).once.with("subscription-manager register --username=SomeUser --password=SomePass --org=IT --proxy=1.2.3.4 --proxyuser=ProxyUser --proxypassword=ProxyPass --serverurl=192.168.1.1").and_return(0)
-      described_class.register( :username       => "SomeUser",
-                                :password       => "SomePass",
-                                :org            => "IT",
-                                :proxy_address  => "1.2.3.4",
-                                :proxy_username => "ProxyUser",
-                                :proxy_password => "ProxyPass",
-                                :server_url     => "192.168.1.1")
+      described_class.should_receive(:run).once.with("subscription-manager register", {:params=>{"--username="=>"SomeUser", "--password="=>"SomePass", "--org="=>"IT", "--proxy="=>"1.2.3.4", "--proxyuser="=>"ProxyUser", "--proxypassword="=>"ProxyPass", "--serverurl="=>"192.168.1.1"}}).and_return(0)
+      described_class.register(
+        :username       => "SomeUser",
+        :password       => "SomePass",
+        :org            => "IT",
+        :proxy_address  => "1.2.3.4",
+        :proxy_username => "ProxyUser",
+        :proxy_password => "ProxyPass",
+        :server_url     => "192.168.1.1",
+      )
     end
   end
 

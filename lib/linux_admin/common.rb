@@ -1,8 +1,17 @@
+require 'shellwords'
+
 class LinuxAdmin
   module Common
-    def sanitize(input)
-      out = [input].flatten.delete_if { |i| i.nil?}.map { |i| i.split(" ")}.flatten
-      Shellwords.join(out)
+    def sanitize(params)
+      return {} if params.blank?
+      params.each_with_object({}) do |(k, v), h|
+        h[k] =
+          case v
+          when Array;    v.collect {|s| s.shellescape}
+          when NilClass; v
+          else           v.shellescape
+          end
+      end
     end
 
     def write(file, content)
@@ -13,8 +22,11 @@ class LinuxAdmin
     end
 
     def run(cmd, options = {})
+      params = options[:params] || options[:parameters]
+
       begin
-        out = launch(cmd)
+        out = launch(build_cmd(cmd, params))
+
         if options[:return_output] && exitstatus == 0
           out
         elsif options[:return_exitstatus] || exitstatus == 0
@@ -31,6 +43,18 @@ class LinuxAdmin
     end
 
     private
+
+    def assemble_params(sanitized_params)
+      sanitized_params.collect do |pair|
+        pair_joiner = pair.first.try(:end_with?, "=") ? "" : " "
+        pair.flatten.compact.join(pair_joiner)
+      end.join(" ")
+    end
+
+    def build_cmd(cmd, params = nil)
+      return cmd if params.nil?
+      "#{cmd} #{assemble_params(sanitize(params))}"
+    end
 
     # IO pipes have a maximum size of 64k before blocking,
     # so we need to read and write synchronously.

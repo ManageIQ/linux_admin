@@ -13,17 +13,20 @@ class LinuxAdmin
     def self.register(options = {})
       raise ArgumentError, "username and password are required" unless options[:username] && options[:password]
       cmd = "subscription-manager register"
-      cmd << " --username=#{sanitize(options[:username])} --password=#{sanitize(options[:password])}" if options[:username] && options[:password]
-      cmd << " --org=#{sanitize(options[:org])}"                       if options[:org] && options[:server_url]
-      cmd << " --proxy=#{sanitize(options[:proxy_address])}"           if options[:proxy_address]
-      cmd << " --proxyuser=#{sanitize(options[:proxy_username])}"      if options[:proxy_username]
-      cmd << " --proxypassword=#{sanitize(options[:proxy_password])}"  if options[:proxy_password]
-      cmd << " --serverurl=#{sanitize(options[:server_url])}"          if options[:server_url]
-      run(cmd)
+
+      params = {}
+      params.merge!({"--username=" => options[:username], "--password=" => options[:password]}) if options[:username] && options[:password]
+      params.merge!({"--org=" => options[:org]})                      if options[:org] && options[:server_url]
+      params.merge!({"--proxy=" => options[:proxy_address]})          if options[:proxy_address]
+      params.merge!({"--proxyuser=" => options[:proxy_username]})     if options[:proxy_username]
+      params.merge!({"--proxypassword=" => options[:proxy_password]}) if options[:proxy_password]
+      params.merge!({"--serverurl=" => options[:server_url]})         if options[:server_url]
+
+      run(cmd, :params => params)
     end
 
     def self.subscribe(pool_id)
-      run(sanitize("subscription-manager attach --pool #{pool_id}"))
+      run("subscription-manager attach --pool", :params => pool_id)
     end
 
     def self.available_subscriptions

@@ -6,27 +6,31 @@ class LinuxAdmin
     def self.create_repo(path, options={})
       raise ArgumentError, "path is required" unless path
 
-      FileUtils.mkdir_p(sanitize(path))
+      FileUtils.mkdir_p(sanitize({nil => path}))
 
-      cmd = ["yum createrepo", path]
-      cmd.push(" --database")             unless options[:no_database]
-      cmd.push(" --unique-md-filenames")  unless options[:no_unique_file_names]
-      run(sanitize(cmd))
+      cmd    = "yum createrepo"
+      params = {nil => path}
+      params.merge!(" --database" => nil)             unless options[:no_database]
+      params.merge!(" --unique-md-filenames" => nil)  unless options[:no_unique_file_names]
+
+      run(cmd, :params => params)
     end
 
     def self.download_packages(path, packages, options={:mirror_type => :package})
       raise ArgumentError, "path is required"       unless path
       raise ArgumentError, "packages are required"  unless packages
 
-      FileUtils.mkdir_p(sanitize(path))
+      FileUtils.mkdir_p(sanitize({nil => path}))
 
       cmd = case options[:mirror_type]
-            when :package;  ["yum repotrack -p", path]
+            when :package;  "yum repotrack"
             else;           raise ArgumentError, "mirror_type unsupported"
             end
-      cmd.push("-a", options[:arch]) if options[:arch]
-      cmd.push(packages)
-      run(sanitize(cmd))
+      params = {"-p" => path}
+      params.merge!("-a" => options[:arch]) if options[:arch]
+      params.merge!(nil => packages)
+
+      run(cmd, :params => params)
     end
 
     def self.repo_settings
@@ -34,8 +38,10 @@ class LinuxAdmin
     end
 
     def self.updates_available?(*packages)
-      cmd = ["yum check-update", packages]
-      exitstatus = run(sanitize(cmd), :return_exitstatus => true)
+      cmd    = "yum check-update"
+      params = {nil => packages} unless packages.blank?
+
+      exitstatus = run(cmd, :params => params, :return_exitstatus => true)
       case exitstatus
       when 0;   false
       when 100; true
@@ -44,16 +50,19 @@ class LinuxAdmin
     end
 
     def self.update(*packages)
-      cmd = ["yum -y update", packages]
-      run(sanitize(cmd))
+      cmd    = "yum -y update"
+      params = {nil => packages} unless packages.blank?
+
+      run(cmd, :params => params)
     end
 
     def self.version_available(*packages)
       raise ArgumentError, "packages requires at least one package name" unless packages
 
-      cmd = "repoquery --qf=\"%{name} %{version}\""
-      cmd << " #{sanitize(packages)}"
-      output = run(cmd, :return_output => true)
+      cmd    = "repoquery --qf=\"%{name} %{version}\""
+      params = {nil => packages}
+
+      output = run(cmd, :params => params, :return_output => true)
 
       items = output.split("\n")
       items.each_with_object({}) do |i, versions|

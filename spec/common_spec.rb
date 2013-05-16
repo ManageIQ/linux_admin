@@ -11,15 +11,44 @@ describe LinuxAdmin::Common do
     Object.send(:remove_const, :TestClass)
   end
 
+  let(:params) do
+    {
+      "--user"  => "bob",
+      "--pass"  => "P@$sw0^& |<>/-+*d%",
+      "--db"    => nil,
+      "--desc=" => "Some Description",
+      nil       => ["pkg1", "some pkg"]
+    }
+  end
+
+  let(:sanitized_params) do
+    {
+      "--user"  => "bob",
+      "--pass"  => "P@\\$sw0\\^\\&\\ \\|\\<\\>/-\\+\\*d\\%",
+      "--db"    => nil,
+      "--desc=" => "Some\\ Description",
+      nil       => ["pkg1", "some\\ pkg"]
+    }
+  end
+
   subject { TestClass }
 
   context ".sanitize" do
-    it "with string input" do
-      expect(subject.sanitize("some long   string here ")).to eq("some long string here")
+    it "with nil" do
+      expect(subject.sanitize(nil)).to eq({})
     end
 
-    it "with array input" do
-      expect(subject.sanitize(["letters a", "b", nil, [[nil], [[["c"]]]]])).to eq("letters a b c")
+    it "with empty hash" do
+      expect(subject.sanitize({})).to eq({})
+    end
+
+    it "with hash" do
+      expect(subject.sanitize(params)).to eq(sanitized_params)
+    end
+
+    it "won't modify input" do
+      hash = {"x" => "x"}
+      expect(subject.sanitize(hash)).to_not equal(hash)
     end
   end
 
@@ -30,6 +59,11 @@ describe LinuxAdmin::Common do
   end
 
   context ".run" do
+    it "with crazy params get sanitized" do
+      subject.should_receive(:launch).once.with("true --user bob --pass P@\\$sw0\\^\\&\\ \\|\\<\\>/-\\+\\*d\\% --db --desc=Some\\ Description pkg1 some\\ pkg")
+      subject.run("true", :params => params, :return_exitstatus => true)
+    end
+
     it "command ok exit ok" do
       expect(subject.run("true")).to be_true
     end

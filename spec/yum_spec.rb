@@ -7,19 +7,19 @@ describe LinuxAdmin::Yum do
 
   context ".create_repo" do
     it "default arguments" do
-      described_class.should_receive(:run).once.with("yum createrepo some/path --database --unique-md-filenames").and_return true
+      described_class.should_receive(:run).once.with("yum createrepo", {:params=>{nil=>"some/path", " --database"=>nil, " --unique-md-filenames"=>nil}}).and_return true
       expect(described_class.create_repo("some/path")).to be_true
     end
 
     it "bare create" do
-      described_class.should_receive(:run).once.with("yum createrepo some/path").and_return true
+      described_class.should_receive(:run).once.with("yum createrepo", {:params=>{nil=>"some/path"}}).and_return true
       expect(described_class.create_repo("some/path", :no_database => true, :no_unique_file_names => true)).to be_true
     end
   end
 
   context ".download_packages" do
     it "with valid input" do
-      described_class.should_receive(:run).once.with("yum repotrack -p some/path pkg_a pkg_b").and_return true
+      described_class.should_receive(:run).once.with("yum repotrack", {:params=>{"-p"=>"some/path", nil=>"pkg_a pkg_b"}}).and_return true
       expect(described_class.download_packages("some/path", "pkg_a pkg_b")).to be_true
     end
 
@@ -68,7 +68,7 @@ describe LinuxAdmin::Yum do
 
   context ".updates_available?" do
     it "check updates for a specific package" do
-      described_class.should_receive(:run).once.with("yum check-update abc", :return_exitstatus => true).and_return(100)
+      described_class.should_receive(:run).once.with("yum check-update", {:params=>{nil=>["abc"]}, :return_exitstatus=>true}).and_return(100)
       expect(described_class.updates_available?("abc")).to be_true
     end
 
@@ -95,12 +95,12 @@ describe LinuxAdmin::Yum do
 
   context ".update" do
     it "no arguments" do
-      described_class.should_receive(:run).once.with("yum -y update").and_return(0)
+      described_class.should_receive(:run).once.with("yum -y update", {:params=>nil}).and_return(0)
       described_class.update
     end
 
     it "with arguments" do
-      described_class.should_receive(:run).once.with("yum -y update 1 2 3").and_return(0)
+      described_class.should_receive(:run).once.with("yum -y update", {:params=>{nil=>["1 2", "3"]}}).and_return(0)
       described_class.update("1 2", "3")
     end
   end
@@ -111,7 +111,7 @@ describe LinuxAdmin::Yum do
     end
 
     it "with packages" do
-      described_class.should_receive(:run).once.with("repoquery --qf=\"%{name} %{version}\" curl", {:return_output=>true}).and_return(sample_output("yum/output_repoquery"))
+      described_class.should_receive(:run).once.with("repoquery --qf=\"%{name} %{version}\"", {:params=>{nil=>["curl"]}, :return_output=>true}).and_return(sample_output("yum/output_repoquery"))
       expect(described_class.version_available("curl")).to eq({ "curl"                  => "7.19.7",
                                                                 "subscription-manager"  => "1.1.23.1",
                                                                 "wget"                  => "1.12"})
