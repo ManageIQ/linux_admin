@@ -1,0 +1,9 @@
+[my-local-repo-c]
+name=My Local Repo c
+baseurl=https://mirror.example.com/c/content/os_ver
+enabled=0
+cost=100
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-my-local-server
+sslverify=0
+metadata_expire=1
