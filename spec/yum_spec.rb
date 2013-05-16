@@ -7,7 +7,7 @@ describe LinuxAdmin::Yum do
 
   context ".create_repo" do
     it "default arguments" do
-      described_class.should_receive(:run).once.with("yum createrepo", {:params=>{nil=>"some/path", " --database"=>nil, " --unique-md-filenames"=>nil}}).and_return true
+      described_class.should_receive(:run).once.with("yum createrepo", {:params=>{nil=>"some/path", "--database"=>nil, "--unique-md-filenames"=>nil}}).and_return true
       expect(described_class.create_repo("some/path")).to be_true
     end
 
@@ -112,9 +112,11 @@ describe LinuxAdmin::Yum do
 
     it "with packages" do
       described_class.should_receive(:run).once.with("repoquery --qf=\"%{name} %{version}\"", {:params=>{nil=>["curl"]}, :return_output=>true}).and_return(sample_output("yum/output_repoquery"))
-      expect(described_class.version_available("curl")).to eq({ "curl"                  => "7.19.7",
-                                                                "subscription-manager"  => "1.1.23.1",
-                                                                "wget"                  => "1.12"})
+      expect(described_class.version_available("curl")).to eq({
+        "curl"                  => "7.19.7",
+        "subscription-manager"  => "1.1.23.1",
+        "wget"                  => "1.12"
+      })
     end
   end
 end

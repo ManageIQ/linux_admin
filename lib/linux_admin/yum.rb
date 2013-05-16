@@ -10,8 +10,8 @@ class LinuxAdmin
 
       cmd    = "yum createrepo"
       params = {nil => path}
-      params.merge!(" --database" => nil)             unless options[:no_database]
-      params.merge!(" --unique-md-filenames" => nil)  unless options[:no_unique_file_names]
+      params["--database"]            = nil  unless options[:no_database]
+      params["--unique-md-filenames"] = nil  unless options[:no_unique_file_names]
 
       run(cmd, :params => params)
     end
@@ -27,8 +27,8 @@ class LinuxAdmin
             else;           raise ArgumentError, "mirror_type unsupported"
             end
       params = {"-p" => path}
-      params.merge!("-a" => options[:arch]) if options[:arch]
-      params.merge!(nil => packages)
+      params["-a"]  = options[:arch] if options[:arch]
+      params[nil]   = packages
 
       run(cmd, :params => params)
     end
@@ -62,9 +62,9 @@ class LinuxAdmin
       cmd    = "repoquery --qf=\"%{name} %{version}\""
       params = {nil => packages}
 
-      output = run(cmd, :params => params, :return_output => true)
+      out = run(cmd, :params => params, :return_output => true)
 
-      items = output.split("\n")
+      items = out.split("\n")
       items.each_with_object({}) do |i, versions|
         name, version = i.split(" ", 2)
         versions[name.strip] = version.strip
@@ -81,9 +81,10 @@ class LinuxAdmin
     end
 
     def self.parse_repo_file(file)
-      content = IniFile.load(file).to_h
+      int_keys  = ["enabled", "cost", "gpgcheck", "sslverify", "metadata_expire"]
+      content   = IniFile.load(file).to_h
       content.each do |name, data|
-        data.each { |k, v|  data[k] = v.to_i if "enabled, cost, gpgcheck, sslverify, metadata_expire".include?(k)}
+        int_keys.each { |k| data[k] = data[k].to_i if data.has_key?(k) }
       end
     end
   end

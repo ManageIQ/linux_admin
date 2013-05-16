@@ -15,23 +15,29 @@ class LinuxAdmin
       cmd = "subscription-manager register"
 
       params = {}
-      params.merge!({"--username=" => options[:username], "--password=" => options[:password]}) if options[:username] && options[:password]
-      params.merge!({"--org=" => options[:org]})                      if options[:org] && options[:server_url]
-      params.merge!({"--proxy=" => options[:proxy_address]})          if options[:proxy_address]
-      params.merge!({"--proxyuser=" => options[:proxy_username]})     if options[:proxy_username]
-      params.merge!({"--proxypassword=" => options[:proxy_password]}) if options[:proxy_password]
-      params.merge!({"--serverurl=" => options[:server_url]})         if options[:server_url]
+      if options[:username] && options[:password]
+        params["--username="]     = options[:username]
+        params["--password="]     = options[:password]
+      end
+      params["--org="]            = options[:org]             if options[:org] && options[:server_url]
+      params["--proxy="]          = options[:proxy_address]   if options[:proxy_address]
+      params["--proxyuser="]      = options[:proxy_username]  if options[:proxy_username]
+      params["--proxypassword="]  = options[:proxy_password]  if options[:proxy_password]
+      params["--serverurl="]      = options[:server_url]      if options[:server_url]
 
       run(cmd, :params => params)
     end
 
     def self.subscribe(pool_id)
-      run("subscription-manager attach --pool", :params => pool_id)
+      params = {"--pool" => pool_id}
+
+      run("subscription-manager attach", :params => params)
     end
 
     def self.available_subscriptions
-      output = run("subscription-manager list --all --available", :return_output => true)
-      output.split("\n\n").each_with_object({}) do |subscription, subscriptions_hash|
+      out = run("subscription-manager list --all --available", :return_output => true)
+
+      out.split("\n\n").each_with_object({}) do |subscription, subscriptions_hash|
         hash = {}
         subscription.each_line do |line|
           # Strip the header lines if they exist
