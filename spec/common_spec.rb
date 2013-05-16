@@ -21,36 +21,7 @@ describe LinuxAdmin::Common do
     }
   end
 
-  let(:sanitized_params) do
-    {
-      "--user"  => "bob",
-      "--pass"  => "P@\\$sw0\\^\\&\\ \\|\\<\\>/-\\+\\*d\\%",
-      "--db"    => nil,
-      "--desc=" => "Some\\ Description",
-      nil       => ["pkg1", "some\\ pkg"]
-    }
-  end
-
   subject { TestClass }
-
-  context ".sanitize" do
-    it "with nil" do
-      expect(subject.sanitize(nil)).to eq({})
-    end
-
-    it "with empty hash" do
-      expect(subject.sanitize({})).to eq({})
-    end
-
-    it "with hash" do
-      expect(subject.sanitize(params)).to eq(sanitized_params)
-    end
-
-    it "won't modify input" do
-      hash = {"x" => "x"}
-      expect(subject.sanitize(hash)).to_not equal(hash)
-    end
-  end
 
   context ".write" do
     it "no file no content" do
@@ -59,9 +30,27 @@ describe LinuxAdmin::Common do
   end
 
   context ".run" do
-    it "with crazy params get sanitized" do
-      subject.should_receive(:launch).once.with("true --user bob --pass P@\\$sw0\\^\\&\\ \\|\\<\\>/-\\+\\*d\\% --db --desc=Some\\ Description pkg1 some\\ pkg")
-      subject.run("true", :params => params, :return_exitstatus => true)
+    context "with params" do
+      it "sanitizes crazy params" do
+        subject.should_receive(:launch).once.with("true --user bob --pass P@\\$sw0\\^\\&\\ \\|\\<\\>/-\\+\\*d\\% --db --desc=Some\\ Description pkg1 some\\ pkg")
+        subject.run("true", :params => params, :return_exitstatus => true)
+      end
+
+      it "as empty hash" do
+        subject.should_receive(:launch).once.with("true")
+        subject.run("true", :params => {}, :return_exitstatus => true)
+      end
+
+      it "as nil" do
+        subject.should_receive(:launch).once.with("true")
+        subject.run("true", :params => nil, :return_exitstatus => true)
+      end
+
+      it "won't modify caller params" do
+        orig_params = params.dup
+        subject.run("true", :params => params, :return_exitstatus => true)
+        expect(orig_params).to eq(params)
+      end
     end
 
     it "command ok exit ok" do

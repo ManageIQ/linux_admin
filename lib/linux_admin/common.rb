@@ -2,18 +2,6 @@ require 'shellwords'
 
 class LinuxAdmin
   module Common
-    def sanitize(params)
-      return {} if params.blank?
-      params.each_with_object({}) do |(k, v), h|
-        h[k] =
-          case v
-          when Array;    v.collect {|s| s.shellescape}
-          when NilClass; v
-          else           v.shellescape
-          end
-      end
-    end
-
     def write(file, content)
       raise ArgumentError, "file and content can not be empty" if file.blank? || content.blank?
       File.open(file, "w") do |f|
@@ -44,6 +32,18 @@ class LinuxAdmin
 
     private
 
+    def sanitize(params)
+      return {} if params.blank?
+      params.each_with_object({}) do |(k, v), h|
+        h[k] =
+          case v
+          when Array;    v.collect {|s| s.shellescape}
+          when NilClass; v
+          else           v.shellescape
+          end
+      end
+    end
+
     def assemble_params(sanitized_params)
       sanitized_params.collect do |pair|
         pair_joiner = pair.first.try(:end_with?, "=") ? "" : " "
@@ -52,7 +52,7 @@ class LinuxAdmin
     end
 
     def build_cmd(cmd, params = nil)
-      return cmd if params.nil?
+      return cmd if params.blank?
       "#{cmd} #{assemble_params(sanitize(params))}"
     end
 

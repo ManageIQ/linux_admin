@@ -7,7 +7,7 @@ class LinuxAdmin
       raise ArgumentError, "path is required" unless path
       options = options.reverse_merge(:database => true, :unique_file_names => true)
 
-      FileUtils.mkdir_p(sanitize({nil => path}))
+      FileUtils.mkdir_p(path)
 
       cmd    = "yum createrepo"
       params = {nil => path}
@@ -22,7 +22,7 @@ class LinuxAdmin
       raise ArgumentError, "packages are required"  unless packages
       options = options.reverse_merge(:mirror_type => :package)
 
-      FileUtils.mkdir_p(sanitize({nil => path}))
+      FileUtils.mkdir_p(path)
 
       cmd = case options[:mirror_type]
             when :package;  "yum repotrack"
