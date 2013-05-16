@@ -13,7 +13,7 @@ describe LinuxAdmin::Yum do
 
     it "bare create" do
       described_class.should_receive(:run).once.with("yum createrepo", {:params=>{nil=>"some/path"}}).and_return true
-      expect(described_class.create_repo("some/path", :no_database => true, :no_unique_file_names => true)).to be_true
+      expect(described_class.create_repo("some/path", :database => false, :unique_file_names => false)).to be_true
     end
   end
 

@@ -3,22 +3,24 @@ require 'inifile'
 
 class LinuxAdmin
   class Yum < LinuxAdmin
-    def self.create_repo(path, options={})
+    def self.create_repo(path, options = {})
       raise ArgumentError, "path is required" unless path
+      options = options.reverse_merge(:database => true, :unique_file_names => true)
 
       FileUtils.mkdir_p(sanitize({nil => path}))
 
       cmd    = "yum createrepo"
       params = {nil => path}
-      params["--database"]            = nil  unless options[:no_database]
-      params["--unique-md-filenames"] = nil  unless options[:no_unique_file_names]
+      params["--database"]            = nil  if options[:database]
+      params["--unique-md-filenames"] = nil  if options[:unique_file_names]
 
       run(cmd, :params => params)
     end
 
-    def self.download_packages(path, packages, options={:mirror_type => :package})
+    def self.download_packages(path, packages, options = {})
       raise ArgumentError, "path is required"       unless path
       raise ArgumentError, "packages are required"  unless packages
+      options = options.reverse_merge(:mirror_type => :package)
 
       FileUtils.mkdir_p(sanitize({nil => path}))
 
