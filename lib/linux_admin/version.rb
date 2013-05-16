@@ -1,3 +1,3 @@
-module LinuxAdmin
+class LinuxAdmin
   VERSION = "0.0.1"
 end

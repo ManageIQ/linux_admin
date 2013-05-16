@@ -1,28 +1,43 @@
 require 'date'
 
-module LinuxAdmin
-  module SubscriptionManager
+class LinuxAdmin
+  class SubscriptionManager < LinuxAdmin
     def self.registered?
-      Common.run("subscription-manager identity", :return_exitstatus => true) == 0
+      run("subscription-manager identity", :return_exitstatus => true) == 0
     end
 
     def self.refresh
-      Common.run("subscription-manager refresh")
+      run("subscription-manager refresh")
     end
 
     def self.register(options = {})
+      raise ArgumentError, "username and password are required" unless options[:username] && options[:password]
       cmd = "subscription-manager register"
-      cmd << " --username=#{options[:username]} --password=#{options[:password]}" if options[:username] && options[:password]
-      Common.run(cmd)
+
+      params = {}
+      if options[:username] && options[:password]
+        params["--username="]     = options[:username]
+        params["--password="]     = options[:password]
+      end
+      params["--org="]            = options[:org]             if options[:org] && options[:server_url]
+      params["--proxy="]          = options[:proxy_address]   if options[:proxy_address]
+      params["--proxyuser="]      = options[:proxy_username]  if options[:proxy_username]
+      params["--proxypassword="]  = options[:proxy_password]  if options[:proxy_password]
+      params["--serverurl="]      = options[:server_url]      if options[:server_url]
+
+      run(cmd, :params => params)
     end
 
     def self.subscribe(pool_id)
-      Common.run("subscription-manager attach --pool #{pool_id}")
+      params = {"--pool" => pool_id}
+
+      run("subscription-manager attach", :params => params)
     end
 
     def self.available_subscriptions
-      output = Common.run("subscription-manager list --all --available", :return_output => true)
-      output.split("\n\n").each_with_object({}) do |subscription, subscriptions_hash|
+      out = run("subscription-manager list --all --available", :return_output => true)
+
+      out.split("\n\n").each_with_object({}) do |subscription, subscriptions_hash|
         hash = {}
         subscription.each_line do |line|
           # Strip the header lines if they exist
