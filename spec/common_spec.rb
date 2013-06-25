@@ -21,6 +21,10 @@ describe LinuxAdmin::Common do
     }
   end
 
+  let (:modified_params) do
+    params.to_a + [123, 456].collect {|pool| ["--pool", pool]}
+  end
+
   subject { TestClass }
 
   context ".write" do
@@ -32,8 +36,8 @@ describe LinuxAdmin::Common do
   context ".run" do
     context "with params" do
       it "sanitizes crazy params" do
-        subject.should_receive(:launch).once.with("true --user bob --pass P@\\$sw0\\^\\&\\ \\|\\<\\>/-\\+\\*d\\% --db --desc=Some\\ Description pkg1 some\\ pkg")
-        subject.run("true", :params => params, :return_exitstatus => true)
+        subject.should_receive(:launch).once.with("true --user bob --pass P@\\$sw0\\^\\&\\ \\|\\<\\>/-\\+\\*d\\% --db --desc=Some\\ Description pkg1 some\\ pkg --pool 123 --pool 456")
+        subject.run("true", :params => modified_params, :return_exitstatus => true)
       end
 
       it "as empty hash" do
