@@ -50,7 +50,8 @@ class LinuxAdmin
                   :systemctl => '/usr/bin/systemctl',
                   :parted    => '/usr/sbin/parted',
                   :mount     => '/usr/bin/mount',
-                  :umount    => '/usr/bin/umount'}
+                  :umount    => '/usr/bin/umount',
+                  :shutdown  => '/usr/sbin/shutdown'}
 
       def initialize
         @id = :redhat
