@@ -33,14 +33,14 @@ class LinuxAdmin
     private
 
     def sanitize(params)
-      return {} if params.blank?
-      params.each_with_object({}) do |(k, v), h|
-        h[k] =
-          case v
-          when Array;    v.collect {|s| s.shellescape}
-          when NilClass; v
-          else           v.shellescape
-          end
+      return [] if params.blank?
+      params.collect do |k, v|
+        v = case v
+            when Array;    v.collect(&:shellescape)
+            when NilClass; v
+            else           v.to_s.shellescape
+            end
+        [k, v]
       end
     end
 

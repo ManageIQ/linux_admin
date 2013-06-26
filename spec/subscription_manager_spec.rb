@@ -38,8 +38,8 @@ describe LinuxAdmin::SubscriptionManager do
   end
 
   it ".subscribe" do
-    described_class.should_receive(:run).once
-    described_class.subscribe(nil)
+    described_class.should_receive(:run).once.with("subscription-manager attach", {:params=>[["--pool", 123], ["--pool", 456]]})
+    described_class.subscribe({:pools => [123, 456]})
   end
 
   it ".available_subscriptions" do
