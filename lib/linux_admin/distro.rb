@@ -47,7 +47,10 @@ class LinuxAdmin
 
     class RedHat < Distro
       COMMANDS = {:service   => '/usr/sbin/service',
-                  :systemctl => '/usr/bin/systemctl'}
+                  :systemctl => '/usr/bin/systemctl',
+                  :parted    => '/usr/sbin/parted',
+                  :mount     => '/usr/bin/mount',
+                  :umount    => '/usr/bin/umount'}
 
       def initialize
         @id = :redhat
