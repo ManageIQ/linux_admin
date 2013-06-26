@@ -8,8 +8,14 @@ require 'linux_admin/subscription_manager'
 require 'linux_admin/version'
 require 'linux_admin/yum'
 
+require 'linux_admin/service'
+require 'linux_admin/disk'
+require 'linux_admin/partition'
+require 'linux_admin/distro'
+
 class LinuxAdmin
   extend Common
+  include Common
 
   def self.registered?
     !!self.registration_type
