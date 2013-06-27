@@ -5,14 +5,14 @@
 
 class LinuxAdmin
   class System < LinuxAdmin
-    def self.reboot
+    def self.reboot!
       run(cmd(:shutdown),
-          params => { "-r" => "now" })
+          :params => { "-r" => "now" })
     end
 
-    def self.shutdown
+    def self.shutdown!
       run(cmd(:shutdown),
-          params => { "-h" => "0" })
+          :params => { "-h" => "0" })
     end
   end
 end

@@ -34,7 +34,7 @@ class LinuxAdmin
           :params => { nil => [self.path, @mount_point] })
     end
 
-    def unmount
+    def umount
       run(cmd(:umount),
           :params => { nil => [@mount_point] })
     end

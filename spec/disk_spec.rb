@@ -22,7 +22,7 @@ describe LinuxAdmin::Disk do
       disk.partitions
     end
 
-    it "sets parititons" do
+    it "sets partitons" do
       partitions = <<eos
 Model: ATA TOSHIBA MK5061GS (scsi)
 Disk /dev/sda: 500GB
