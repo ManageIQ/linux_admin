@@ -32,6 +32,16 @@ class LinuxAdmin
           if l =~ /^ [0-9].*/
             p = l.split
             id,size,fs_type = p[0], p[3], p[5]
+            if size =~ /([0-9\.]*)([KMG])B/
+              size = case $2
+                     when 'K' then
+                       $1.to_f.kilobytes
+                     when 'M' then
+                       $1.to_f.megabytes
+                     when 'G' then
+                       $1.to_f.gigabytes
+                     end
+            end
             partitions << Partition.new(:disk => self,
                                         :id => id.to_i,
                                         :size => size,

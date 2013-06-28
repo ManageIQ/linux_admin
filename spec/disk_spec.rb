@@ -40,15 +40,15 @@ eos
 
       disk.partitions[0].id.should == 1
       disk.partitions[0].disk.should == disk
-      disk.partitions[0].size.should == '80.5GB'
+      disk.partitions[0].size.should == 80.5.gigabytes
       disk.partitions[0].fs_type.should == 'ntfs'
       disk.partitions[1].id.should == 2
       disk.partitions[1].disk.should == disk
-      disk.partitions[1].size.should == '80.5GB'
+      disk.partitions[1].size.should == 80.5.gigabytes
       disk.partitions[1].fs_type.should == 'ext4'
       disk.partitions[2].id.should == 3
       disk.partitions[2].disk.should == disk
-      disk.partitions[2].size.should == '1074MB'
+      disk.partitions[2].size.should == 1074.megabytes
       disk.partitions[2].fs_type.should == 'linux-swap(v1)'
     end
   end
