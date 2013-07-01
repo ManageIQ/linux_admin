@@ -26,13 +26,17 @@ class LinuxAdmin
           return Distros.redhat
         end
 
-        nil
+        Distros.generic
       end
     end
 
   end
 
   module Distros
+    def self.generic
+      @generic ||= Generic.new
+    end
+
     def self.redhat
       @redhat ||= RedHat.new
     end
@@ -42,7 +46,15 @@ class LinuxAdmin
     end
 
     def self.all
-     @distros ||= [redhat, ubuntu]
+     @distros ||= [generic, redhat, ubuntu]
+    end
+
+    class Generic < Distro
+      COMMANDS = {}
+
+      def initialize
+        @id = :generic
+      end
     end
 
     class RedHat < Distro

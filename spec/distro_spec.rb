@@ -46,7 +46,7 @@ describe LinuxAdmin::Distro do
 
     it "returns Distros.generic" do
       File.stub!(:exists?).and_return(false)
-      LinuxAdmin::Distro.local.should be_nil
+      LinuxAdmin::Distro.local.should == LinuxAdmin::Distros.generic
     end
   end
 end
