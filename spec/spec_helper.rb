@@ -27,3 +27,10 @@ end
 def sample_output(to)
   File.read(data_file_path(to))
 end
+
+class LinuxAdmin
+  module Distros
+    # simply alias test distro to redhat distro for time being
+    Distros::Test = Distros::RedHat
+  end
+end

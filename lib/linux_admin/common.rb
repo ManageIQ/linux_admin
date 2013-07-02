@@ -9,6 +9,10 @@ class LinuxAdmin
       end
     end
 
+    def cmd(cmd)
+      Distro.local.class::COMMANDS[cmd]
+    end
+
     def run(cmd, options = {})
       params = options[:params] || options[:parameters]
 
