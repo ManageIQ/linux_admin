@@ -1,6 +1,8 @@
 require 'shellwords'
 
 class LinuxAdmin
+  class CommandError < RuntimeError; end
+
   module Common
     def write(file, content)
       raise ArgumentError, "file and content can not be empty" if file.blank? || content.blank?
@@ -24,7 +26,7 @@ class LinuxAdmin
         elsif options[:return_exitstatus] || exitstatus == 0
           exitstatus
         else
-          raise "Error: Exit Code #{exitstatus}"
+          raise CommandError, "#{build_cmd(cmd, params)}: exit code: #{exitstatus}"
         end
       rescue
         return nil if options[:return_exitstatus]
