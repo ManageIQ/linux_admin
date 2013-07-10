@@ -42,6 +42,11 @@ describe LinuxAdmin::Service do
               :params => { nil => [ 'enable', 'foo.service']})
       @service.enable
     end
+
+    it "returns self" do
+      @service.should_receive(:run) # stub out cmd invocation
+      @service.enable.should == @service
+    end
   end
 
   describe "#disable" do
@@ -50,6 +55,11 @@ describe LinuxAdmin::Service do
          with(@service.cmd(:systemctl),
               :params => { nil => [ 'disable', 'foo.service']})
       @service.disable
+    end
+
+    it "returns self" do
+      @service.should_receive(:run)
+      @service.disable.should == @service
     end
   end
 
@@ -60,6 +70,11 @@ describe LinuxAdmin::Service do
               :params => { nil => [ 'foo', 'start']})
       @service.start
     end
+
+    it "returns self" do
+      @service.should_receive(:run)
+      @service.start.should == @service
+    end
   end
 
   describe "#stop" do
@@ -69,5 +84,35 @@ describe LinuxAdmin::Service do
               :params => { nil => [ 'foo', 'stop']})
       @service.stop
     end
+
+    it "returns self" do
+      @service.should_receive(:run)
+      @service.stop.should == @service
+    end
   end
+
+  describe "#restart" do
+    it "stops service" do
+      @service.should_receive(:run).
+         with(@service.cmd(:service),
+              :params => { nil => [ 'foo', 'restart']},
+              :return_exitstatus => true).and_return(0)
+      @service.restart
+    end
+
+    context "service restart fails" do
+      it "manually stops/starts service" do
+        @service.should_receive(:run).and_return(1)
+        @service.should_receive(:stop)
+        @service.should_receive(:start)
+        @service.restart
+      end
+    end
+
+    it "returns self" do
+      @service.should_receive(:run).and_return(0)
+      @service.restart.should == @service
+    end
+  end
+
 end
