@@ -13,6 +13,7 @@ require 'linux_admin/disk'
 require 'linux_admin/partition'
 require 'linux_admin/distro'
 require 'linux_admin/system'
+require 'linux_admin/fstab'
 
 class LinuxAdmin
   extend Common
