@@ -16,6 +16,21 @@ describe LinuxAdmin::Partition do
     end
   end
 
+  describe "#format" do
+    it "uses mke2fs" do
+      @partition.should_receive(:run).
+         with(@partition.cmd(:mke2fs),
+              :params => { '-t' => 'ext4', nil => ['/dev/sda2']})
+      @partition.format_to('ext4')
+    end
+
+    it "sets fs type" do
+      @partition.should_receive(:run) # ignore actual formatting cmd
+      @partition.format_to('ext4')
+      @partition.fs_type.should == 'ext4'
+    end
+  end
+
   describe "#mount" do
     it "sets mount point" do
       @partition.should_receive(:run) # ignore actual mount cmd

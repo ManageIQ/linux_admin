@@ -66,7 +66,8 @@ class LinuxAdmin
                   :shutdown  => '/usr/sbin/shutdown',
                   :lvdisplay => '/sbin/lvdisplay',
                   :pvdisplay => '/sbin/pvdisplay',
-                  :vgdisplay => '/sbin/vgdisplay'}
+                  :vgdisplay => '/sbin/vgdisplay',
+                  :mke2fs    => '/sbin/mke2fs'}
 
       def initialize
         @id = :redhat
