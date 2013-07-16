@@ -63,7 +63,10 @@ class LinuxAdmin
                   :parted    => '/usr/sbin/parted',
                   :mount     => '/usr/bin/mount',
                   :umount    => '/usr/bin/umount',
-                  :shutdown  => '/usr/sbin/shutdown'}
+                  :shutdown  => '/usr/sbin/shutdown',
+                  :lvdisplay => '/sbin/lvdisplay',
+                  :pvdisplay => '/sbin/pvdisplay',
+                  :vgdisplay => '/sbin/vgdisplay'}
 
       def initialize
         @id = :redhat
