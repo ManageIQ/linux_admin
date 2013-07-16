@@ -24,6 +24,15 @@ class LinuxAdmin
       refresh
     end
 
+    def write
+      f = File.open('/etc/fstab', 'w')
+      @entries.each { |entry|
+        f.write "#{entry.device} #{entry.mount_point} #{entry.fs_type} #{entry.mount_options} #{entry.dumpable} #{entry.fsck_order}\n"
+      }
+      f.close
+      self
+    end
+
     private
 
     def refresh
