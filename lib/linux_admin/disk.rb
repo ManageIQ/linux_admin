@@ -25,8 +25,11 @@ class LinuxAdmin
 
         # requires sudo
         out = run(cmd(:parted),
+                  :return_exitstatus => true,
                   :return_output => true,
                   :params => { nil => [@path, 'print'] })
+
+        return [] if out.kind_of?(Fixnum)
 
         out.each_line do |l|
           if l =~ /^ [0-9].*/

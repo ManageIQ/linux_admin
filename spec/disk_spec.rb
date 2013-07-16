@@ -17,9 +17,17 @@ describe LinuxAdmin::Disk do
       disk = LinuxAdmin::Disk.new :path => '/dev/hda'
       disk.should_receive(:run).
         with(disk.cmd(:parted),
+             :return_exitstatus => true,
              :return_output => true,
              :params => { nil => ['/dev/hda', 'print'] }).and_return ""
       disk.partitions
+    end
+
+    it "returns [] on non-zero parted rc" do
+      disk = LinuxAdmin::Disk.new :path => '/dev/hda'
+      disk.stub(:exitstatus => 1)
+      disk.stub(:launch)
+      disk.partitions.should == []
     end
 
     it "sets partitons" do
