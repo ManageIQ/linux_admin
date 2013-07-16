@@ -17,7 +17,7 @@ class LinuxAdmin
           issue = File.read('/etc/issue')
           if issue.include?('ubuntu')
             return Distros.ubuntu
-          elsif ['Fedora', 'red hat', 'centos'].any? { |d| issue.include?(d) }
+          elsif ['Fedora', 'red hat', 'Red Hat', 'centos'].any? { |d| issue.include?(d) }
             return Distros.redhat
           end
 
@@ -58,12 +58,12 @@ class LinuxAdmin
     end
 
     class RedHat < Distro
-      COMMANDS = {:service   => '/usr/sbin/service',
-                  :systemctl => '/usr/bin/systemctl',
-                  :parted    => '/usr/sbin/parted',
-                  :mount     => '/usr/bin/mount',
-                  :umount    => '/usr/bin/umount',
-                  :shutdown  => '/usr/sbin/shutdown'}
+      COMMANDS = {:service   => '/sbin/service',
+                  :systemctl => '/bin/systemctl',
+                  :parted    => '/sbin/parted',
+                  :mount     => '/bin/mount',
+                  :umount    => '/bin/umount',
+                  :shutdown  => '/sbin/shutdown'}
 
       def initialize
         @id = :redhat
