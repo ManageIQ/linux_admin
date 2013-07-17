@@ -31,4 +31,5 @@ registration, updates, etc.
   spec.add_dependency "inifile",              "~> 2.0.2"
   spec.add_dependency "more_core_extensions"
   spec.add_dependency "nokogiri"
+  spec.add_dependency "ruby-dbus"
 end
