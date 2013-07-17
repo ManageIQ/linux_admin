@@ -24,6 +24,12 @@ class LinuxAdmin
       "#{disk.path}#{id}"
     end
 
+    def format_to(filesystem)
+      run(cmd(:mke2fs),
+          :params => { '-t' => filesystem, nil => self.path})
+      @fs_type = filesystem
+    end
+
     def mount(mount_point=nil)
       @mount_point = mount_point
       @mount_point  =
@@ -37,10 +43,6 @@ class LinuxAdmin
     def umount
       run(cmd(:umount),
           :params => { nil => [@mount_point] })
-    end
-
-    def format_to(fs_type)
-      #TODO
     end
   end
 end
