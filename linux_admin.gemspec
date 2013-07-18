@@ -3,10 +3,11 @@ lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'linux_admin/version'
 
-# Dynamically create the authors information {name => e-mail}
-authors_hash = Hash[`git log --no-merges --reverse --format='%an,%ae'`.split("\n").uniq.collect {|i| i.split(",")}]
-
 Gem::Specification.new do |spec|
+
+  # Dynamically create the authors information {name => e-mail}
+  authors_hash = Hash[`git log --no-merges --reverse --format='%an,%ae'`.split("\n").uniq.collect {|i| i.split(",")}]
+
   spec.name          = "linux_admin"
   spec.version       = LinuxAdmin::VERSION
   spec.authors       = authors_hash.keys
