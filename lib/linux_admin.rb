@@ -14,6 +14,9 @@ require 'linux_admin/partition'
 require 'linux_admin/distro'
 require 'linux_admin/system'
 require 'linux_admin/fstab'
+require 'linux_admin/logical_volume'
+require 'linux_admin/physical_volume'
+require 'linux_admin/volume_group'
 
 class LinuxAdmin
   extend Common
