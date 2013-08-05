@@ -49,14 +49,23 @@ eos
       disk.partitions[0].id.should == 1
       disk.partitions[0].disk.should == disk
       disk.partitions[0].size.should == 80.5.gigabytes
+      disk.partitions[0].start_sector.should == 1259.megabytes
+      disk.partitions[0].end_sector.should == 81.8.gigabytes
+      disk.partitions[0].partition_type.should == 'primary'
       disk.partitions[0].fs_type.should == 'ntfs'
       disk.partitions[1].id.should == 2
       disk.partitions[1].disk.should == disk
       disk.partitions[1].size.should == 80.5.gigabytes
+      disk.partitions[1].start_sector.should == 81.8.gigabytes
+      disk.partitions[1].end_sector.should == 162.gigabytes
+      disk.partitions[1].partition_type.should == 'primary'
       disk.partitions[1].fs_type.should == 'ext4'
       disk.partitions[2].id.should == 3
       disk.partitions[2].disk.should == disk
       disk.partitions[2].size.should == 1074.megabytes
+      disk.partitions[2].start_sector.should == 162.gigabytes
+      disk.partitions[2].end_sector.should == 163.gigabytes
+      disk.partitions[2].partition_type.should == 'logical'
       disk.partitions[2].fs_type.should == 'linux-swap(v1)'
     end
   end
