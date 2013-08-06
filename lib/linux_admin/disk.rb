@@ -68,5 +68,25 @@ class LinuxAdmin
         partitions
       end
     end
+
+    def create_partition(partition_type, size)
+      id, start =
+        partitions.empty? ? [1, 0] :
+          [(partitions.last.id + 1),
+            partitions.last.end_sector]
+
+      run(cmd(:parted),
+          :params => { nil => [path, 'mkpart', partition_type,
+                               start, start + size]})
+
+      partition = Partition.new(:disk           => self,
+                                :id             => id,
+                                :start_sector   => start,
+                                :end_sector     => start+size,
+                                :size           => size,
+                                :partition_type => partition_type)
+      partitions << partition
+      partition
+    end
   end
 end

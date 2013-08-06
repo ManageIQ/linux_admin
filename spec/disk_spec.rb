@@ -69,4 +69,46 @@ eos
       disk.partitions[2].fs_type.should == 'linux-swap(v1)'
     end
   end
+
+  describe "#create_partition" do
+    before(:each) do
+      # test disk w/ existing partition
+      @disk = LinuxAdmin::Disk.new :path => '/dev/hda'
+      @disk.instance_variable_set(:@partitions,
+                                  [LinuxAdmin::Partition.new(:id => 1,
+                                                 :end_sector => 1024)])
+    end
+
+    it "uses parted" do
+      @disk.should_receive(:run).
+        with(@disk.cmd(:parted),
+             :params => { nil => ['/dev/hda', 'mkpart', 'primary', 1024, 2048] })
+      @disk.create_partition 'primary', 1024
+    end
+
+    it "returns partition" do
+      @disk.should_receive(:run) # stub out call to parted
+      partition = @disk.create_partition 'primary', 1024
+      partition.should be_an_instance_of(LinuxAdmin::Partition)
+    end
+
+    it "increments partition id" do
+      @disk.should_receive(:run) # stub out call to parted
+      partition = @disk.create_partition 'primary', 1024
+      partition.id.should == 2
+    end
+
+    it "sets partition start to first unused sector on disk" do
+      @disk.should_receive(:run) # stub out call to parted
+      partition = @disk.create_partition 'primary', 1024
+      partition.start_sector.should == 1024
+    end
+
+    it "stores new partition locally" do
+      @disk.should_receive(:run) # stub out call to parted
+      lambda {
+        @disk.create_partition 'primary', 1024
+      }.should change{@disk.partitions.size}.by(1)
+    end
+  end
 end
