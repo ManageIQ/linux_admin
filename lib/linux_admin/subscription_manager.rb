@@ -31,27 +31,28 @@ class LinuxAdmin
     end
 
     def self.available_subscriptions
-      cmd = "subscription-manager list --all --available"
-      parse_output(run(cmd, :return_output => true))
+      cmd     = "subscription-manager list --all --available"
+      output  = run(cmd, :return_output => true)
+      parse_output(output).index_by {|i| i[:pool_id]}
     end
 
     private
 
-
     def self.parse_output(output)
       # Strip the 3 line header off the top
       content = output.split("\n")[3..-1].join("\n")
+      parse_content(content)
+    end
 
-      # Break into groupings by "\n\n" then process each grouping
-      content.split("\n\n").each_with_object({}) do |group, group_hash|
-        hash = {}
-        group.each_line do |line|
+    def self.parse_content(content)
+      # Break into content groupings by "\n\n" then process each grouping
+      content.split("\n\n").each_with_object([]) do |group, group_array|
+        group = group.split("\n").each_with_object({}) do |line, hash|
           key, value = line.split(":", 2)
           hash[key.strip.downcase.tr(" -", "_").to_sym] = value.strip
         end
-        hash[:ends] = Date.strptime(hash[:ends], "%m/%d/%Y")
-
-        group_hash[hash[:pool_id]] = hash
+        group[:ends] = Date.strptime(group[:ends], "%m/%d/%Y")
+        group_array.push(group)
       end
     end
 
