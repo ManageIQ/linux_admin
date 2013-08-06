@@ -51,9 +51,13 @@ class LinuxAdmin
           key, value = line.split(":", 2)
           hash[key.strip.downcase.tr(" -", "_").to_sym] = value.strip
         end
-        group[:ends] = Date.strptime(group[:ends], "%m/%d/%Y")
-        group_array.push(group)
+        group_array.push(format_values(group))
       end
+    end
+
+    def self.format_values(content_group)
+      content_group[:ends] = Date.strptime(content_group[:ends], "%m/%d/%Y") if content_group[:ends]
+      content_group
     end
 
     def self.proxy_params(options)
