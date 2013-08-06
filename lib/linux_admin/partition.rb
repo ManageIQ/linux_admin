@@ -8,7 +8,10 @@ require 'fileutils'
 class LinuxAdmin
   class Partition < LinuxAdmin
     attr_accessor :id
+    attr_accessor :partition_type
     attr_accessor :fs_type
+    attr_accessor :start_sector
+    attr_accessor :end_sector
     attr_accessor :size
     attr_accessor :disk
     attr_accessor :mount_point
@@ -18,6 +21,9 @@ class LinuxAdmin
       @size    = args[:size]
       @disk    = args[:disk]
       @fs_type = args[:fs_type]
+      @start_sector   = args[:start_sector]
+      @end_sector     = args[:end_sector]
+      @partition_type = args[:partition_type]
     end
 
     def path

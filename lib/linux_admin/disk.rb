@@ -34,21 +34,34 @@ class LinuxAdmin
         out.each_line do |l|
           if l =~ /^ [0-9].*/
             p = l.split
-            id,size,fs_type = p[0], p[3], p[5]
-            if size =~ /([0-9\.]*)([KMG])B/
-              size = case $2
-                     when 'K' then
-                       $1.to_f.kilobytes
-                     when 'M' then
-                       $1.to_f.megabytes
-                     when 'G' then
-                       $1.to_f.gigabytes
-                     end
+            args = {:disk => self}
+            fields = [:id, :start_sector, :end_sector,
+                      :size, :partition_type, :fs_type]
+
+            fields.each_index do |i|
+              val = p[i]
+              case fields[i]
+              when :start_sector, :end_sector, :size
+                if val =~ /([0-9\.]*)([KMG])B/
+                  val = case $2
+                        when 'K' then
+                          $1.to_f.kilobytes
+                        when 'M' then
+                          $1.to_f.megabytes
+                        when 'G' then
+                          $1.to_f.gigabytes
+                        end
+                end
+
+              when :id
+                val = val.to_i
+
+              end
+
+              args[fields[i]] = val
             end
-            partitions << Partition.new(:disk => self,
-                                        :id => id.to_i,
-                                        :size => size,
-                                        :fs_type => fs_type)
+            partitions << Partition.new(args)
+
           end
         end
 
@@ -56,8 +69,24 @@ class LinuxAdmin
       end
     end
 
-    def create_partition
-      # TODO
+    def create_partition(partition_type, size)
+      id, start =
+        partitions.empty? ? [1, 0] :
+          [(partitions.last.id + 1),
+            partitions.last.end_sector]
+
+      run(cmd(:parted),
+          :params => { nil => [path, 'mkpart', partition_type,
+                               start, start + size]})
+
+      partition = Partition.new(:disk           => self,
+                                :id             => id,
+                                :start_sector   => start,
+                                :end_sector     => start+size,
+                                :size           => size,
+                                :partition_type => partition_type)
+      partitions << partition
+      partition
     end
   end
 end
