@@ -49,15 +49,66 @@ eos
       disk.partitions[0].id.should == 1
       disk.partitions[0].disk.should == disk
       disk.partitions[0].size.should == 80.5.gigabytes
+      disk.partitions[0].start_sector.should == 1259.megabytes
+      disk.partitions[0].end_sector.should == 81.8.gigabytes
+      disk.partitions[0].partition_type.should == 'primary'
       disk.partitions[0].fs_type.should == 'ntfs'
       disk.partitions[1].id.should == 2
       disk.partitions[1].disk.should == disk
       disk.partitions[1].size.should == 80.5.gigabytes
+      disk.partitions[1].start_sector.should == 81.8.gigabytes
+      disk.partitions[1].end_sector.should == 162.gigabytes
+      disk.partitions[1].partition_type.should == 'primary'
       disk.partitions[1].fs_type.should == 'ext4'
       disk.partitions[2].id.should == 3
       disk.partitions[2].disk.should == disk
       disk.partitions[2].size.should == 1074.megabytes
+      disk.partitions[2].start_sector.should == 162.gigabytes
+      disk.partitions[2].end_sector.should == 163.gigabytes
+      disk.partitions[2].partition_type.should == 'logical'
       disk.partitions[2].fs_type.should == 'linux-swap(v1)'
+    end
+  end
+
+  describe "#create_partition" do
+    before(:each) do
+      # test disk w/ existing partition
+      @disk = LinuxAdmin::Disk.new :path => '/dev/hda'
+      @disk.instance_variable_set(:@partitions,
+                                  [LinuxAdmin::Partition.new(:id => 1,
+                                                 :end_sector => 1024)])
+    end
+
+    it "uses parted" do
+      @disk.should_receive(:run).
+        with(@disk.cmd(:parted),
+             :params => { nil => ['/dev/hda', 'mkpart', 'primary', 1024, 2048] })
+      @disk.create_partition 'primary', 1024
+    end
+
+    it "returns partition" do
+      @disk.should_receive(:run) # stub out call to parted
+      partition = @disk.create_partition 'primary', 1024
+      partition.should be_an_instance_of(LinuxAdmin::Partition)
+    end
+
+    it "increments partition id" do
+      @disk.should_receive(:run) # stub out call to parted
+      partition = @disk.create_partition 'primary', 1024
+      partition.id.should == 2
+    end
+
+    it "sets partition start to first unused sector on disk" do
+      @disk.should_receive(:run) # stub out call to parted
+      partition = @disk.create_partition 'primary', 1024
+      partition.start_sector.should == 1024
+    end
+
+    it "stores new partition locally" do
+      @disk.should_receive(:run) # stub out call to parted
+      lambda {
+        @disk.create_partition 'primary', 1024
+      }.should change{@disk.partitions.size}.by(1)
     end
   end
 end
