@@ -10,6 +10,18 @@ class LinuxAdmin
       run("subscription-manager refresh")
     end
 
+    def self.organizations(options)
+      raise ArgumentError, "username and password are required" unless options[:username] && options[:password]
+      cmd = "subscription-manager orgs"
+
+      params = {"--username=" => options[:username], "--password=" => options[:password]}
+      params.merge!(proxy_params(options))
+      params["--serverurl="]  = options[:server_url]  if options[:server_url]
+
+      output = run(cmd, :params => params, :return_output => true)
+      parse_output(output).index_by {|i| i[:name]}
+    end
+
     def self.register(options)
       raise ArgumentError, "username and password are required" unless options[:username] && options[:password]
       cmd = "subscription-manager register"
@@ -31,24 +43,35 @@ class LinuxAdmin
     end
 
     def self.available_subscriptions
-      out = run("subscription-manager list --all --available", :return_output => true)
-
-      out.split("\n\n").each_with_object({}) do |subscription, subscriptions_hash|
-        hash = {}
-        subscription.each_line do |line|
-          # Strip the header lines if they exist
-          next if (line.start_with?("+---") && line.end_with?("---+\n")) || line.strip == "Available Subscriptions"
-
-          key, value = line.split(":", 2)
-          hash[key.strip.downcase.tr(" -", "_").to_sym] = value.strip
-        end
-        hash[:ends] = Date.strptime(hash[:ends], "%m/%d/%Y")
-
-        subscriptions_hash[hash[:pool_id]] = hash
-      end
+      cmd     = "subscription-manager list --all --available"
+      output  = run(cmd, :return_output => true)
+      parse_output(output).index_by {|i| i[:pool_id]}
     end
 
     private
+
+    def self.parse_output(output)
+      # Strip the 3 line header off the top
+      content = output.split("\n")[3..-1].join("\n")
+      parse_content(content)
+    end
+
+    def self.parse_content(content)
+      # Break into content groupings by "\n\n" then process each grouping
+      content.split("\n\n").each_with_object([]) do |group, group_array|
+        group = group.split("\n").each_with_object({}) do |line, hash|
+          next if line.blank?
+          key, value = line.split(":", 2)
+          hash[key.strip.downcase.tr(" -", "_").to_sym] = value.strip
+        end
+        group_array.push(format_values(group))
+      end
+    end
+
+    def self.format_values(content_group)
+      content_group[:ends] = Date.strptime(content_group[:ends], "%m/%d/%Y") if content_group[:ends]
+      content_group
+    end
 
     def self.proxy_params(options)
       config = {}
