@@ -4,10 +4,14 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'linux_admin/version'
 
 Gem::Specification.new do |spec|
+
+  # Dynamically create the authors information {name => e-mail}
+  authors_hash = Hash[`git log --no-merges --reverse --format='%an,%ae'`.split("\n").uniq.collect {|i| i.split(",")}]
+
   spec.name          = "linux_admin"
   spec.version       = LinuxAdmin::VERSION
-  spec.authors       = ["Brandon Dunne"]
-  spec.email         = ["brandondunne@hotmail.com"]
+  spec.authors       = authors_hash.keys
+  spec.email         = authors_hash.values
   spec.description   = %q{
 LinuxAdmin is a module to simplify management of linux systems.
 It should be a single place to manage various system level configurations,
