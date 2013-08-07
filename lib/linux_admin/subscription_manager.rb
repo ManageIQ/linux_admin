@@ -48,6 +48,7 @@ class LinuxAdmin
       # Break into content groupings by "\n\n" then process each grouping
       content.split("\n\n").each_with_object([]) do |group, group_array|
         group = group.split("\n").each_with_object({}) do |line, hash|
+          next if line.blank?
           key, value = line.split(":", 2)
           hash[key.strip.downcase.tr(" -", "_").to_sym] = value.strip
         end
