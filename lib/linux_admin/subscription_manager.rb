@@ -10,6 +10,18 @@ class LinuxAdmin
       run("subscription-manager refresh")
     end
 
+    def self.organizations(options)
+      raise ArgumentError, "username and password are required" unless options[:username] && options[:password]
+      cmd = "subscription-manager orgs"
+
+      params = {"--username=" => options[:username], "--password=" => options[:password]}
+      params.merge!(proxy_params(options))
+      params["--serverurl="]  = options[:server_url]  if options[:server_url]
+
+      output = run(cmd, :params => params, :return_output => true)
+      parse_output(output).index_by {|i| i[:name]}
+    end
+
     def self.register(options)
       raise ArgumentError, "username and password are required" unless options[:username] && options[:password]
       cmd = "subscription-manager register"
