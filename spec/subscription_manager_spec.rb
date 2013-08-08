@@ -91,4 +91,9 @@ describe LinuxAdmin::SubscriptionManager do
       },
     })
   end
+
+  it ".organizations" do
+    described_class.should_receive(:run).once.with("subscription-manager orgs", {:params=>{"--username="=>"SomeUser", "--password="=>"SomePass", "--proxy="=>"1.2.3.4", "--proxyuser="=>"ProxyUser", "--proxypassword="=>"ProxyPass", "--serverurl="=>"192.168.1.1"}, :return_output => true}).and_return(sample_output("subscription_manager/output_orgs"))
+    expect(described_class.organizations({:username=>"SomeUser", :password=>"SomePass", :proxy_address=>"1.2.3.4", :proxy_username=>"ProxyUser", :proxy_password=>"ProxyPass", :server_url=>"192.168.1.1"})).to eq({"SomeOrg"=>{:name=>"SomeOrg", :key=>"1234567"}})
+  end
 end
