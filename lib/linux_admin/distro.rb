@@ -64,7 +64,9 @@ class LinuxAdmin
                   :mount     => '/bin/mount',
                   :umount    => '/bin/umount',
                   :shutdown  => '/sbin/shutdown',
-                  :mke2fs    => '/sbin/mke2fs'}
+                  :mke2fs    => '/sbin/mke2fs',
+                  :fdisk     => '/sbin/fdisk',
+                  :dd        => '/bin/dd'}
 
       def initialize
         @id = :redhat
