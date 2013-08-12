@@ -64,7 +64,17 @@ class LinuxAdmin
                   :mount     => '/bin/mount',
                   :umount    => '/bin/umount',
                   :shutdown  => '/sbin/shutdown',
-                  :mke2fs    => '/sbin/mke2fs'}
+                  :mke2fs    => '/sbin/mke2fs',
+                  :fdisk     => '/sbin/fdisk',
+                  :dd        => '/bin/dd',
+                  :vgdisplay => '/sbin/vgdisplay',
+                  :pvdisplay => '/sbin/pvdisplay',
+                  :lvdisplay => '/sbin/lvdisplay',
+                  :lvextend  => '/sbin/lvextend',
+                  :vgextend  => '/sbin/vgextend',
+                  :lvcreate  => '/sbin/lvcreate',
+                  :pvcreate  => '/sbin/pvcreate',
+                  :vgcreate  => '/sbin/vgcreate'}
 
       def initialize
         @id = :redhat

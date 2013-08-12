@@ -12,6 +12,38 @@ describe LinuxAdmin::Disk do
     end
   end
 
+  describe "#size" do
+    it "uses fdisk" do
+      disk = LinuxAdmin::Disk.new :path => '/dev/hda'
+      disk.should_receive(:run).
+        with(disk.cmd(:fdisk),
+             :return_output => true,
+             :params => {"-l" => nil}).
+        and_return("")
+      disk.size
+    end
+
+    it "returns disk size" do
+      fdisk = <<eos
+Disk /dev/hda: 500.1 GB, 500107862016 bytes
+255 heads, 63 sectors/track, 60801 cylinders, total 976773168 sectors
+Units = sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disk identifier: 0x3ddb508b
+
+   Device Boot      Start         End      Blocks   Id  System
+ 1      1259MB  81.8GB  80.5GB  primary   ntfs
+ 2      81.8GB  162GB   80.5GB  primary   ext4
+ 3      162GB   163GB   1074MB  logical   linux-swap(v1)
+eos
+
+      disk = LinuxAdmin::Disk.new :path => '/dev/hda'
+      disk.stub(:run).and_return(fdisk)
+      disk.size.should == 500.1.gigabytes
+    end
+  end
+
   describe "#partitions" do
     it "uses parted" do
       disk = LinuxAdmin::Disk.new :path => '/dev/hda'
@@ -111,4 +143,30 @@ eos
       }.should change{@disk.partitions.size}.by(1)
     end
   end
+
+  describe "#clear!" do
+    it "clears partitions" do
+      disk = LinuxAdmin::Disk.new :path => '/dev/hda'
+      disk.stub(:run).and_return("") # stub out call to cmds
+      disk.partitions << LinuxAdmin::Partition.new
+      disk.clear!
+      disk.partitions.should be_empty
+    end
+
+    it "uses dd to clear partition table" do
+      disk = LinuxAdmin::Disk.new :path => '/dev/hda'
+      disk.should_receive(:run).
+           with(disk.cmd(:dd),
+                :params => {'if=' => '/dev/zero', 'of=' => '/dev/hda',
+                            'bs=' => 512, 'count=' => 1})
+      disk.clear!
+    end
+
+    it "returns self" do
+      disk = LinuxAdmin::Disk.new :path => '/dev/hda'
+      disk.stub(:run) # stub out call to dd
+      disk.clear!.should == disk
+    end
+  end
+
 end

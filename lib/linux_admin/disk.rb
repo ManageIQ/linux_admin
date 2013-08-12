@@ -19,6 +19,29 @@ class LinuxAdmin
       @path = args[:path]
     end
 
+    def size
+      @size ||= begin
+        size = nil
+        out = run(cmd(:fdisk),
+                  :return_output => true,
+                  :params => {"-l" => nil})
+        out.each_line { |l|
+          if l =~ /Disk #{path}: ([0-9\.]*) ([KMG])B.*/
+            size = case $2
+                   when 'K' then
+                     $1.to_f.kilobytes
+                   when 'M' then
+                     $1.to_f.megabytes
+                   when 'G' then
+                     $1.to_f.gigabytes
+                   end
+            break
+          end
+        }
+        size
+      end
+    end
+
     def partitions
       @partitions ||= begin
         partitions = []
@@ -87,6 +110,17 @@ class LinuxAdmin
                                 :partition_type => partition_type)
       partitions << partition
       partition
+    end
+
+    def clear!
+      @partitions = []
+
+      # clear partition table
+      run(cmd(:dd),
+          :params => { 'if=' => '/dev/zero', 'of=' => @path,
+                       'bs=' => 512, 'count=' => 1})
+
+      self
     end
   end
 end

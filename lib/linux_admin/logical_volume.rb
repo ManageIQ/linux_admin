@@ -32,6 +32,23 @@ class LinuxAdmin
       @sectors      = args[:sectors]
     end
 
+    def extend_with(vg)
+      run(cmd(:lvextend),
+          :params => [self.name, vg.name])
+      self
+    end
+
+    def self.create(name, vg, size)
+      self.scan # initialize local logical volumes
+      run(cmd(:lvcreate),
+          :params => { '-n' => name, nil => vg.name, '-L' => size})
+      lv = LogicalVolume.new :name => name,
+                             :volume_group => vg,
+                             :sectors => size
+      @lvs << lv
+      lv
+    end
+
     def self.scan
       @lvs ||= begin
         vgs = VolumeGroup.scan
