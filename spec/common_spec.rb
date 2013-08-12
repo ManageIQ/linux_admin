@@ -35,7 +35,7 @@ describe LinuxAdmin::Common do
 
   context ".cmd" do
     it "looks up local command from id" do
-      d = stub(LinuxAdmin::Distro)
+      d = double(LinuxAdmin::Distro)
       d.class::COMMANDS = { :sh => '/bin/sh' }
       LinuxAdmin::Distro.should_receive(:local).and_return(d)
       subject.cmd(:sh).should == '/bin/sh'
