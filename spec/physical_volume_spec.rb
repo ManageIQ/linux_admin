@@ -47,8 +47,14 @@ eos
   end
 
   describe "#create" do
+    before do
+      @disk = LinuxAdmin::Disk.new :path => '/dev/hda'
+      @disk.stub(:size)
+    end
+
+    let(:disk) {@disk}
+
     it "uses pvcreate" do
-      disk = LinuxAdmin::Disk.new :path => '/dev/hda'
       described_class.instance_variable_set(:@pvs, [])
       described_class.should_receive(:run).
                                  with(LinuxAdmin.cmd(:pvcreate),
@@ -57,7 +63,6 @@ eos
     end
 
     it "returns new physical volume" do
-      disk = LinuxAdmin::Disk.new :path => '/dev/hda'
       LinuxAdmin::VolumeGroup.stub(:run => "")
       described_class.stub(:run => "")
       pv = described_class.create disk
@@ -66,7 +71,6 @@ eos
     end
 
     it "adds physical volume to local registry" do
-      disk = LinuxAdmin::Disk.new :path => '/dev/hda'
       LinuxAdmin::VolumeGroup.stub(:run => "")
       described_class.stub(:run => "")
       pv = described_class.create disk
