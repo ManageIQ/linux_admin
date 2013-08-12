@@ -45,17 +45,17 @@ describe LinuxAdmin::Common do
   context ".run" do
     context "with params" do
       it "sanitizes crazy params" do
-        subject.should_receive(:launch).once.with("true --user bob --pass P@\\$sw0\\^\\&\\ \\|\\<\\>/-\\+\\*d\\% --db --desc=Some\\ Description pkg1 some\\ pkg --pool 123 --pool 456")
+        subject.should_receive(:launch).once.with("true --user bob --pass P@\\$sw0\\^\\&\\ \\|\\<\\>/-\\+\\*d\\% --db --desc=Some\\ Description pkg1 some\\ pkg --pool 123 --pool 456", {})
         subject.run("true", :params => modified_params, :return_exitstatus => true)
       end
 
       it "as empty hash" do
-        subject.should_receive(:launch).once.with("true")
+        subject.should_receive(:launch).once.with("true", {})
         subject.run("true", :params => {}, :return_exitstatus => true)
       end
 
       it "as nil" do
-        subject.should_receive(:launch).once.with("true")
+        subject.should_receive(:launch).once.with("true", {})
         subject.run("true", :params => nil, :return_exitstatus => true)
       end
 
@@ -104,6 +104,11 @@ describe LinuxAdmin::Common do
       it "command bad" do
         expect { subject.run("XXXXX", :return_output => true) }.to raise_error
       end
+    end
+
+    it "supports spawn's chdir option" do
+      subject.should_receive(:launch).once.with("true", {:chdir => ".."})
+      subject.run("true", :chdir => "..", :return_exitstatus => true)
     end
   end
 end
