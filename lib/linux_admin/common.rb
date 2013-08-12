@@ -19,7 +19,9 @@ class LinuxAdmin
       params = options[:params] || options[:parameters]
 
       begin
-        out = launch(build_cmd(cmd, params))
+        launch_params = {}
+        launch_params[:chdir] = options[:chdir] if options[:chdir]
+        out = launch(build_cmd(cmd, params), launch_params)
 
         if options[:return_output] && exitstatus == 0
           out
@@ -67,9 +69,9 @@ class LinuxAdmin
     # http://stackoverflow.com/questions/13829830/ruby-process-spawn-stdout-pipe-buffer-size-limit/13846146#13846146
     THREAD_SYNC_KEY = "LinuxAdmin-exitstatus"
 
-    def launch(cmd)
+    def launch(cmd, spawn_options = {})
       pipe_r, pipe_w = IO.pipe
-      pid = Kernel.spawn(cmd, :err => [:child, :out], :out => pipe_w)
+      pid = Kernel.spawn(cmd, {:err => [:child, :out], :out => pipe_w}.merge(spawn_options))
       wait_for_process(pid, pipe_w)
       wait_for_output(pipe_r)
     end
