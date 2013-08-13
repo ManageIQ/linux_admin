@@ -66,43 +66,49 @@ describe LinuxAdmin::Common do
       end
     end
 
-    it "command ok exit ok" do
-      expect(subject.run("true")).to be_true
-    end
+    context "with real execution" do
+      before do
+        Kernel.should_receive(:spawn).and_call_original
+      end
 
-    it "command ok exit bad" do
-      expect { subject.run("false") }.to raise_error
-    end
-
-    it "command bad" do
-      expect { subject.run("XXXXX") }.to raise_error
-    end
-
-    context "with :return_exitstatus => true" do
       it "command ok exit ok" do
-        expect(subject.run("true", :return_exitstatus => true)).to eq(0)
+        expect(subject.run("true")).to be_true
       end
 
       it "command ok exit bad" do
-        expect(subject.run("false", :return_exitstatus => true)).to eq(1)
+        expect { subject.run("false") }.to raise_error
       end
 
       it "command bad" do
-        expect(subject.run("XXXXX", :return_exitstatus => true)).to be_nil
-      end
-    end
-
-    context "with :return_output => true" do
-      it "command ok exit ok" do
-        expect(subject.run("echo \"Hello World\"", :return_output => true)).to eq("Hello World\n")
+        expect { subject.run("XXXXX") }.to raise_error
       end
 
-      it "command ok exit bad" do
-        expect { subject.run("false", :return_output => true) }.to raise_error
+      context "with :return_exitstatus => true" do
+        it "command ok exit ok" do
+          expect(subject.run("true", :return_exitstatus => true)).to eq(0)
+        end
+
+        it "command ok exit bad" do
+          expect(subject.run("false", :return_exitstatus => true)).to eq(1)
+        end
+
+        it "command bad" do
+          expect(subject.run("XXXXX", :return_exitstatus => true)).to be_nil
+        end
       end
 
-      it "command bad" do
-        expect { subject.run("XXXXX", :return_output => true) }.to raise_error
+      context "with :return_output => true" do
+        it "command ok exit ok" do
+          expect(subject.run("echo \"Hello World\"", :return_output => true)).to eq("Hello World\n")
+        end
+
+        it "command ok exit bad" do
+          expect { subject.run("false", :return_output => true) }.to raise_error
+        end
+
+        it "command bad" do
+          expect { subject.run("XXXXX", :return_output => true) }.to raise_error
+        end
       end
     end
 

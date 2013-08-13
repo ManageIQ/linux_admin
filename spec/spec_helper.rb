@@ -18,6 +18,10 @@ RSpec.configure do |config|
   # the seed, which is printed after each run.
   #     --seed 1234
   config.order = 'random'
+
+  config.before do
+    Kernel.stub(:spawn).and_raise("Spawning is not permitted in specs.  Please change your spec to use expectations/stubs.")
+  end
 end
 
 def data_file_path(to)
