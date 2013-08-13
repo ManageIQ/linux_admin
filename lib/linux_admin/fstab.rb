@@ -29,7 +29,7 @@ class LinuxAdmin
       @entries.each do |entry|
         content += "#{entry.device} #{entry.mount_point} #{entry.fs_type} #{entry.mount_options} #{entry.dumpable} #{entry.fsck_order}\n"
       end
-      write('/etc/fstab', content)
+      File.write('/etc/fstab', content)
       self
     end
 
