@@ -27,12 +27,6 @@ describe LinuxAdmin::Common do
 
   subject { TestClass }
 
-  context ".write" do
-    it "no file no content" do
-      expect { subject.write("", "") }.to raise_error(ArgumentError)
-    end
-  end
-
   context ".cmd" do
     it "looks up local command from id" do
       d = double(LinuxAdmin::Distro)

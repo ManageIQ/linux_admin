@@ -38,10 +38,8 @@ eos
       entry.fsck_order    = 1
       LinuxAdmin::FSTab.instance.entries = [entry]
 
-      f = StringIO.new
-      File.should_receive(:open).with('/etc/fstab', 'w').and_yield(f)
+      File.should_receive(:write).with('/etc/fstab', "/dev/sda1 / ext4 defaults 1 1\n")
       LinuxAdmin::FSTab.instance.write!
-      f.string.should == "/dev/sda1 / ext4 defaults 1 1\n"
     end
   end
 end
