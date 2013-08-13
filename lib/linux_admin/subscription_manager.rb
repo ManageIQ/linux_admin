@@ -1,7 +1,7 @@
 require 'date'
 
 class LinuxAdmin
-  class SubscriptionManager < LinuxAdmin
+  class SubscriptionManager < RegistrationSystem
     def self.registered?
       run("subscription-manager identity", :return_exitstatus => true) == 0
     end

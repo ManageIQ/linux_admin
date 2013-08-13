@@ -1,7 +1,7 @@
 require 'nokogiri'
 
 class LinuxAdmin
-  class Rhn < LinuxAdmin
+  class Rhn < RegistrationSystem
     def self.systemid_file
       "/etc/sysconfig/rhn/systemid"
     end
