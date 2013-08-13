@@ -4,13 +4,6 @@ class LinuxAdmin
   class CommandError < RuntimeError; end
 
   module Common
-    def write(file, content)
-      raise ArgumentError, "file and content can not be empty" if file.blank? || content.blank?
-      File.open(file, "w") do |f|
-        f.write(content)
-      end
-    end
-
     def cmd(cmd)
       Distro.local.class::COMMANDS[cmd]
     end
