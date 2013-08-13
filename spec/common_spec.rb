@@ -70,11 +70,11 @@ describe LinuxAdmin::Common do
       end
 
       it "command ok exit bad" do
-        expect { subject.run("false") }.to raise_error
+        expect { subject.run("false") }.to raise_error(CommandError)
       end
 
       it "command bad" do
-        expect { subject.run("XXXXX") }.to raise_error
+        expect { subject.run("XXXXX") }.to raise_error(Errno::ENOENT)
       end
 
       context "with :return_exitstatus => true" do
@@ -97,11 +97,11 @@ describe LinuxAdmin::Common do
         end
 
         it "command ok exit bad" do
-          expect { subject.run("false", :return_output => true) }.to raise_error
+          expect { subject.run("false", :return_output => true) }.to raise_error(CommandError)
         end
 
         it "command bad" do
-          expect { subject.run("XXXXX", :return_output => true) }.to raise_error
+          expect { subject.run("XXXXX", :return_output => true) }.to raise_error(Errno::ENOENT)
         end
       end
     end

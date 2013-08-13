@@ -2,6 +2,7 @@ require 'more_core_extensions/all'
 require 'active_support/core_ext'
 
 require 'linux_admin/common'
+require 'linux_admin/exceptions'
 require 'linux_admin/rhn'
 require 'linux_admin/rpm'
 require 'linux_admin/subscription_manager'

@@ -1,8 +1,6 @@
 require 'shellwords'
 
 class LinuxAdmin
-  class CommandError < RuntimeError; end
-
   module Common
     def cmd(cmd)
       Distro.local.class::COMMANDS[cmd]
