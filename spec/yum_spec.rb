@@ -107,7 +107,7 @@ describe LinuxAdmin::Yum do
 
   context ".version_available" do
     it "no packages" do
-      expect { described_class.version_available }.to raise_error
+      expect { described_class.version_available }.to raise_error(ArgumentError)
     end
 
     it "with packages" do

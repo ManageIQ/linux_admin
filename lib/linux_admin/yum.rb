@@ -59,7 +59,7 @@ class LinuxAdmin
     end
 
     def self.version_available(*packages)
-      raise ArgumentError, "packages requires at least one package name" unless packages
+      raise ArgumentError, "packages requires at least one package name" if packages.blank?
 
       cmd    = "repoquery --qf=\"%{name} %{version}\""
       params = {nil => packages}
