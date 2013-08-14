@@ -2,11 +2,7 @@ require 'nokogiri'
 
 class LinuxAdmin
   class Rhn < RegistrationSystem
-    def self.systemid_file
-      "/etc/sysconfig/rhn/systemid"
-    end
-
-    def self.registered?
+    def registered?
       id = ""
       if File.exists?(systemid_file)
         xml = Nokogiri.XML(File.read(systemid_file))
@@ -15,7 +11,7 @@ class LinuxAdmin
       id.length > 0
     end
 
-    def self.register(options)
+    def register(options)
       cmd    = "rhnreg_ks"
       params = {}
 
@@ -36,7 +32,7 @@ class LinuxAdmin
       run(cmd, :params => params)
     end
 
-    def self.subscribe(options)
+    def subscribe(options)
       raise ArgumentError, "pools, username and password are required" if options[:pools].blank? || options[:username].blank? || options[:password].blank?
       cmd = "rhn-channel -a"
 
@@ -48,6 +44,12 @@ class LinuxAdmin
       params                = params.to_a + pools
 
       run(cmd, :params => params)
+    end
+
+    private
+
+    def systemid_file
+      "/etc/sysconfig/rhn/systemid"
     end
   end
 end
