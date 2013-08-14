@@ -22,6 +22,10 @@ RSpec.configure do |config|
   config.before do
     Kernel.stub(:spawn).and_raise("Spawning is not permitted in specs.  Please change your spec to use expectations/stubs.")
   end
+
+  config.after do
+    clear_caches
+  end
 end
 
 def data_file_path(to)
@@ -30,6 +34,10 @@ end
 
 def sample_output(to)
   File.read(data_file_path(to))
+end
+
+def clear_caches
+  LinuxAdmin::RegistrationSystem.instance_variable_set(:@registration_type, nil)
 end
 
 class LinuxAdmin
