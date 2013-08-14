@@ -2,15 +2,20 @@ require 'date'
 
 class LinuxAdmin
   class SubscriptionManager < RegistrationSystem
-    def self.registered?
+
+    def validate_credentials(options)
+      !!organizations(options)
+    end
+
+    def registered?
       run("subscription-manager identity", :return_exitstatus => true) == 0
     end
 
-    def self.refresh
+    def refresh
       run("subscription-manager refresh")
     end
 
-    def self.organizations(options)
+    def organizations(options)
       raise ArgumentError, "username and password are required" unless options[:username] && options[:password]
       cmd = "subscription-manager orgs"
 
@@ -22,7 +27,7 @@ class LinuxAdmin
       parse_output(output).index_by {|i| i[:name]}
     end
 
-    def self.register(options)
+    def register(options)
       raise ArgumentError, "username and password are required" unless options[:username] && options[:password]
       cmd = "subscription-manager register"
 
@@ -34,7 +39,7 @@ class LinuxAdmin
       run(cmd, :params => params)
     end
 
-    def self.subscribe(options)
+    def subscribe(options)
       cmd    = "subscription-manager attach"
       pools  = options[:pools].collect {|pool| ["--pool", pool]}
       params = proxy_params(options).to_a + pools
@@ -42,7 +47,7 @@ class LinuxAdmin
       run(cmd, :params => params)
     end
 
-    def self.available_subscriptions
+    def available_subscriptions
       cmd     = "subscription-manager list --all --available"
       output  = run(cmd, :return_output => true)
       parse_output(output).index_by {|i| i[:pool_id]}
@@ -50,13 +55,13 @@ class LinuxAdmin
 
     private
 
-    def self.parse_output(output)
+    def parse_output(output)
       # Strip the 3 line header off the top
       content = output.split("\n")[3..-1].join("\n")
       parse_content(content)
     end
 
-    def self.parse_content(content)
+    def parse_content(content)
       # Break into content groupings by "\n\n" then process each grouping
       content.split("\n\n").each_with_object([]) do |group, group_array|
         group = group.split("\n").each_with_object({}) do |line, hash|
@@ -68,12 +73,12 @@ class LinuxAdmin
       end
     end
 
-    def self.format_values(content_group)
+    def format_values(content_group)
       content_group[:ends] = Date.strptime(content_group[:ends], "%m/%d/%Y") if content_group[:ends]
       content_group
     end
 
-    def self.proxy_params(options)
+    def proxy_params(options)
       config = {}
       config["--proxy="]          = options[:proxy_address]   if options[:proxy_address]
       config["--proxyuser="]      = options[:proxy_username]  if options[:proxy_username]
