@@ -1,31 +1,31 @@
 require 'spec_helper'
 
 describe LinuxAdmin::SubscriptionManager do
-  context ".registered?" do
+  context "#registered?" do
     it "system with subscription-manager commands" do
-      described_class.should_receive(:run).once.with("subscription-manager identity", {:return_exitstatus=>true}).and_return(0)
-      expect(described_class.registered?).to be_true
+      described_class.any_instance.should_receive(:run).once.with("subscription-manager identity", {:return_exitstatus=>true}).and_return(0)
+      expect(described_class.new.registered?).to be_true
     end
 
     it "system without subscription-manager commands" do
-      described_class.should_receive(:run).once.with("subscription-manager identity", {:return_exitstatus=>true}).and_return(255)
-      expect(described_class.registered?).to be_false
+      described_class.any_instance.should_receive(:run).once.with("subscription-manager identity", {:return_exitstatus=>true}).and_return(255)
+      expect(described_class.new.registered?).to be_false
     end
   end
 
-  it ".refresh" do
-    described_class.should_receive(:run).once.with("subscription-manager refresh").and_return(0)
-    described_class.refresh
+  it "#refresh" do
+    described_class.any_instance.should_receive(:run).once.with("subscription-manager refresh").and_return(0)
+    described_class.new.refresh
   end
 
-  context ".register" do
+  context "#register" do
     it "no username" do
-      expect { described_class.register }.to raise_error(ArgumentError)
+      expect { described_class.new.register }.to raise_error(ArgumentError)
     end
 
     it "with username and password" do
-      described_class.should_receive(:run).once.with("subscription-manager register", {:params=>{"--username="=>"SomeUser", "--password="=>"SomePass", "--org="=>"IT", "--proxy="=>"1.2.3.4", "--proxyuser="=>"ProxyUser", "--proxypassword="=>"ProxyPass", "--serverurl="=>"192.168.1.1"}}).and_return(0)
-      described_class.register(
+      described_class.any_instance.should_receive(:run).once.with("subscription-manager register", {:params=>{"--username="=>"SomeUser", "--password="=>"SomePass", "--org="=>"IT", "--proxy="=>"1.2.3.4", "--proxyuser="=>"ProxyUser", "--proxypassword="=>"ProxyPass", "--serverurl="=>"192.168.1.1"}}).and_return(0)
+      described_class.new.register(
         :username       => "SomeUser",
         :password       => "SomePass",
         :org            => "IT",
@@ -37,14 +37,14 @@ describe LinuxAdmin::SubscriptionManager do
     end
   end
 
-  it ".subscribe" do
-    described_class.should_receive(:run).once.with("subscription-manager attach", {:params=>[["--pool", 123], ["--pool", 456]]})
-    described_class.subscribe({:pools => [123, 456]})
+  it "#subscribe" do
+    described_class.any_instance.should_receive(:run).once.with("subscription-manager attach", {:params=>[["--pool", 123], ["--pool", 456]]})
+    described_class.new.subscribe({:pools => [123, 456]})
   end
 
-  it ".available_subscriptions" do
-    described_class.should_receive(:run).once.with("subscription-manager list --all --available", :return_output => true).and_return(sample_output("subscription_manager/output_list_all_available"))
-    expect(described_class.available_subscriptions).to eq({
+  it "#available_subscriptions" do
+    described_class.any_instance.should_receive(:run).once.with("subscription-manager list --all --available", :return_output => true).and_return(sample_output("subscription_manager/output_list_all_available"))
+    expect(described_class.new.available_subscriptions).to eq({
       "82c042fca983889b10178893f29b06e3" => {
         :subscription_name => "Example Subscription",
         :sku               => "SER0123",
@@ -92,8 +92,8 @@ describe LinuxAdmin::SubscriptionManager do
     })
   end
 
-  it ".organizations" do
-    described_class.should_receive(:run).once.with("subscription-manager orgs", {:params=>{"--username="=>"SomeUser", "--password="=>"SomePass", "--proxy="=>"1.2.3.4", "--proxyuser="=>"ProxyUser", "--proxypassword="=>"ProxyPass", "--serverurl="=>"192.168.1.1"}, :return_output => true}).and_return(sample_output("subscription_manager/output_orgs"))
-    expect(described_class.organizations({:username=>"SomeUser", :password=>"SomePass", :proxy_address=>"1.2.3.4", :proxy_username=>"ProxyUser", :proxy_password=>"ProxyPass", :server_url=>"192.168.1.1"})).to eq({"SomeOrg"=>{:name=>"SomeOrg", :key=>"1234567"}})
+  it "#organizations" do
+    described_class.any_instance.should_receive(:run).once.with("subscription-manager orgs", {:params=>{"--username="=>"SomeUser", "--password="=>"SomePass", "--proxy="=>"1.2.3.4", "--proxyuser="=>"ProxyUser", "--proxypassword="=>"ProxyPass", "--serverurl="=>"192.168.1.1"}, :return_output => true}).and_return(sample_output("subscription_manager/output_orgs"))
+    expect(described_class.new.organizations({:username=>"SomeUser", :password=>"SomePass", :proxy_address=>"1.2.3.4", :proxy_username=>"ProxyUser", :proxy_password=>"ProxyPass", :server_url=>"192.168.1.1"})).to eq({"SomeOrg"=>{:name=>"SomeOrg", :key=>"1234567"}})
   end
 end
