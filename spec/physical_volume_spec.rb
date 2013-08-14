@@ -24,7 +24,7 @@ eos
     it "uses vgextend" do
       vg = LinuxAdmin::VolumeGroup.new :name => 'vg'
       pv = described_class.new :device_name => '/dev/hda'
-      pv.should_receive(:run).
+      pv.should_receive(:run!).
          with(pv.cmd(:vgextend),
               :params => ['vg', '/dev/hda'])
       pv.attach_to(vg)
@@ -33,7 +33,7 @@ eos
     it "assigns volume group to physical volume" do
       vg = LinuxAdmin::VolumeGroup.new :name => 'vg'
       pv = described_class.new :device_name => '/dev/hda'
-      pv.stub(:run)
+      pv.stub(:run!)
       pv.attach_to(vg)
       pv.volume_group.should == vg
     end
@@ -41,7 +41,7 @@ eos
     it "returns self" do
       vg = LinuxAdmin::VolumeGroup.new :name => 'vg'
       pv = described_class.new :device_name => '/dev/hda'
-      pv.stub(:run)
+      pv.stub(:run!)
       pv.attach_to(vg).should == pv
     end
   end
@@ -56,23 +56,23 @@ eos
 
     it "uses pvcreate" do
       described_class.instance_variable_set(:@pvs, [])
-      described_class.should_receive(:run).
+      described_class.should_receive(:run!).
                                  with(LinuxAdmin.cmd(:pvcreate),
                                       :params => { nil => '/dev/hda'})
       described_class.create disk
     end
 
     it "returns new physical volume" do
-      LinuxAdmin::VolumeGroup.stub(:run => "")
-      described_class.stub(:run => "")
+      LinuxAdmin::VolumeGroup.stub(:run! => double(:output => ""))
+      described_class.stub(:run! => double(:output => ""))
       pv = described_class.create disk
       pv.should be_an_instance_of(described_class)
       pv.device_name.should == '/dev/hda'
     end
 
     it "adds physical volume to local registry" do
-      LinuxAdmin::VolumeGroup.stub(:run => "")
-      described_class.stub(:run => "")
+      LinuxAdmin::VolumeGroup.stub(:run! => double(:output => ""))
+      described_class.stub(:run! => double(:output => ""))
       pv = described_class.create disk
       described_class.scan.should include(pv)
     end
@@ -80,18 +80,17 @@ eos
 
   describe "#scan" do
     it "uses pvdisplay" do
-      described_class.should_receive(:run).
+      described_class.should_receive(:run!).
                                  with(LinuxAdmin.cmd(:pvdisplay),
-                                     :return_output => true,
                                      :params => { '-c' => nil}).
-                                 and_return(@physical_volumes)
-      LinuxAdmin::VolumeGroup.should_receive(:run).and_return(@groups) # stub out call to vgdisplay
+                                 and_return(double(:output => @physical_volumes))
+      LinuxAdmin::VolumeGroup.should_receive(:run!).and_return(double(:output => @groups)) # stub out call to vgdisplay
       described_class.scan
     end
 
     it "returns local physical volumes" do
-      described_class.should_receive(:run).and_return(@physical_volumes)
-      LinuxAdmin::VolumeGroup.should_receive(:run).and_return(@groups)
+      described_class.should_receive(:run!).and_return(double(:output => @physical_volumes))
+      LinuxAdmin::VolumeGroup.should_receive(:run!).and_return(double(:output => @groups))
       pvs = described_class.scan
 
       pvs[0].should be_an_instance_of(described_class)
@@ -100,8 +99,8 @@ eos
     end
 
     it "resolves volume group references" do
-      described_class.should_receive(:run).and_return(@physical_volumes)
-      LinuxAdmin::VolumeGroup.should_receive(:run).and_return(@groups)
+      described_class.should_receive(:run!).and_return(double(:output => @physical_volumes))
+      LinuxAdmin::VolumeGroup.should_receive(:run!).and_return(double(:output => @groups))
       pvs = described_class.scan
       pvs[0].volume_group.should be_an_instance_of(LinuxAdmin::VolumeGroup)
       pvs[0].volume_group.name.should == 'vg_foobar'

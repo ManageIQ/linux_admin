@@ -29,7 +29,7 @@ class LinuxAdmin
       params["--proxyPassword="]  = options[:proxy_password]  if options[:proxy_password]
       params["--serverUrl="]      = options[:server_url]      if options[:server_url]
 
-      run(cmd, :params => params)
+      run!(cmd, :params => params)
     end
 
     def subscribe(options)
@@ -43,7 +43,7 @@ class LinuxAdmin
       params["--password="] = options[:password]
       params                = params.to_a + pools
 
-      run(cmd, :params => params)
+      run!(cmd, :params => params)
     end
 
     private
