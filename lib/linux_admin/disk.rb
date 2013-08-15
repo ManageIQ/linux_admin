@@ -22,9 +22,7 @@ class LinuxAdmin
     def size
       @size ||= begin
         size = nil
-        out = run(cmd(:fdisk),
-                  :return_output => true,
-                  :params => {"-l" => nil})
+        out = run!(cmd(:fdisk), :params => {"-l" => nil}).output
         out.each_line { |l|
           if l =~ /Disk #{path}: ([0-9\.]*) ([KMG])B.*/
             size = case $2
@@ -46,13 +44,11 @@ class LinuxAdmin
       @partitions ||= begin
         partitions = []
 
+        # TODO: Should this really catch non-zero RC, set output to the default "" and silently return [] ?
+        #   If so, should other calls to parted also do the same?
         # requires sudo
         out = run(cmd(:parted),
-                  :return_exitstatus => true,
-                  :return_output => true,
-                  :params => { nil => [@path, 'print'] })
-
-        return [] if out.kind_of?(Fixnum)
+                  :params => { nil => [@path, 'print'] }).output
 
         out.each_line do |l|
           if l =~ /^ [0-9].*/
@@ -98,7 +94,7 @@ class LinuxAdmin
           [(partitions.last.id + 1),
             partitions.last.end_sector]
 
-      run(cmd(:parted),
+      run!(cmd(:parted),
           :params => { nil => [path, 'mkpart', partition_type,
                                start, start + size]})
 
@@ -116,7 +112,7 @@ class LinuxAdmin
       @partitions = []
 
       # clear partition table
-      run(cmd(:dd),
+      run!(cmd(:dd),
           :params => { 'if=' => '/dev/zero', 'of=' => @path,
                        'bs=' => 512, 'count=' => 1})
 

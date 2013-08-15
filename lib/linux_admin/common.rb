@@ -9,24 +9,35 @@ class LinuxAdmin
     def run(cmd, options = {})
       params = options[:params] || options[:parameters]
 
-      begin
-        launch_params = {}
-        launch_params[:chdir] = options[:chdir] if options[:chdir]
-        out = launch(build_cmd(cmd, params), launch_params)
+      launch_params = {}
+      launch_params[:chdir] = options[:chdir] if options[:chdir]
 
-        if options[:return_output] && exitstatus == 0
-          out
-        elsif options[:return_exitstatus] || exitstatus == 0
-          exitstatus
-        else
-          raise CommandError, "#{build_cmd(cmd, params)}: exit code: #{exitstatus}"
-        end
-      rescue
-        return nil if options[:return_exitstatus]
-        raise
+      output = ""
+      error  = ""
+      status = nil
+
+      begin
+        output, error = launch(build_cmd(cmd, params), launch_params)
+        status = exitstatus
       ensure
+        output ||= ""
+        error  ||= ""
         self.exitstatus = nil
       end
+
+      CommandResult.new(output, error, status)
+    end
+
+    def run!(cmd, options = {})
+      params = options[:params] || options[:parameters]
+      command_result = run(cmd, options)
+
+      if command_result.exit_status != 0
+        message = "#{cmd} exit code: #{command_result.exit_status}"
+        raise CommandResultError.new(message, command_result)
+      end
+
+      command_result
     end
 
     private
@@ -61,25 +72,28 @@ class LinuxAdmin
     THREAD_SYNC_KEY = "LinuxAdmin-exitstatus"
 
     def launch(cmd, spawn_options = {})
-      pipe_r, pipe_w = IO.pipe
-      pid = Kernel.spawn(cmd, {:err => [:child, :out], :out => pipe_w}.merge(spawn_options))
-      wait_for_process(pid, pipe_w)
-      wait_for_output(pipe_r)
+      out_r, out_w = IO.pipe
+      err_r, err_w = IO.pipe
+      pid = Kernel.spawn(cmd, {:err => err_w, :out => out_w}.merge(spawn_options))
+      wait_for_process(pid, out_w, err_w)
+      wait_for_pipes(out_r, err_r)
     end
 
-    def wait_for_process(pid, pipe_w)
+    def wait_for_process(pid, out_w, err_w)
       self.exitstatus = :not_done
       Thread.new(Thread.current) do |parent_thread|
         _, status = Process.wait2(pid)
-        pipe_w.close
+        out_w.close
+        err_w.close
         parent_thread[THREAD_SYNC_KEY] = status.exitstatus
       end
     end
 
-    def wait_for_output(pipe_r)
-      out = pipe_r.read
+    def wait_for_pipes(out_r, err_r)
+      out = out_r.read
+      err = err_r.read
       sleep(0.1) while exitstatus == :not_done
-      return out
+      return out, err
     end
 
     def exitstatus

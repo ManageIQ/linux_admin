@@ -8,11 +8,11 @@ class LinuxAdmin
     end
 
     def registered?
-      run("subscription-manager identity", :return_exitstatus => true) == 0
+      run("subscription-manager identity").exit_status == 0
     end
 
     def refresh
-      run("subscription-manager refresh")
+      run!("subscription-manager refresh")
     end
 
     def organizations(options)
@@ -23,7 +23,7 @@ class LinuxAdmin
       params.merge!(proxy_params(options))
       params["--serverurl="]  = options[:server_url]  if options[:server_url]
 
-      output = run(cmd, :params => params, :return_output => true)
+      output = run!(cmd, :params => params).output
       parse_output(output).index_by {|i| i[:name]}
     end
 
@@ -36,7 +36,7 @@ class LinuxAdmin
       params["--org="]        = options[:org]         if options[:server_url] && options[:org]
       params["--serverurl="]  = options[:server_url]  if options[:server_url]
 
-      run(cmd, :params => params)
+      run!(cmd, :params => params)
     end
 
     def subscribe(options)
@@ -44,12 +44,12 @@ class LinuxAdmin
       pools  = options[:pools].collect {|pool| ["--pool", pool]}
       params = proxy_params(options).to_a + pools
 
-      run(cmd, :params => params)
+      run!(cmd, :params => params)
     end
 
     def available_subscriptions
       cmd     = "subscription-manager list --all --available"
-      output  = run(cmd, :return_output => true)
+      output  = run!(cmd).output
       parse_output(output).index_by {|i| i[:pool_id]}
     end
 

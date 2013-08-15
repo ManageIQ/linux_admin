@@ -14,7 +14,7 @@ class LinuxAdmin
       params["--database"]            = nil  if options[:database]
       params["--unique-md-filenames"] = nil  if options[:unique_file_names]
 
-      run(cmd, :params => params)
+      run!(cmd, :params => params)
     end
 
     def self.download_packages(path, packages, options = {})
@@ -32,7 +32,7 @@ class LinuxAdmin
       params["-a"]  = options[:arch] if options[:arch]
       params[nil]   = packages
 
-      run(cmd, :params => params)
+      run!(cmd, :params => params)
     end
 
     def self.repo_settings
@@ -43,7 +43,7 @@ class LinuxAdmin
       cmd    = "yum check-update"
       params = {nil => packages} unless packages.blank?
 
-      exitstatus = run(cmd, :params => params, :return_exitstatus => true)
+      exitstatus = run(cmd, :params => params).exit_status
       case exitstatus
       when 0;   false
       when 100; true
@@ -55,7 +55,7 @@ class LinuxAdmin
       cmd    = "yum -y update"
       params = {nil => packages} unless packages.blank?
 
-      run(cmd, :params => params)
+      run!(cmd, :params => params)
     end
 
     def self.version_available(*packages)
@@ -64,7 +64,7 @@ class LinuxAdmin
       cmd    = "repoquery --qf=\"%{name} %{version}\""
       params = {nil => packages}
 
-      out = run(cmd, :params => params, :return_output => true)
+      out = run!(cmd, :params => params).output
 
       items = out.split("\n")
       items.each_with_object({}) do |i, versions|

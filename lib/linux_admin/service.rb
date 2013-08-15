@@ -13,30 +13,29 @@ class LinuxAdmin
 
     def running?
       run(cmd(:service),
-          :params => { nil => [id, "status"] },
-          :return_exitstatus => true) == 0
+          :params => { nil => [id, "status"] }).exit_status == 0
     end
 
     def enable
-      run(cmd(:systemctl),
+      run!(cmd(:systemctl),
           :params => { nil => ["enable", "#{id}.service"] })
       self
     end
 
     def disable
-      run(cmd(:systemctl),
+      run!(cmd(:systemctl),
           :params => { nil => ["disable", "#{id}.service"] })
       self
     end
 
     def start
-      run(cmd(:service),
+      run!(cmd(:service),
           :params => { nil => [id, "start"] })
       self
     end
 
     def stop
-      run(cmd(:service),
+      run!(cmd(:service),
           :params => { nil => [id, "stop"] })
       self
     end
@@ -44,8 +43,7 @@ class LinuxAdmin
     def restart
       status =
         run(cmd(:service),
-          :params => { nil => [id, "restart"] },
-          :return_exitstatus => true)
+          :params => { nil => [id, "restart"] }).exit_status
 
       # attempt to manually stop/start if restart fails
       if status != 0

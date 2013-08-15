@@ -31,7 +31,7 @@ class LinuxAdmin
     end
 
     def format_to(filesystem)
-      run(cmd(:mke2fs),
+      run!(cmd(:mke2fs),
           :params => { '-t' => filesystem, nil => self.path})
       @fs_type = filesystem
     end
@@ -42,12 +42,12 @@ class LinuxAdmin
         "/mnt/#{disk.path.split(File::SEPARATOR).last}#{id}" if mount_point.nil?
       FileUtils.mkdir(@mount_point) unless File.directory?(@mount_point)
 
-      run(cmd(:mount),
+      run!(cmd(:mount),
           :params => { nil => [self.path, @mount_point] })
     end
 
     def umount
-      run(cmd(:umount),
+      run!(cmd(:umount),
           :params => { nil => [@mount_point] })
     end
   end

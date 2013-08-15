@@ -15,11 +15,10 @@ describe LinuxAdmin::Disk do
   describe "#size" do
     it "uses fdisk" do
       disk = LinuxAdmin::Disk.new :path => '/dev/hda'
-      disk.should_receive(:run).
+      disk.should_receive(:run!).
         with(disk.cmd(:fdisk),
-             :return_output => true,
              :params => {"-l" => nil}).
-        and_return("")
+        and_return(double(:output => ""))
       disk.size
     end
 
@@ -39,7 +38,7 @@ Disk identifier: 0x3ddb508b
 eos
 
       disk = LinuxAdmin::Disk.new :path => '/dev/hda'
-      disk.stub(:run).and_return(fdisk)
+      disk.stub(:run!).and_return(double(:output => fdisk))
       disk.size.should == 500.1.gigabytes
     end
   end
@@ -49,9 +48,7 @@ eos
       disk = LinuxAdmin::Disk.new :path => '/dev/hda'
       disk.should_receive(:run).
         with(disk.cmd(:parted),
-             :return_exitstatus => true,
-             :return_output => true,
-             :params => { nil => ['/dev/hda', 'print'] }).and_return ""
+             :params => { nil => ['/dev/hda', 'print'] }).and_return(double(:output => ""))
       disk.partitions
     end
 
@@ -76,7 +73,7 @@ Number  Start   End     Size    Type      File system     Flags
  3      162GB   163GB   1074MB  logical   linux-swap(v1)
 eos
       disk = LinuxAdmin::Disk.new
-      disk.should_receive(:run).and_return(partitions)
+      disk.should_receive(:run).and_return(double(:output => partitions))
 
       disk.partitions[0].id.should == 1
       disk.partitions[0].disk.should == disk
@@ -112,32 +109,32 @@ eos
     end
 
     it "uses parted" do
-      @disk.should_receive(:run).
+      @disk.should_receive(:run!).
         with(@disk.cmd(:parted),
              :params => { nil => ['/dev/hda', 'mkpart', 'primary', 1024, 2048] })
       @disk.create_partition 'primary', 1024
     end
 
     it "returns partition" do
-      @disk.should_receive(:run) # stub out call to parted
+      @disk.should_receive(:run!) # stub out call to parted
       partition = @disk.create_partition 'primary', 1024
       partition.should be_an_instance_of(LinuxAdmin::Partition)
     end
 
     it "increments partition id" do
-      @disk.should_receive(:run) # stub out call to parted
+      @disk.should_receive(:run!) # stub out call to parted
       partition = @disk.create_partition 'primary', 1024
       partition.id.should == 2
     end
 
     it "sets partition start to first unused sector on disk" do
-      @disk.should_receive(:run) # stub out call to parted
+      @disk.should_receive(:run!) # stub out call to parted
       partition = @disk.create_partition 'primary', 1024
       partition.start_sector.should == 1024
     end
 
     it "stores new partition locally" do
-      @disk.should_receive(:run) # stub out call to parted
+      @disk.should_receive(:run!) # stub out call to parted
       lambda {
         @disk.create_partition 'primary', 1024
       }.should change{@disk.partitions.size}.by(1)
@@ -147,15 +144,17 @@ eos
   describe "#clear!" do
     it "clears partitions" do
       disk = LinuxAdmin::Disk.new :path => '/dev/hda'
-      disk.stub(:run).and_return("") # stub out call to cmds
+      disk.should_receive(:run).and_return(double(:output => "")) # stub out call to cmds
       disk.partitions << LinuxAdmin::Partition.new
+
+      disk.should_receive(:run!)
       disk.clear!
       disk.partitions.should be_empty
     end
 
     it "uses dd to clear partition table" do
       disk = LinuxAdmin::Disk.new :path => '/dev/hda'
-      disk.should_receive(:run).
+      disk.should_receive(:run!).
            with(disk.cmd(:dd),
                 :params => {'if=' => '/dev/zero', 'of=' => '/dev/hda',
                             'bs=' => 512, 'count=' => 1})
@@ -164,7 +163,7 @@ eos
 
     it "returns self" do
       disk = LinuxAdmin::Disk.new :path => '/dev/hda'
-      disk.stub(:run) # stub out call to dd
+      disk.stub(:run!) # stub out call to dd
       disk.clear!.should == disk
     end
   end

@@ -3,18 +3,18 @@ require 'spec_helper'
 describe LinuxAdmin::SubscriptionManager do
   context "#registered?" do
     it "system with subscription-manager commands" do
-      described_class.any_instance.should_receive(:run).once.with("subscription-manager identity", {:return_exitstatus=>true}).and_return(0)
+      described_class.any_instance.should_receive(:run).once.with("subscription-manager identity").and_return(double(:exit_status => 0))
       expect(described_class.new.registered?).to be_true
     end
 
     it "system without subscription-manager commands" do
-      described_class.any_instance.should_receive(:run).once.with("subscription-manager identity", {:return_exitstatus=>true}).and_return(255)
+      described_class.any_instance.should_receive(:run).once.with("subscription-manager identity").and_return(double(:exit_status => 255))
       expect(described_class.new.registered?).to be_false
     end
   end
 
   it "#refresh" do
-    described_class.any_instance.should_receive(:run).once.with("subscription-manager refresh").and_return(0)
+    described_class.any_instance.should_receive(:run!).once.with("subscription-manager refresh")
     described_class.new.refresh
   end
 
@@ -24,7 +24,8 @@ describe LinuxAdmin::SubscriptionManager do
     end
 
     it "with username and password" do
-      described_class.any_instance.should_receive(:run).once.with("subscription-manager register", {:params=>{"--username="=>"SomeUser", "--password="=>"SomePass", "--org="=>"IT", "--proxy="=>"1.2.3.4", "--proxyuser="=>"ProxyUser", "--proxypassword="=>"ProxyPass", "--serverurl="=>"192.168.1.1"}}).and_return(0)
+      run_options = ["subscription-manager register", {:params=>{"--username="=>"SomeUser", "--password="=>"SomePass", "--org="=>"IT", "--proxy="=>"1.2.3.4", "--proxyuser="=>"ProxyUser", "--proxypassword="=>"ProxyPass", "--serverurl="=>"192.168.1.1"}}]
+      described_class.any_instance.should_receive(:run!).once.with(*run_options)
       described_class.new.register(
         :username       => "SomeUser",
         :password       => "SomePass",
@@ -38,12 +39,12 @@ describe LinuxAdmin::SubscriptionManager do
   end
 
   it "#subscribe" do
-    described_class.any_instance.should_receive(:run).once.with("subscription-manager attach", {:params=>[["--pool", 123], ["--pool", 456]]})
+    described_class.any_instance.should_receive(:run!).once.with("subscription-manager attach", {:params=>[["--pool", 123], ["--pool", 456]]})
     described_class.new.subscribe({:pools => [123, 456]})
   end
 
   it "#available_subscriptions" do
-    described_class.any_instance.should_receive(:run).once.with("subscription-manager list --all --available", :return_output => true).and_return(sample_output("subscription_manager/output_list_all_available"))
+    described_class.any_instance.should_receive(:run!).once.with("subscription-manager list --all --available").and_return(double(:output => sample_output("subscription_manager/output_list_all_available")))
     expect(described_class.new.available_subscriptions).to eq({
       "82c042fca983889b10178893f29b06e3" => {
         :subscription_name => "Example Subscription",
@@ -93,7 +94,8 @@ describe LinuxAdmin::SubscriptionManager do
   end
 
   it "#organizations" do
-    described_class.any_instance.should_receive(:run).once.with("subscription-manager orgs", {:params=>{"--username="=>"SomeUser", "--password="=>"SomePass", "--proxy="=>"1.2.3.4", "--proxyuser="=>"ProxyUser", "--proxypassword="=>"ProxyPass", "--serverurl="=>"192.168.1.1"}, :return_output => true}).and_return(sample_output("subscription_manager/output_orgs"))
+    run_options = ["subscription-manager orgs", {:params=>{"--username="=>"SomeUser", "--password="=>"SomePass", "--proxy="=>"1.2.3.4", "--proxyuser="=>"ProxyUser", "--proxypassword="=>"ProxyPass", "--serverurl="=>"192.168.1.1"}}]
+    described_class.any_instance.should_receive(:run!).once.with(*run_options).and_return(double(:output => sample_output("subscription_manager/output_orgs")))
     expect(described_class.new.organizations({:username=>"SomeUser", :password=>"SomePass", :proxy_address=>"1.2.3.4", :proxy_username=>"ProxyUser", :proxy_password=>"ProxyPass", :server_url=>"192.168.1.1"})).to eq({"SomeOrg"=>{:name=>"SomeOrg", :key=>"1234567"}})
   end
 end

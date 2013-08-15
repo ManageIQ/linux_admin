@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe LinuxAdmin::Rpm do
   it ".list_installed" do
-    described_class.stub(:run => sample_output("rpm/cmd_output_for_list_installed"))
+    described_class.stub(:run! => double(:output => sample_output("rpm/cmd_output_for_list_installed")))
     expect(described_class.list_installed).to eq({
       "ruby193-rubygem-some_really_long_name" =>"1.0.7-1.el6",
       "fipscheck-lib"                         =>"1.2.0-7.el6",
