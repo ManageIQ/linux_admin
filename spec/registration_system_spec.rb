@@ -18,13 +18,13 @@ describe LinuxAdmin::RegistrationSystem do
     end
 
     it "should memoize results" do
-      described_class.should_receive(:registration_type_uncached).once.and_call_original
+      described_class.should_receive(:registration_type_uncached).once.and_return("anything_non_nil")
       described_class.registration_type
       described_class.registration_type
     end
 
     it "with reload should refresh results" do
-      described_class.should_receive(:registration_type_uncached).twice.and_call_original
+      described_class.should_receive(:registration_type_uncached).twice.and_return("anything_non_nil")
       described_class.registration_type
       described_class.registration_type(true)
     end

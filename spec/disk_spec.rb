@@ -146,6 +146,8 @@ eos
       disk = LinuxAdmin::Disk.new :path => '/dev/hda'
       disk.should_receive(:run).and_return(double(:output => "")) # stub out call to cmds
       disk.partitions << LinuxAdmin::Partition.new
+
+      disk.should_receive(:run!)
       disk.clear!
       disk.partitions.should be_empty
     end
