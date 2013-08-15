@@ -81,13 +81,14 @@ describe LinuxAdmin::Common do
 
       it "command ok exit bad" do
         if run_method == "run!"
-          begin
-            subject.send(run_method, "false")
-          rescue CommandResultError => err
-            expect(err.result).to be_kind_of CommandResult
-          else
-            raise "Expected CommandResultError exception"
-          end
+          error = nil
+
+          # raise_error with do/end block notation is broken in rspec-expectations 2.14.x
+          # and has been fixed in master but not yet released.
+          # See: https://github.com/rspec/rspec-expectations/commit/b0df827f4c12870aa4df2f20a817a8b01721a6af
+          expect {subject.send(run_method, "false")}.to raise_error {|e| error = e }
+          expect(error).to be_kind_of CommandResultError
+          expect(error.result).to be_kind_of CommandResult
         else
           expect {subject.send(run_method, "false")}.to_not raise_error
         end
