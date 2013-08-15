@@ -31,13 +31,13 @@ class LinuxAdmin
     end
 
     def attach_to(lv)
-      run(cmd(:lvextend),
+      run!(cmd(:lvextend),
           :params => [lv.name, self.name])
       self
     end
 
     def extend_with(pv)
-      run(cmd(:vgextend),
+      run!(cmd(:vgextend),
           :params => [@name, pv.device_name])
       pv.volume_group = self
       self
@@ -45,7 +45,7 @@ class LinuxAdmin
 
     def self.create(name, pv)
       self.scan # initialize local volume groups
-      run(cmd(:vgcreate),
+      run!(cmd(:vgcreate),
           :params => [name, pv.device_name])
       vg = VolumeGroup.new :name => name
       pv.volume_group = vg
@@ -57,9 +57,7 @@ class LinuxAdmin
       @vgs ||= begin
         vgs = []
 
-        out = run(cmd(:vgdisplay),
-                  :return_output => true,
-                  :params => { '-c' => nil})
+        out = run!(cmd(:vgdisplay), :params => { '-c' => nil}).output
 
         out.each_line do |line|
           fields = line.split(':')

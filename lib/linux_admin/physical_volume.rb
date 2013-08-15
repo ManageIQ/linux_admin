@@ -31,7 +31,7 @@ class LinuxAdmin
     end
 
     def attach_to(vg)
-      run(cmd(:vgextend),
+      run!(cmd(:vgextend),
           :params => [vg.name, @device_name])
       self.volume_group = vg
       self
@@ -40,7 +40,7 @@ class LinuxAdmin
     # specify disk or partition instance to create physical volume on
     def self.create(device)
       self.scan # initialize local physical volumes
-      run(cmd(:pvcreate),
+      run!(cmd(:pvcreate),
           :params => { nil => device.path})
       pv  = PhysicalVolume.new(:device_name  => device.path,
                                :volume_group => nil,
@@ -54,9 +54,7 @@ class LinuxAdmin
         vgs = VolumeGroup.scan
         pvs = []
 
-        out = run(cmd(:pvdisplay),
-                  :return_output => true,
-                  :params => { '-c' => nil})
+        out = run!(cmd(:pvdisplay), :params => { '-c' => nil}).output
 
         out.each_line do |line|
           fields = line.split(':')

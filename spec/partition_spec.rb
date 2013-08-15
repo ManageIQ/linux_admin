@@ -7,7 +7,7 @@ describe LinuxAdmin::Partition do
 
     # stub out calls that modify system
     FileUtils.stub(:mkdir)
-    @partition.stub(:run)
+    @partition.stub(:run!)
   end
 
   describe "#path" do
@@ -18,14 +18,14 @@ describe LinuxAdmin::Partition do
 
   describe "#format_to" do
     it "uses mke2fs" do
-      @partition.should_receive(:run).
+      @partition.should_receive(:run!).
          with(@partition.cmd(:mke2fs),
               :params => { '-t' => 'ext4', nil => '/dev/sda2'})
       @partition.format_to('ext4')
     end
 
     it "sets fs type" do
-      @partition.should_receive(:run) # ignore actual formatting cmd
+      @partition.should_receive(:run!) # ignore actual formatting cmd
       @partition.format_to('ext4')
       @partition.fs_type.should == 'ext4'
     end
@@ -33,7 +33,7 @@ describe LinuxAdmin::Partition do
 
   describe "#mount" do
     it "sets mount point" do
-      @partition.should_receive(:run) # ignore actual mount cmd
+      @partition.should_receive(:run!) # ignore actual mount cmd
       @partition.mount
       @partition.mount_point.should == '/mnt/sda2'
     end
@@ -42,13 +42,13 @@ describe LinuxAdmin::Partition do
       it "creates mountpoint" do
         File.should_receive(:directory?).with('/mnt/sda2').and_return(false)
         FileUtils.should_receive(:mkdir).with('/mnt/sda2')
-        @partition.should_receive(:run) # ignore actual mount cmd
+        @partition.should_receive(:run!) # ignore actual mount cmd
         @partition.mount
       end
     end
 
     it "mounts partition" do
-      @partition.should_receive(:run).
+      @partition.should_receive(:run!).
          with(@partition.cmd(:mount),
               :params => { nil => ['/dev/sda2', '/mnt/sda2']})
       @partition.mount
@@ -58,7 +58,7 @@ describe LinuxAdmin::Partition do
   describe "#umount" do
     it "unmounts partition" do
       @partition.mount_point = '/mnt/sda2'
-      @partition.should_receive(:run).
+      @partition.should_receive(:run!).
          with(@partition.cmd(:umount),
               :params => { nil => ['/mnt/sda2']})
       @partition.umount

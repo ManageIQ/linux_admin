@@ -25,7 +25,7 @@ eos
     it "uses lvextend" do
       lv = described_class.new :name => 'lv'
       vg = LinuxAdmin::VolumeGroup.new :name => 'vg'
-      lv.should_receive(:run).
+      lv.should_receive(:run!).
          with(vg.cmd(:lvextend),
               :params => ['lv', 'vg'])
       lv.extend_with(vg)
@@ -34,7 +34,7 @@ eos
     it "returns self" do
       lv = described_class.new :name => 'lv'
       vg = LinuxAdmin::VolumeGroup.new :name => 'vg'
-      lv.stub(:run)
+      lv.stub(:run!)
       lv.extend_with(vg).should == lv
     end
   end
@@ -46,7 +46,7 @@ eos
 
     it "uses lvcreate" do
       described_class.instance_variable_set(:@lvs, [])
-      described_class.should_receive(:run).
+      described_class.should_receive(:run!).
                                 with(LinuxAdmin.cmd(:lvcreate),
                                      :params => { '-n' => 'lv',
                                                    nil => 'vg',
@@ -55,16 +55,16 @@ eos
     end
 
     it "returns new logical volume" do
-      LinuxAdmin::VolumeGroup.stub(:run => "")
-      described_class.stub(:run => "")
+      LinuxAdmin::VolumeGroup.stub(:run! => double(:output => ""))
+      described_class.stub(:run! => double(:output => ""))
       lv = described_class.create 'lv', @vg, '256G'
       lv.should be_an_instance_of(described_class)
       lv.name.should == 'lv'
     end
 
     it "adds logical volume to local registry" do
-      LinuxAdmin::VolumeGroup.stub(:run => "")
-      described_class.stub(:run => "")
+      LinuxAdmin::VolumeGroup.stub(:run! => double(:output => ""))
+      described_class.stub(:run! => double(:output => ""))
       lv = described_class.create 'lv', @vg, '256G'
       described_class.scan.should include(lv)
     end
@@ -72,18 +72,17 @@ eos
 
   describe "#scan" do
     it "uses lvdisplay" do
-      described_class.should_receive(:run).
+      described_class.should_receive(:run!).
                                 with(LinuxAdmin.cmd(:lvdisplay),
-                                     :return_output => true,
                                      :params => { '-c' => nil}).
-                                and_return(@logical_volumes)
-      LinuxAdmin::VolumeGroup.should_receive(:run).and_return(@groups) # stub out call to vgdisplay
+                                and_return(double(:output => @logical_volumes))
+      LinuxAdmin::VolumeGroup.should_receive(:run!).and_return(double(:output => @groups)) # stub out call to vgdisplay
       described_class.scan
     end
 
     it "returns local logical volumes" do
-      described_class.should_receive(:run).and_return(@logical_volumes)
-      LinuxAdmin::VolumeGroup.should_receive(:run).and_return(@groups)
+      described_class.should_receive(:run!).and_return(double(:output => @logical_volumes))
+      LinuxAdmin::VolumeGroup.should_receive(:run!).and_return(double(:output => @groups))
       lvs = described_class.scan
 
       lvs[0].should be_an_instance_of(described_class)
@@ -96,8 +95,8 @@ eos
     end
 
     it "resolves volume group references" do
-      described_class.should_receive(:run).and_return(@logical_volumes)
-      LinuxAdmin::VolumeGroup.should_receive(:run).and_return(@groups)
+      described_class.should_receive(:run!).and_return(double(:output => @logical_volumes))
+      LinuxAdmin::VolumeGroup.should_receive(:run!).and_return(double(:output => @groups))
       lvs = described_class.scan
       lvs[0].volume_group.should be_an_instance_of(LinuxAdmin::VolumeGroup)
       lvs[0].volume_group.name.should == 'vg_foobar'

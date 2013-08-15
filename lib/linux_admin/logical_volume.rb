@@ -33,14 +33,14 @@ class LinuxAdmin
     end
 
     def extend_with(vg)
-      run(cmd(:lvextend),
+      run!(cmd(:lvextend),
           :params => [self.name, vg.name])
       self
     end
 
     def self.create(name, vg, size)
       self.scan # initialize local logical volumes
-      run(cmd(:lvcreate),
+      run!(cmd(:lvcreate),
           :params => { '-n' => name, nil => vg.name, '-L' => size})
       lv = LogicalVolume.new :name => name,
                              :volume_group => vg,
@@ -54,9 +54,7 @@ class LinuxAdmin
         vgs = VolumeGroup.scan
         lvs = []
 
-        out = run(cmd(:lvdisplay),
-                  :return_output => true,
-                  :params => { '-c' => nil})
+        out = run!(cmd(:lvdisplay), :params => { '-c' => nil}).output
 
         out.each_line do |line|
           fields = line.split(':')
