@@ -2,6 +2,12 @@ require 'date'
 
 class LinuxAdmin
   class SubscriptionManager < RegistrationSystem
+    def run!(cmd, options = {})
+      super(cmd, options)
+    rescue CommandResultError => err
+      raise CredentialError.new(err.result) if err.result.error.downcase.include?("invalid username or password")
+      raise
+    end
 
     def validate_credentials(options)
       !!organizations(options)
@@ -23,8 +29,8 @@ class LinuxAdmin
       params.merge!(proxy_params(options))
       params["--serverurl="]  = options[:server_url]  if options[:server_url]
 
-      output = run!(cmd, :params => params).output
-      parse_output(output).index_by {|i| i[:name]}
+      result = run!(cmd, :params => params)
+      parse_output(result.output).index_by {|i| i[:name]}
     end
 
     def register(options)
