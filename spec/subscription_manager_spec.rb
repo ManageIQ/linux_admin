@@ -93,9 +93,17 @@ describe LinuxAdmin::SubscriptionManager do
     })
   end
 
-  it "#organizations" do
-    run_options = ["subscription-manager orgs", {:params=>{"--username="=>"SomeUser", "--password="=>"SomePass", "--proxy="=>"1.2.3.4", "--proxyuser="=>"ProxyUser", "--proxypassword="=>"ProxyPass", "--serverurl="=>"192.168.1.1"}}]
-    described_class.any_instance.should_receive(:run!).once.with(*run_options).and_return(double(:output => sample_output("subscription_manager/output_orgs")))
-    expect(described_class.new.organizations({:username=>"SomeUser", :password=>"SomePass", :proxy_address=>"1.2.3.4", :proxy_username=>"ProxyUser", :proxy_password=>"ProxyPass", :server_url=>"192.168.1.1"})).to eq({"SomeOrg"=>{:name=>"SomeOrg", :key=>"1234567"}})
+  context "#organizations" do
+    it "with valid credentials" do
+      run_options = ["subscription-manager orgs", {:params=>{"--username="=>"SomeUser", "--password="=>"SomePass", "--proxy="=>"1.2.3.4", "--proxyuser="=>"ProxyUser", "--proxypassword="=>"ProxyPass", "--serverurl="=>"192.168.1.1"}}]
+      described_class.any_instance.should_receive(:run!).once.with(*run_options).and_return(double(:output => sample_output("subscription_manager/output_orgs")))
+      expect(described_class.new.organizations({:username=>"SomeUser", :password=>"SomePass", :proxy_address=>"1.2.3.4", :proxy_username=>"ProxyUser", :proxy_password=>"ProxyPass", :server_url=>"192.168.1.1"})).to eq({"SomeOrg"=>{:name=>"SomeOrg", :key=>"1234567"}})
+    end
+
+    it "with invalid credentials" do
+      run_options = ["subscription-manager orgs", {:params=>{"--username="=>"BadUser", "--password="=>"BadPass"}}]
+      described_class.any_instance.should_receive(:run).once.with(*run_options).and_return(CommandResult.new("", "Invalid username or password. To create a login, please visit https://www.redhat.com/wapps/ugc/register.html", 255))
+      expect { described_class.new.organizations({:username=>"BadUser", :password=>"BadPass"}) }.to raise_error(LinuxAdmin::CredentialError)
+    end
   end
 end
