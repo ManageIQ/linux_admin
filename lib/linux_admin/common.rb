@@ -46,7 +46,7 @@ class LinuxAdmin
       return [] if params.blank?
       params.collect do |k, v|
         v = case v
-            when Array;    v.collect(&:shellescape)
+            when Array;    v.collect {|i| i.to_s.shellescape}
             when NilClass; v
             else           v.to_s.shellescape
             end

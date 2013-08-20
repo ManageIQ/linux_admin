@@ -47,6 +47,11 @@ describe LinuxAdmin::Common do
         subject.send(run_method, "true", :params => modified_params)
       end
 
+      it "sanitizes fixnum array params" do
+        subject.should_receive(:launch).once.with("true 1", {})
+        subject.send(run_method, "true", :params => { nil => [1]})
+      end
+
       it "as empty hash" do
         subject.should_receive(:launch).once.with("true", {})
         subject.send(run_method, "true", :params => {})
