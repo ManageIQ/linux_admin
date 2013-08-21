@@ -9,6 +9,21 @@ class LinuxAdmin
   class Disk < LinuxAdmin
     attr_accessor :path
 
+    private
+
+    def str_to_bytes(val, unit)
+      case unit
+      when 'K' then
+        val.to_f.kilobytes
+      when 'M' then
+        val.to_f.megabytes
+      when 'G' then
+        val.to_f.gigabytes
+      end
+    end
+
+    public
+
     def self.local
       Dir.glob('/dev/[vhs]d[a-z]').collect do |d|
         Disk.new :path => d
@@ -25,14 +40,7 @@ class LinuxAdmin
         out = run!(cmd(:fdisk), :params => {"-l" => nil}).output
         out.each_line { |l|
           if l =~ /Disk #{path}: ([0-9\.]*) ([KMG])B.*/
-            size = case $2
-                   when 'K' then
-                     $1.to_f.kilobytes
-                   when 'M' then
-                     $1.to_f.megabytes
-                   when 'G' then
-                     $1.to_f.gigabytes
-                   end
+            size = str_to_bytes($1, $2)
             break
           end
         }
@@ -62,14 +70,7 @@ class LinuxAdmin
               case fields[i]
               when :start_sector, :end_sector, :size
                 if val =~ /([0-9\.]*)([KMG])B/
-                  val = case $2
-                        when 'K' then
-                          $1.to_f.kilobytes
-                        when 'M' then
-                          $1.to_f.megabytes
-                        when 'G' then
-                          $1.to_f.gigabytes
-                        end
+                  val = str_to_bytes($1, $2)
                 end
 
               when :id
