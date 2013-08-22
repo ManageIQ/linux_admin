@@ -95,7 +95,7 @@ class LinuxAdmin
     def has_partition_table?
       result = run(cmd(:parted), :params => { nil => [path, "print"]})
 
-      return result_indicates_missing_partition_table?(result) ? false : true
+      result_indicates_partition_table?(result)
     end
 
     def create_partition(partition_type, size)
@@ -133,9 +133,10 @@ class LinuxAdmin
 
     private
 
-    def result_indicates_missing_partition_table?(result)
+    def result_indicates_partition_table?(result)
       # parted exits with 1 but writes this oddly spelled error to stdout.
-      result.exit_status == 1 && result.output =~ /unrecognised disk label/
+      missing = (result.exit_status == 1 && result.output.include?("unrecognised disk label"))
+      !missing
     end
   end
 end
