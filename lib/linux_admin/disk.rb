@@ -7,7 +7,26 @@ require 'linux_admin/partition'
 
 class LinuxAdmin
   class Disk < LinuxAdmin
+    PARTED_FIELDS =
+      [:id, :start_sector, :end_sector,
+       :size, :partition_type, :fs_type]
+
     attr_accessor :path
+
+    private
+
+    def str_to_bytes(val, unit)
+      case unit
+      when 'K' then
+        val.to_f.kilobytes
+      when 'M' then
+        val.to_f.megabytes
+      when 'G' then
+        val.to_f.gigabytes
+      end
+    end
+
+    public
 
     def self.local
       Dir.glob('/dev/[vhs]d[a-z]').collect do |d|
@@ -25,14 +44,7 @@ class LinuxAdmin
         out = run!(cmd(:fdisk), :params => {"-l" => nil}).output
         out.each_line { |l|
           if l =~ /Disk #{path}: ([0-9\.]*) ([KMG])B.*/
-            size = case $2
-                   when 'K' then
-                     $1.to_f.kilobytes
-                   when 'M' then
-                     $1.to_f.megabytes
-                   when 'G' then
-                     $1.to_f.gigabytes
-                   end
+            size = str_to_bytes($1, $2)
             break
           end
         }
@@ -41,52 +53,51 @@ class LinuxAdmin
     end
 
     def partitions
-      @partitions ||= begin
-        partitions = []
-
-        # TODO: Should this really catch non-zero RC, set output to the default "" and silently return [] ?
-        #   If so, should other calls to parted also do the same?
-        # requires sudo
-        out = run(cmd(:parted),
-                  :params => { nil => [@path, 'print'] }).output
-
-        out.each_line do |l|
-          if l =~ /^ [0-9].*/
-            p = l.split
-            args = {:disk => self}
-            fields = [:id, :start_sector, :end_sector,
-                      :size, :partition_type, :fs_type]
-
-            fields.each_index do |i|
-              val = p[i]
-              case fields[i]
-              when :start_sector, :end_sector, :size
-                if val =~ /([0-9\.]*)([KMG])B/
-                  val = case $2
-                        when 'K' then
-                          $1.to_f.kilobytes
-                        when 'M' then
-                          $1.to_f.megabytes
-                        when 'G' then
-                          $1.to_f.gigabytes
-                        end
-                end
-
-              when :id
-                val = val.to_i
-
-              end
-
-              args[fields[i]] = val
-            end
-            partitions << Partition.new(args)
-
-          end
-        end
-
-        partitions
-      end
+      @partitions ||=
+        parted_output.collect { |disk|
+          partition_from_parted(disk)
+        }
     end
+
+    private
+
+    def parted_output
+      # TODO: Should this really catch non-zero RC, set output to the default "" and silently return [] ?
+      #   If so, should other calls to parted also do the same?
+      # requires sudo
+      out = run(cmd(:parted),
+                :params => { nil => [@path, 'print'] }).output
+      split = []
+      out.each_line do |l|
+        if l =~ /^ [0-9].*/
+          split << l.split
+        end
+      end
+      split
+    end
+
+
+    def partition_from_parted(output_disk)
+      args = {:disk => self}
+      PARTED_FIELDS.each_index do |i|
+        val = output_disk[i]
+        case PARTED_FIELDS[i]
+        when :start_sector, :end_sector, :size
+          if val =~ /([0-9\.]*)([KMG])B/
+            val = str_to_bytes($1, $2)
+          end
+
+        when :id
+          val = val.to_i
+
+        end
+        args[PARTED_FIELDS[i]] = val
+      end
+
+      Partition.new(args)
+    end
+
+    public
 
     def create_partition_table(type = "msdos")
       run!(cmd(:parted), :params => { nil => [path, "mklabel", type]})
