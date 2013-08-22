@@ -106,6 +106,7 @@ eos
       @disk.instance_variable_set(:@partitions,
                                   [LinuxAdmin::Partition.new(:id => 1,
                                                  :end_sector => 1024)])
+      @disk.stub(:has_partition_table? => true)
     end
 
     it "uses parted" do
@@ -139,6 +140,35 @@ eos
         @disk.create_partition 'primary', 1024
       }.should change{@disk.partitions.size}.by(1)
     end
+
+    it "creates partition table if missing" do
+      @disk.stub(:has_partition_table? => false)
+      @disk.should_receive(:create_partition_table)
+      @disk.should_receive(:run!)
+      @disk.create_partition 'primary', 1024
+    end
+  end
+
+  describe "#has_partition_table?" do
+    it "positive case" do
+      disk = LinuxAdmin::Disk.new :path => '/dev/hda'
+      disk.should_receive(:run).and_return(double(:output => "", :exit_status => 0))
+      disk.should have_partition_table
+    end
+
+    it "negative case" do
+      disk = LinuxAdmin::Disk.new :path => '/dev/hda'
+      output = "\e[?1034h\r\rError: /dev/sdb: unrecognised disk label\n"
+      disk.should_receive(:run).and_return(double(:output => output, :exit_status => 1))
+      disk.should_not have_partition_table
+    end
+  end
+
+  it "#create_partition_table" do
+    disk = LinuxAdmin::Disk.new :path => '/dev/hda'
+    options = {:params => {nil => ["/dev/hda", "mklabel", "msdos"]}}
+    disk.should_receive(:run!).with(disk.cmd(:parted), options)
+    disk.create_partition_table
   end
 
   describe "#clear!" do
