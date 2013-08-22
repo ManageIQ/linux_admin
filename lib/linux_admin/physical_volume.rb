@@ -4,7 +4,7 @@
 # Licensed under the MIT License
 
 class LinuxAdmin
-  class PhysicalVolume < LinuxAdmin
+  class PhysicalVolume < Volume
     # physical volume device name
     attr_accessor :device_name
 
@@ -51,22 +51,11 @@ class LinuxAdmin
 
     def self.scan
       @pvs ||= begin
-        vgs = VolumeGroup.scan
-        pvs = []
-
-        out = run!(cmd(:pvdisplay), :params => { '-c' => nil}).output
-
-        out.each_line do |line|
-          fields = line.split(':')
-          vgname = fields[1]
-          vg = vgs.find { |vg| vg.name == vgname}
-
-          pvs << PhysicalVolume.new(:device_name  => fields[0],
-                                    :volume_group => vg,
-                                    :size         => fields[2].to_i)
-        end
-
-        pvs
+        scan_volumes(cmd(:pvdisplay)) do |fields, vg|
+          PhysicalVolume.new(:device_name  => fields[0],
+                             :volume_group => vg,
+                             :size         => fields[2].to_i)
+         end
       end
     end
   end

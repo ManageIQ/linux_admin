@@ -4,7 +4,7 @@
 # Licensed under the MIT License
 
 class LinuxAdmin
-  class LogicalVolume < LinuxAdmin
+  class LogicalVolume < Volume
     # logical volume name
     attr_accessor :name
 
@@ -51,22 +51,11 @@ class LinuxAdmin
 
     def self.scan
       @lvs ||= begin
-        vgs = VolumeGroup.scan
-        lvs = []
-
-        out = run!(cmd(:lvdisplay), :params => { '-c' => nil}).output
-
-        out.each_line do |line|
-          fields = line.split(':')
-          vgname = fields[1] 
-          vg = vgs.find { |vg| vg.name == vgname }
-
-          lvs << LogicalVolume.new(:name         => fields[0],
-                                   :volume_group => vg,
-                                   :sectors      => fields[6].to_i)
+        scan_volumes(cmd(:lvdisplay)) do |fields, vg|
+          LogicalVolume.new(:name         => fields[0],
+                            :volume_group => vg,
+                            :sectors      => fields[6].to_i)
         end
-
-        lvs
       end
     end
   end

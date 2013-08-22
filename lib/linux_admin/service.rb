@@ -7,6 +7,15 @@ class LinuxAdmin
   class Service < LinuxAdmin
     attr_accessor :id
 
+    private
+
+    def systemctl(cmd)
+      run!(cmd(:systemctl),
+          :params => { nil => [cmd, "#{id}.service"] })
+    end
+
+    public
+
     def initialize(id)
       @id = id
     end
@@ -17,14 +26,12 @@ class LinuxAdmin
     end
 
     def enable
-      run!(cmd(:systemctl),
-          :params => { nil => ["enable", "#{id}.service"] })
+      systemctl 'enable'
       self
     end
 
     def disable
-      run!(cmd(:systemctl),
-          :params => { nil => ["disable", "#{id}.service"] })
+      systemctl 'disable'
       self
     end
 
