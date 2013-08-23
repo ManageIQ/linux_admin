@@ -48,7 +48,7 @@ eos
       disk = LinuxAdmin::Disk.new :path => '/dev/hda'
       disk.should_receive(:run).
         with(disk.cmd(:parted),
-             :params => { nil => ['/dev/hda', 'print'] }).and_return(double(:output => ""))
+             :params => { nil => %w(--script /dev/hda print) }).and_return(double(:output => ""))
       disk.partitions
     end
 
@@ -112,7 +112,7 @@ eos
     it "uses parted" do
       @disk.should_receive(:run!).
         with(@disk.cmd(:parted),
-             :params => { nil => ['/dev/hda', 'mkpart', 'primary', 1024, 2048] })
+             :params => { nil => ['--script', '/dev/hda', 'mkpart', 'primary', 1024, 2048] })
       @disk.create_partition 'primary', 1024
     end
 
@@ -166,7 +166,7 @@ eos
 
   it "#create_partition_table" do
     disk = LinuxAdmin::Disk.new :path => '/dev/hda'
-    options = {:params => {nil => ["/dev/hda", "mklabel", "msdos"]}}
+    options = {:params => {nil => %w(--script /dev/hda mklabel msdos)}}
     disk.should_receive(:run!).with(disk.cmd(:parted), options)
     disk.create_partition_table
   end

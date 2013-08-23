@@ -66,7 +66,7 @@ class LinuxAdmin
       #   If so, should other calls to parted also do the same?
       # requires sudo
       out = run(cmd(:parted),
-                :params => { nil => [@path, 'print'] }).output
+                :params => { nil => parted_options_array('print') }).output
       split = []
       out.each_line do |l|
         if l =~ /^ [0-9].*/
@@ -100,11 +100,11 @@ class LinuxAdmin
     public
 
     def create_partition_table(type = "msdos")
-      run!(cmd(:parted), :params => { nil => [path, "mklabel", type]})
+      run!(cmd(:parted), :params => { nil => parted_options_array("mklabel", type)})
     end
 
     def has_partition_table?
-      result = run(cmd(:parted), :params => { nil => [path, "print"]})
+      result = run(cmd(:parted), :params => { nil => parted_options_array("print")})
 
       result_indicates_partition_table?(result)
     end
@@ -117,9 +117,8 @@ class LinuxAdmin
           [(partitions.last.id + 1),
             partitions.last.end_sector]
 
-      run!(cmd(:parted),
-          :params => { nil => [path, 'mkpart', partition_type,
-                               start, start + size]})
+      options = parted_options_array('mkpart', partition_type, start, start + size)
+      run!(cmd(:parted), :params => { nil => options})
 
       partition = Partition.new(:disk           => self,
                                 :id             => id,
@@ -143,6 +142,15 @@ class LinuxAdmin
     end
 
     private
+
+    def parted_options_array(*args)
+      args = args.first if args.first.kind_of?(Array)
+      parted_default_options + args
+    end
+
+    def parted_default_options
+      @parted_default_options ||= ['--script', path].freeze
+    end
 
     def result_indicates_partition_table?(result)
       # parted exits with 1 but writes this oddly spelled error to stdout.
