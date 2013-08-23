@@ -52,6 +52,12 @@ describe LinuxAdmin::Common do
         subject.send(run_method, "true", :params => { nil => [1]})
       end
 
+      it "sanitizes Pathname params" do
+        require 'pathname'
+        subject.should_receive(:launch).once.with("true /usr/bin/ruby", {})
+        subject.send(run_method, "true", :params => {nil => [Pathname.new("/usr/bin/ruby")]})
+      end
+
       it "as empty hash" do
         subject.should_receive(:launch).once.with("true", {})
         subject.send(run_method, "true", :params => {})
