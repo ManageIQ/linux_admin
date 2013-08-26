@@ -37,7 +37,7 @@ describe LinuxAdmin::Common do
   end
 
   shared_examples_for "run" do
-    context "with params" do
+    context "paramater and command handling" do
       before do
         subject.stub(:exitstatus => 0)
       end
@@ -49,13 +49,19 @@ describe LinuxAdmin::Common do
 
       it "sanitizes fixnum array params" do
         subject.should_receive(:launch).once.with("true 1", {})
-        subject.send(run_method, "true", :params => { nil => [1]})
+        subject.send(run_method, "true", :params => {nil => [1]})
       end
 
-      it "sanitizes Pathname params" do
+      it "sanitizes Pathname option value" do
         require 'pathname'
         subject.should_receive(:launch).once.with("true /usr/bin/ruby", {})
         subject.send(run_method, "true", :params => {nil => [Pathname.new("/usr/bin/ruby")]})
+      end
+
+      it "sanitizes Pathname option" do
+        require 'pathname'
+        subject.should_receive(:launch).once.with("true /usr/bin/ruby", {})
+        subject.send(run_method, "true", :params => {Pathname.new("/usr/bin/ruby") => nil})
       end
 
       it "as empty hash" do
@@ -73,6 +79,16 @@ describe LinuxAdmin::Common do
         subject.stub(:launch)
         subject.send(run_method, "true", :params => params)
         expect(orig_params).to eq(params)
+      end
+
+      it "Pathname command" do
+        subject.should_receive(:launch).once.with("/usr/bin/ruby", {})
+        subject.send(run_method, Pathname.new("/usr/bin/ruby"), {})
+      end
+
+      it "Pathname command with params" do
+        subject.should_receive(:launch).once.with("/usr/bin/ruby -v", {})
+        subject.send(run_method, Pathname.new("/usr/bin/ruby"), :params => {"-v" => nil})
       end
 
       it "supports spawn's chdir option" do

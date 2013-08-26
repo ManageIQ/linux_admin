@@ -56,13 +56,13 @@ class LinuxAdmin
 
     def assemble_params(sanitized_params)
       sanitized_params.collect do |pair|
-        pair_joiner = pair.first.try(:end_with?, "=") ? "" : " "
+        pair_joiner = pair.first.to_s.end_with?("=") ? "" : " "
         pair.flatten.compact.join(pair_joiner)
       end.join(" ")
     end
 
     def build_cmd(cmd, params = nil)
-      return cmd if params.blank?
+      return cmd.to_s if params.blank?
       "#{cmd} #{assemble_params(sanitize(params))}"
     end
 
