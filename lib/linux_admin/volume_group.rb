@@ -60,8 +60,8 @@ class LinuxAdmin
         out = run!(cmd(:vgdisplay), :params => { '-c' => nil}).output
 
         out.each_line do |line|
-          fields = line.split(':')
-          vgs << VolumeGroup.new(:name   => fields[0])
+          fields = line.lstrip.split(':')
+          vgs << VolumeGroup.new(:name => fields[0])
         end
 
         vgs
