@@ -5,11 +5,11 @@ describe LinuxAdmin::PhysicalVolume do
     LinuxAdmin::Distro.stub(:local => LinuxAdmin::Distros::Test.new)
 
     @physical_volumes = <<eos
-/dev/vda2:vg_foobar:24139776:-1:8:8:-1:32768:368:0:368:pxR32D-YkC2-PfHe-zOwb-eaGD-9Ar0-mAOl9u
+  /dev/vda2:vg_foobar:24139776:-1:8:8:-1:32768:368:0:368:pxR32D-YkC2-PfHe-zOwb-eaGD-9Ar0-mAOl9u
 eos
 
     @groups = <<eos
-vg_foobar:r/w:772:-1:0:2:2:-1:0:1:1:12058624:32768:368:368:0:tILZUF-IspH-H90I-pT5j-vVFl-b76L-zWx3CW
+  vg_foobar:r/w:772:-1:0:2:2:-1:0:1:1:12058624:32768:368:368:0:tILZUF-IspH-H90I-pT5j-vVFl-b76L-zWx3CW
 eos
   end
 

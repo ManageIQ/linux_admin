@@ -23,7 +23,7 @@ class LinuxAdmin
       out = run!(cmd, :params => { '-c' => nil}).output
 
       out.each_line do |line|
-        fields, vg = process_volume_display_line(line)
+        fields, vg = process_volume_display_line(line.lstrip)
         volumes << yield(fields, vg)
       end
 
