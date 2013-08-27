@@ -100,7 +100,7 @@ describe LinuxAdmin::Common do
       end
 
       it "command bad" do
-        expect {subject.send(run_method, "XXXXX")}.to raise_error(Errno::ENOENT)
+        expect {subject.send(run_method, "XXXXX --user=bob")}.to raise_error(LinuxAdmin::NoSuchFileError, "No such file or directory - XXXXX")
       end
 
       context "#exit_status" do
