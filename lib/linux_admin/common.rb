@@ -24,7 +24,10 @@ class LinuxAdmin
         error  ||= ""
         self.exitstatus = nil
       end
-
+    rescue Errno::ENOENT => err
+      raise NoSuchFileError.new(err.message) if NoSuchFileError.detected?(err.message)
+      raise
+    else
       CommandResult.new(output, error, status)
     end
 
