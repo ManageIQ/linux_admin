@@ -59,7 +59,7 @@ class LinuxAdmin
 
     class RedHat < Distro
       COMMANDS = {:service   => '/sbin/service',
-                  :systemctl => '/bin/systemctl',
+                  :chkconfig => '/sbin/chkconfig',
                   :parted    => '/sbin/parted',
                   :mount     => '/bin/mount',
                   :umount    => '/bin/umount',
