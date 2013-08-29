@@ -51,13 +51,37 @@ eos
                                      :params => { '-n' => 'lv',
                                                    nil => 'vg',
                                                   '-L' => '256G' })
-      described_class.create 'lv', @vg, '256G'
+      described_class.create 'lv', @vg, 256.gigabytes
+    end
+
+    context "size is specified" do
+      it "passes -L option to lvcreate" do
+        described_class.instance_variable_set(:@lvs, [])
+        described_class.should_receive(:run!).
+                                  with(LinuxAdmin.cmd(:lvcreate),
+                                       :params => { '-n' => 'lv',
+                                                     nil => 'vg',
+                                                    '-L' => '256G' })
+        described_class.create 'lv', @vg, 256.gigabytes
+      end
+    end
+
+    context "extents is specified" do
+      it "passes -l option to lvcreate" do
+        described_class.instance_variable_set(:@lvs, [])
+        described_class.should_receive(:run!).
+                                  with(LinuxAdmin.cmd(:lvcreate),
+                                       :params => { '-n' => 'lv',
+                                                     nil => 'vg',
+                                                    '-l' => '100%FREE' })
+        described_class.create 'lv', @vg, 100
+      end
     end
 
     it "returns new logical volume" do
       LinuxAdmin::VolumeGroup.stub(:run! => double(:output => ""))
       described_class.stub(:run! => double(:output => ""))
-      lv = described_class.create 'lv', @vg, '256G'
+      lv = described_class.create 'lv', @vg, 256.gigabytes
       lv.should be_an_instance_of(described_class)
       lv.name.should == 'lv'
     end
@@ -65,7 +89,7 @@ eos
     it "adds logical volume to local registry" do
       LinuxAdmin::VolumeGroup.stub(:run! => double(:output => ""))
       described_class.stub(:run! => double(:output => ""))
-      lv = described_class.create 'lv', @vg, '256G'
+      lv = described_class.create 'lv', @vg, 256.gigabytes
       described_class.scan.should include(lv)
     end
   end
