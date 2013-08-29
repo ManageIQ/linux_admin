@@ -37,8 +37,8 @@ describe LinuxAdmin::Service do
   describe "#enable" do
     it "enables service" do
       @service.should_receive(:run!).
-         with(@service.cmd(:systemctl),
-              :params => { nil => [ 'enable', 'foo.service']})
+         with(@service.cmd(:chkconfig),
+              :params => { nil => [ 'foo', 'on']})
       @service.enable
     end
 
@@ -51,8 +51,8 @@ describe LinuxAdmin::Service do
   describe "#disable" do
     it "disable service" do
       @service.should_receive(:run!).
-         with(@service.cmd(:systemctl),
-              :params => { nil => [ 'disable', 'foo.service']})
+         with(@service.cmd(:chkconfig),
+              :params => { nil => [ 'foo', 'off']})
       @service.disable
     end
 

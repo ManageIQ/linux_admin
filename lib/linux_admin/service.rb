@@ -9,11 +9,6 @@ class LinuxAdmin
 
     private
 
-    def systemctl(cmd)
-      run!(cmd(:systemctl),
-          :params => { nil => [cmd, "#{id}.service"] })
-    end
-
     public
 
     def initialize(id)
@@ -26,12 +21,14 @@ class LinuxAdmin
     end
 
     def enable
-      systemctl 'enable'
+      run!(cmd(:chkconfig),
+          :params => { nil => [id, "on"] })
       self
     end
 
     def disable
-      systemctl 'disable'
+      run!(cmd(:chkconfig),
+          :params => { nil => [id, "off"] })
       self
     end
 
