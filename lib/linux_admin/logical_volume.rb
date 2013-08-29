@@ -38,10 +38,34 @@ class LinuxAdmin
       self
     end
 
-    def self.create(name, vg, size)
+    private
+
+    def self.bytes_to_string(bytes)
+      if bytes > 1.gigabytes
+        (bytes / 1.gigabytes).to_s + "G"
+      elsif bytes > 1.megabytes
+        (bytes / 1.megabytes).to_s + "M"
+      elsif bytes > 1.kilobytes
+        (bytes / 1.kilobytes).to_s + "K"
+      else
+        bytes.to_s
+      end
+    end
+
+    public
+
+    def self.create(name, vg, value)
       self.scan # initialize local logical volumes
-      run!(cmd(:lvcreate),
-          :params => { '-n' => name, nil => vg.name, '-L' => size})
+      params = { '-n' => name, nil => vg.name}
+      size = nil
+      if value <= 100
+        # size = # TODO size from extents
+        params.merge!({'-l' => "#{value}%FREE"})
+      else
+        size = value
+        params.merge!({'-L' => bytes_to_string(size)})
+      end
+      run!(cmd(:lvcreate), :params => params)
       lv = LogicalVolume.new :name => name,
                              :volume_group => vg,
                              :sectors => size
