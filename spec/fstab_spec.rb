@@ -2,8 +2,26 @@ require 'spec_helper'
 require 'stringio'
 
 describe LinuxAdmin::FSTab do
+  before do
+    # Reset the singleton so subsequent tests get a new instance
+    Singleton.send :__init__, LinuxAdmin::FSTab
+  end
+
+  it "newline, single spaces, tab" do
+    fstab = <<eos
+
+  
+	
+eos
+    File.should_receive(:read).with('/etc/fstab').and_return(fstab)
+    LinuxAdmin::FSTab.instance.entries.size.should == 0
+  end
+
   it "creates FSTabEntry for each line in fstab" do
     fstab = <<eos
+# Comment, indented comment, comment with device information
+  # /dev/sda1 / ext4  defaults  1 1
+# /dev/sda1 / ext4  defaults  1 1
 /dev/sda1 / ext4  defaults  1 1
 /dev/sda2 swap  swap  defaults  0 0
 eos
@@ -36,6 +54,7 @@ eos
       entry.mount_options = 'defaults'
       entry.dumpable      = 1
       entry.fsck_order    = 1
+      LinuxAdmin::FSTab.any_instance.stub(:refresh) # don't read /etc/fstab
       LinuxAdmin::FSTab.instance.entries = [entry]
 
       File.should_receive(:write).with('/etc/fstab', "/dev/sda1 / ext4 defaults 1 1\n")
