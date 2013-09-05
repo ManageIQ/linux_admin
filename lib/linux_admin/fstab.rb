@@ -56,13 +56,7 @@ class LinuxAdmin
     private
 
     def read
-      contents = File.read('/etc/fstab')
-      contents = contents.lines.to_a
-      contents.reject! { |line|
-        first_char = line.strip[0]
-        first_char == '#' || first_char =~ /\s/
-      }
-      contents
+      File.read('/etc/fstab').lines.find_all {|line| !line.blank? && !line.strip.starts_with?("#")}
     end
 
     def refresh
