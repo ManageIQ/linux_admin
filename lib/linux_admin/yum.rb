@@ -66,10 +66,9 @@ class LinuxAdmin
 
       out = run!(cmd, :params => params).output
 
-      items = out.split("\n")
-      items.each_with_object({}) do |i, versions|
-        name, version = i.split(" ", 2)
-        versions[name.strip] = version.strip
+      out.split("\n").each_with_object({}) do |i, versions|
+        name, version         = i.split(" ", 2)
+        versions[name.strip]  = version.strip
       end
     end
 
