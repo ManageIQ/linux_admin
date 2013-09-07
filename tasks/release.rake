@@ -13,7 +13,7 @@ task :prepare_for_release do
   update_version_file
 
   prepend_to_changelog
-  puts "Changelog updated, please review and save changes.  Press enter to continue..."
+  puts "\nChangelog updated, please review and save changes.  Press enter to continue..."
   STDIN.gets
 
   confirm_all_changes
@@ -39,9 +39,10 @@ def commits_since_last_release
 end
 
 def update_version_file
+  return if file_modified_since_release?(GEM_VERSION_FILE)
   updated_contents = read_version_file.collect {|line| line.include?("VERSION") ? line.split("=").first.rstrip + " = \"#{new_gem_version}\"" : line}
   File.write(GEM_VERSION_FILE, updated_contents.join("\n"))
-  puts "Version File Updated"
+  puts "\nVersion File Updated"
 end
 
 def new_release_tag
@@ -61,6 +62,7 @@ end
 def ask_release_type_question
   @ask_release_type_question ||= begin
     puts <<-EOQ
+
 Please select release type:
   1) Build (0.0.x)
   2) Minor (0.x.0)
@@ -97,15 +99,16 @@ def prepend_to_changelog
 end
 
 def confirm_all_changes
-  puts "Please confirm the following changes:"
   puts `git diff`
-  puts
-  puts "1) Accept all changes"
-  puts "2) Reload changes"
-  puts "3) Exit - aborting commit"
-  choice = STDIN.gets.chomp.to_i
+  puts <<-EOQ
 
-  case choice
+Please confirm the changes above...
+  1) Accept all changes
+  2) Reload changes
+  3) Exit - aborting commit
+EOQ
+
+  case STDIN.gets.chomp.to_i
   when 1; return
   when 2; confirm_all_changes
   else exit 1
@@ -115,6 +118,6 @@ end
 def commit_changes
   `git add -u`
   `git commit -m "Bumping version to #{new_release_tag}"`
-  puts "Changes committed. Press enter to release #{GEM_CONSTANT} #{new_release_tag}"
+  puts "\nChanges committed. Press enter to release #{GEM_CONSTANT} #{new_release_tag}"
   STDIN.gets
 end
