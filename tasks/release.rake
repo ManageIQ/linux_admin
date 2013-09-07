@@ -8,8 +8,8 @@ GEM_VERSION_FILE  = "./lib/#{GEM_DIRECTORY}/version.rb"
 task :prepare_for_release do
   puts "Preparing for release of #{GEM_CONSTANT}"
 
-  puts "Old Version: #{latest_release_tag}"
-  puts "New Version: #{new_gem_version}"
+  puts "Old Version: #{old_release_tag}"
+  puts "New Version: #{new_release_tag}"
   update_version_file
 
   prepend_to_changelog
@@ -17,14 +17,14 @@ task :prepare_for_release do
   STDIN.gets
 
   confirm_all_changes
-  puts "changes accepted"
-  # commit changes
+
+  commit_changes
 end
 
 
 def file_modified_since_release?(file)
   # Check for committed changes
-  `git diff --quiet #{latest_release_tag}...HEAD #{file}`
+  `git diff --quiet #{old_release_tag}...HEAD #{file}`
   return true if $?.exitstatus == 1
 
   # Check for uncommitted changes
@@ -35,13 +35,17 @@ def file_modified_since_release?(file)
 end
 
 def commits_since_last_release
-  `git log --no-merges --format="  - %s" #{latest_release_tag}...HEAD`
+  `git log --no-merges --format="  - %s" #{old_release_tag}...HEAD`
 end
 
 def update_version_file
   updated_contents = read_version_file.collect {|line| line.include?("VERSION") ? line.split("=").first.rstrip + " = \"#{new_gem_version}\"" : line}
   File.write(GEM_VERSION_FILE, updated_contents.join("\n"))
   puts "Version File Updated"
+end
+
+def new_release_tag
+  "v#{new_gem_version}"
 end
 
 def new_gem_version
@@ -80,15 +84,15 @@ def read_version_file
   @read_version_file ||= File.read(GEM_VERSION_FILE).split("\n")
 end
 
-def latest_release_tag
-  @latest_release_tag ||= begin
+def old_release_tag
+  @old_release_tag ||= begin
     `git tag -l v*`.split("\n").last
   end
 end
 
 def prepend_to_changelog
   #TODO: prepend missing releases also?
-  changes = ["## v#{new_gem_version}", commits_since_last_release, File.read(CHANGELOG_FILE)].join("\n")
+  changes = ["## #{new_release_tag}", commits_since_last_release, File.read(CHANGELOG_FILE)].join("\n")
   File.write(CHANGELOG_FILE, changes)
 end
 
@@ -106,4 +110,11 @@ def confirm_all_changes
   when 2; confirm_all_changes
   else exit 1
   end
+end
+
+def commit_changes
+  `git add -u`
+  `git commit -m "Bumping version to #{new_release_tag}"`
+  puts "Changes committed. Press enter to release #{GEM_CONSTANT} #{new_release_tag}"
+  STDIN.gets
 end
