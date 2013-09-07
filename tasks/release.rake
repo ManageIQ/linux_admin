@@ -1,3 +1,5 @@
+Rake::Task[:release].enhance [:prepare_for_release]
+
 require 'active_support/core_ext'
 
 CHANGELOG_FILE    = "CHANGELOG.md".freeze
