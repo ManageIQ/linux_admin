@@ -7,4 +7,4 @@ task :default => :spec
 
 Dir[File.join(File.dirname(__FILE__),'tasks/*.rake')].each { |f| load f }
 
-Rake::Task[:release].enhance [:update_changelog]
+Rake::Task[:release].enhance [:prepare_for_release]

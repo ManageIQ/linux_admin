@@ -4,7 +4,7 @@ CHANGELOG_FILE  = "CHANGELOG.md".freeze
 GEM_DIRECTORY   = File.dirname(__FILE__).split("/")[-2].freeze
 GEM_CONSTANT    = GEM_DIRECTORY.classify.constantize
 
-task :update_changelog do
+task :prepare_for_release do
   if changelog_modified?
     warn "There are already changes to #{CHANGELOG_FILE}."
     exit 1
