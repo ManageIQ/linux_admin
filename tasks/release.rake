@@ -55,14 +55,18 @@ def new_gem_version
   @new_gem_version ||= begin
     return version_from_version_file if file_modified_since_release?(GEM_VERSION_FILE)
 
-    version = Hash[[:major, :minor, :build].zip(version_from_version_file.split("."))]
-    version[ask_release_type_question] = (version[ask_release_type_question].to_i + 1).to_s
-    version.values.join(".")
+    old_version = Hash[[:major, :minor, :build].zip(version_from_version_file.split("."))]
+    old_version.each_with_object({}) do |(k, v), h|
+      h[k] =  if    h[release_type]; 0
+              elsif k == release_type; (old_version[release_type].to_i + 1).to_s
+              else  old_version[k]
+              end
+    end.values.join(".")
   end
 end
 
-def ask_release_type_question
-  @ask_release_type_question ||= begin
+def release_type
+  @release_type ||= begin
     puts <<-EOQ
 
 Please select release type:
