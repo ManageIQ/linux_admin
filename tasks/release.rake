@@ -78,5 +78,6 @@ def latest_gem_version
 end
 
 def prepend_to_changelog
-  File.write(CHANGELOG_FILE, commits_since_last_release + "\n" + File.read(CHANGELOG_FILE))
+  changes = ["## v#{new_gem_version}", commits_since_last_release, File.read(CHANGELOG_FILE)].join("\n")
+  File.write(CHANGELOG_FILE, changes)
 end
