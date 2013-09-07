@@ -5,17 +5,14 @@ GEM_DIRECTORY   = File.dirname(__FILE__).split("/")[-2].freeze
 GEM_CONSTANT    = GEM_DIRECTORY.classify.constantize
 
 task :update_changelog do
-  `git diff --quiet #{CHANGELOG_FILE}`
-  if $?.exitstatus == 1
+  if changelog_modified?
     warn "There are already changes to #{CHANGELOG_FILE}."
     exit 1
   end
-  existing = File.read(CHANGELOG_FILE)
 
-  new_text = `git log --no-merges --format="  - %s" v#{latest_gem_version}...HEAD`
-  File.write(CHANGELOG_FILE, new_text + "\n" + existing)
+  prepend_to_changelog
 
-  msg = <<-MSG
+  puts <<-MSG
 Updated #{CHANGELOG_FILE} with commits since v#{latest_gem_version}.
 Now:
 1) Update VERSION file.
@@ -24,9 +21,18 @@ Now:
 4) Commit these CHANGELOG_FILEs.
 5) Hit enter to continue.
 MSG
-  puts msg
 
   STDIN.gets
+end
+
+
+def changelog_modified?
+  `git diff --quiet #{CHANGELOG_FILE}`
+  $?.exitstatus == 1 ? true : false
+end
+
+def commits_since_last_release
+  `git log --no-merges --format="  - %s" v#{latest_gem_version}...HEAD`
 end
 
 def latest_gem_version
@@ -34,4 +40,8 @@ def latest_gem_version
     require "#{GEM_DIRECTORY}/version"
     GEM_CONSTANT::VERSION
   end
+end
+
+def prepend_to_changelog
+  File.write(CHANGELOG_FILE, commits_since_last_release + "\n" + File.read(CHANGELOG_FILE))
 end
