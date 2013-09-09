@@ -110,9 +110,14 @@ describe LinuxAdmin::Yum do
       expect { described_class.version_available }.to raise_error(ArgumentError)
     end
 
-    it "with packages" do
-      described_class.should_receive(:run!).once.with("repoquery --qf=\"%{name} %{version}\"", {:params=>{nil=>["curl"]}}).and_return(double(:output => sample_output("yum/output_repoquery")))
-      expect(described_class.version_available("curl")).to eq({
+    it "with one package" do
+      described_class.should_receive(:run!).once.with("repoquery --qf=\"%{name} %{version}\"", {:params=>{nil=>["subscription-manager"]}}).and_return(double(:output => sample_output("yum/output_repoquery_single")))
+      expect(described_class.version_available("subscription-manager")).to eq({"subscription-manager" => "1.1.23.1"})
+    end
+
+    it "with multiple packages" do
+      described_class.should_receive(:run!).once.with("repoquery --qf=\"%{name} %{version}\"", {:params=>{nil=>["curl", "subscription-manager", "wget"]}}).and_return(double(:output => sample_output("yum/output_repoquery_multiple")))
+      expect(described_class.version_available("curl", "subscription-manager", "wget")).to eq({
         "curl"                  => "7.19.7",
         "subscription-manager"  => "1.1.23.1",
         "wget"                  => "1.12"
