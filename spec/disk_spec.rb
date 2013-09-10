@@ -99,6 +99,35 @@ eos
     end
   end
 
+  describe "#create_partitions" do
+    before(:each) do
+      @disk = LinuxAdmin::Disk.new(:path => '/dev/hda')
+    end
+
+    it "dispatches to create_partition" do
+      @disk.should_receive(:create_partition).with("primary", "0%", "50%")
+      @disk.create_partitions "primary", :start => "0%", :end => "50%"
+    end
+
+    context "multiple partitions specified" do
+      it "calls create_partition for each partition" do
+        @disk.should_receive(:create_partition).with("primary", "0%", "49%")
+        @disk.should_receive(:create_partition).with("primary", "50%", "100%")
+        @disk.create_partitions("primary", {:start => "0%",  :end => "49%"},
+                                           {:start => "50%", :end => "100%"})
+      end
+
+      context "partitions overlap" do
+        it "raises argument error" do
+          expect{
+            @disk.create_partitions("primary", {:start => "0%",  :end => "50%"},
+                                               {:start => "49%", :end => "100%"})
+          }.to raise_error(ArgumentError)
+        end
+      end
+    end
+  end
+
   describe "#create_partition" do
     before(:each) do
       # test disk w/ existing partition
@@ -110,10 +139,27 @@ eos
     end
 
     it "uses parted" do
-      @disk.should_receive(:run!).
-        with(@disk.cmd(:parted),
-             :params => { nil => ['--script', '/dev/hda', 'mkpart', 'primary', 1024, 2048] })
+      params = ['--script', '/dev/hda', 'mkpart', '-a opt', 'primary', 1024, 2048]
+      @disk.should_receive(:run!).with(@disk.cmd(:parted), :params => { nil => params })
       @disk.create_partition 'primary', 1024
+    end
+
+    it "accepts start/end params" do
+      params = ['--script', '/dev/hda', 'mkpart', '-a opt', 'primary', "0%", "50%"]
+      @disk.should_receive(:run!).with(@disk.cmd(:parted), :params => { nil => params })
+      @disk.create_partition 'primary', "0%", "50%"
+    end
+
+    context "missing params" do
+      it "raises ArgumentError" do
+        expect{
+          @disk.create_partition 'primary'
+        }.to raise_error(ArgumentError)
+
+        expect{
+          @disk.create_partition 'primary', '0%', '50%', 100
+        }.to raise_error(ArgumentError)
+      end
     end
 
     it "returns partition" do

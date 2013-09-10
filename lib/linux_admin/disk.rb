@@ -25,6 +25,30 @@ class LinuxAdmin
         val.to_f.gigabytes
       end
     end
+    
+    def overlapping_ranges?(ranges)
+      ranges.find do |range1|
+        ranges.any? do |range2|
+          range1 != range2 &&
+          range1.overlaps?(range2)
+        end
+      end
+    end
+
+    def check_if_partitions_overlap(partitions)
+      ranges =
+        partitions.collect do |partition|
+          start  = partition[:start]
+          finish = partition[:end]
+          start.delete('%')
+          finish.delete('%')
+          start.to_f..finish.to_f
+        end
+
+      if overlapping_ranges?(ranges)
+        raise ArgumentError, "overlapping partitions"
+      end
+    end
 
     public
 
@@ -109,25 +133,44 @@ class LinuxAdmin
       result_indicates_partition_table?(result)
     end
 
-    def create_partition(partition_type, size)
+    def create_partition(partition_type, *args)
       create_partition_table unless has_partition_table?
 
-      id, start =
-        partitions.empty? ? [1, 0] :
-          [(partitions.last.id + 1),
-            partitions.last.end_sector]
+      start = finish = size = nil
+      case args.length
+      when 1 then
+        start  = partitions.empty? ? 0 : partitions.last.end_sector
+        size   = args.first
+        finish = start + size
 
-      options = parted_options_array('mkpart', partition_type, start, start + size)
+      when 2 then
+        start  = args[0]
+        finish = args[1]
+
+      else
+        raise ArgumentError, "must specify start/finish or size"
+      end
+
+      id = partitions.empty? ? 1 : (partitions.last.id + 1)
+      options = parted_options_array('mkpart', '-a opt', partition_type, start, finish)
       run!(cmd(:parted), :params => { nil => options})
 
       partition = Partition.new(:disk           => self,
                                 :id             => id,
                                 :start_sector   => start,
-                                :end_sector     => start+size,
+                                :end_sector     => finish,
                                 :size           => size,
                                 :partition_type => partition_type)
       partitions << partition
       partition
+    end
+
+    def create_partitions(partition_type, *args)
+      check_if_partitions_overlap(args)
+
+      args.each { |arg|
+        self.create_partition(partition_type, arg[:start], arg[:end])
+      }
     end
 
     def clear!
