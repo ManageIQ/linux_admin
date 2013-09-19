@@ -46,6 +46,11 @@ class LinuxAdmin
       run!(cmd, :params => params)
     end
 
+    def subscribed_products
+      cmd = "rhn-channel -l"
+      run!(cmd).output.split("\n").compact
+    end
+
     private
 
     def systemid_file
