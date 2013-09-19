@@ -33,15 +33,15 @@ class LinuxAdmin
     end
 
     def subscribe(options)
-      raise ArgumentError, "pools, username and password are required" if options[:pools].blank? || options[:username].blank? || options[:password].blank?
+      raise ArgumentError, "channels, username and password are required" if options[:channels].blank? || options[:username].blank? || options[:password].blank?
       cmd = "rhn-channel -a"
 
-      pools = options[:pools].collect {|pool| ["--channel=", pool]}
+      channels = options[:channels].collect {|channel| ["--channel=", channel]}
 
       params                = {}
       params["--user="]     = options[:username]
       params["--password="] = options[:password]
-      params                = params.to_a + pools
+      params                = params.to_a + channels
 
       run!(cmd, :params => params)
     end
