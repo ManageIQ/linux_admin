@@ -24,10 +24,10 @@ describe LinuxAdmin::SubscriptionManager do
     end
 
     it "with username and password" do
-      run_options = ["subscription-manager register", {:params=>{"--username="=>"SomeUser", "--password="=>"SomePass", "--org="=>"IT", "--proxy="=>"1.2.3.4", "--proxyuser="=>"ProxyUser", "--proxypassword="=>"ProxyPass", "--serverurl="=>"192.168.1.1"}}]
+      run_options = ["subscription-manager register", {:params=>{"--username="=>"SomeUser@SomeDomain.org", "--password="=>"SomePass", "--org="=>"IT", "--proxy="=>"1.2.3.4", "--proxyuser="=>"ProxyUser", "--proxypassword="=>"ProxyPass", "--serverurl="=>"192.168.1.1"}}]
       described_class.any_instance.should_receive(:run!).once.with(*run_options)
       described_class.new.register(
-        :username       => "SomeUser",
+        :username       => "SomeUser@SomeDomain.org",
         :password       => "SomePass",
         :org            => "IT",
         :proxy_address  => "1.2.3.4",
@@ -38,9 +38,28 @@ describe LinuxAdmin::SubscriptionManager do
     end
   end
 
-  it "#subscribe" do
-    described_class.any_instance.should_receive(:run!).once.with("subscription-manager attach", {:params=>[["--pool", 123], ["--pool", 456]]})
-    described_class.new.subscribe({:pools => [123, 456]})
+  context "#subscribe" do
+    it "with pools" do
+      described_class.any_instance.should_receive(:run!).once.with("subscription-manager attach", {:params=>[["--pool", 123], ["--pool", 456]]})
+      described_class.new.subscribe({:pools => [123, 456]})
+    end
+
+    it "without pools" do
+      described_class.any_instance.should_receive(:run!).once.with("subscription-manager attach --auto", {:params=>{}})
+      described_class.new.subscribe({})
+    end
+  end
+
+  context "#subscribed_products" do
+    it "subscribed" do
+      described_class.any_instance.should_receive(:run!).once.with("subscription-manager list --installed").and_return(double(:output => sample_output("subscription_manager/output_list_installed_subscribed")))
+      expect(described_class.new.subscribed_products).to eq(["69", "167"])
+    end
+
+    it "not subscribed" do
+      described_class.any_instance.should_receive(:run!).once.with("subscription-manager list --installed").and_return(double(:output => sample_output("subscription_manager/output_list_installed_not_subscribed")))
+      expect(described_class.new.subscribed_products).to eq(["167"])
+    end
   end
 
   it "#available_subscriptions" do

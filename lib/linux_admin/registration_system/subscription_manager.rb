@@ -47,10 +47,23 @@ class LinuxAdmin
 
     def subscribe(options)
       cmd    = "subscription-manager attach"
-      pools  = options[:pools].collect {|pool| ["--pool", pool]}
-      params = proxy_params(options).to_a + pools
+      params = proxy_params(options)
+
+      if options[:pools].blank?
+        params.merge!({"--auto" => nil})
+      else
+        pools  = options[:pools].collect {|pool| ["--pool", pool]}
+        params = params.to_a + pools
+      end
 
       run!(cmd, :params => params)
+    end
+
+    def subscribed_products
+      cmd     = "subscription-manager list --installed"
+      output  = run!(cmd).output
+
+      parse_output(output).select {|p| p[:status].downcase == "subscribed"}.collect {|p| p[:product_id]}
     end
 
     def available_subscriptions
@@ -80,7 +93,8 @@ class LinuxAdmin
     end
 
     def format_values(content_group)
-      content_group[:ends] = Date.strptime(content_group[:ends], "%m/%d/%Y") if content_group[:ends]
+      content_group[:ends]    = Date.strptime(content_group[:ends], "%m/%d/%Y")   if content_group[:ends]
+      content_group[:starts]  = Date.strptime(content_group[:starts], "%m/%d/%Y") if content_group[:starts]
       content_group
     end
 

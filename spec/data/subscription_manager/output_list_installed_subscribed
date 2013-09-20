@@ -1,0 +1,19 @@
++-------------------------------------------+
+    Installed Product Status
++-------------------------------------------+
+Product Name:           Red Hat Enterprise Linux Server
+Product ID:             69
+Version:                6.3
+Arch:                   x86_64
+Status:                 Subscribed
+Starts:                 09/27/2012
+Ends:                   09/26/2013
+
+Product Name:           Red Hat CloudForms
+Product ID:             167
+Version:                2.1
+Arch:                   x86_64
+Status:                 Subscribed
+Starts:                 01/03/2013
+Ends:                   01/03/2014
+
