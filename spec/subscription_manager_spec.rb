@@ -45,7 +45,7 @@ describe LinuxAdmin::SubscriptionManager do
     end
 
     it "without pools" do
-      described_class.any_instance.should_receive(:run!).once.with("subscription-manager attach --auto", {:params=>{}})
+      described_class.any_instance.should_receive(:run!).once.with("subscription-manager attach", {:params=>{"--auto"=>nil}})
       described_class.new.subscribe({})
     end
   end
