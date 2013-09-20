@@ -52,13 +52,18 @@ describe LinuxAdmin::Rhn do
       expect { described_class.new.subscribe({}) }.to raise_error(ArgumentError)
     end
 
-    it "with pools" do
+    it "with channels" do
       described_class.any_instance.should_receive(:run!).once.with("rhn-channel -a", {:params=>[["--user=", "SomeUser"], ["--password=", "SomePass"], ["--channel=", 123], ["--channel=", 456]]})
       described_class.new.subscribe({
         :username => "SomeUser",
         :password => "SomePass",
-        :pools    => [123, 456]
+        :channels => [123, 456]
         })
     end
+  end
+
+  it "#subscribed_products" do
+    described_class.any_instance.should_receive(:run!).once.with("rhn-channel -l").and_return(double(:output => sample_output("rhn/output_rhn-channel_list")))
+    expect(described_class.new.subscribed_products).to eq(["rhel-x86_64-server-6", "rhel-x86_64-server-6-cf-me-2"])
   end
 end
