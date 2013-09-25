@@ -90,3 +90,5 @@ class LinuxAdmin
     end
   end
 end
+
+Dir.glob(File.join(File.dirname(__FILE__), "yum", "*.rb")).each { |f| require f }
