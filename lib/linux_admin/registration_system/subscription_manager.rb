@@ -86,7 +86,7 @@ class LinuxAdmin
         group = group.split("\n").each_with_object({}) do |line, hash|
           next if line.blank?
           key, value = line.split(":", 2)
-          hash[key.strip.downcase.tr(" -", "_").to_sym] = value.strip
+          hash[key.strip.downcase.tr(" -", "_").to_sym] = value.strip unless value.blank?
         end
         group_array.push(format_values(group))
       end
