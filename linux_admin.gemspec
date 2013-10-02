@@ -33,6 +33,6 @@ registration, updates, etc.
 
   spec.add_dependency "activesupport",        "< 4.0"
   spec.add_dependency "inifile",              "~> 2.0.2"
-  spec.add_dependency "more_core_extensions", "> 1.0.2"
+  spec.add_dependency "more_core_extensions", "~> 1.1.0"
   spec.add_dependency "nokogiri"
 end
