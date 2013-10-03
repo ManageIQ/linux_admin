@@ -8,7 +8,7 @@ describe LinuxAdmin::RegistrationSystem do
     end
 
     it "when registered RHN" do
-      stub_registered_to_system(:rhn)
+      stub_registered_to_system(:sm, :rhn)
       expect(described_class.registration_type).to eq(LinuxAdmin::Rhn)
     end
 
@@ -53,8 +53,8 @@ describe LinuxAdmin::RegistrationSystem do
     end
   end
 
-  def stub_registered_to_system(system)
-    LinuxAdmin::SubscriptionManager.any_instance.stub(:registered? => (system == :sm))
-    LinuxAdmin::Rhn.any_instance.stub(:registered? => data_file_path("rhn/systemid")) if system == :rhn
+  def stub_registered_to_system(*system)
+    LinuxAdmin::SubscriptionManager.any_instance.stub(:registered? => (system.include?(:sm)))
+    LinuxAdmin::Rhn.any_instance.stub(:registered? => (system.include?(:rhn)))
   end
 end
