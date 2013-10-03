@@ -7,12 +7,12 @@ describe LinuxAdmin::Yum do
 
   context ".create_repo" do
     it "default arguments" do
-      described_class.should_receive(:run!).once.with("yum createrepo", {:params=>{nil=>"some/path", "--database"=>nil, "--unique-md-filenames"=>nil}})
+      described_class.should_receive(:run!).once.with("createrepo", {:params=>{nil=>"some/path", "--database"=>nil, "--unique-md-filenames"=>nil}})
       described_class.create_repo("some/path")
     end
 
     it "bare create" do
-      described_class.should_receive(:run!).once.with("yum createrepo", {:params=>{nil=>"some/path"}})
+      described_class.should_receive(:run!).once.with("createrepo", {:params=>{nil=>"some/path"}})
       described_class.create_repo("some/path", :database => false, :unique_file_names => false)
     end
   end

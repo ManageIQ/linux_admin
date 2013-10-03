@@ -9,7 +9,7 @@ class LinuxAdmin
 
       FileUtils.mkdir_p(path)
 
-      cmd    = "yum createrepo"
+      cmd    = "createrepo"
       params = {nil => path}
       params["--database"]            = nil  if options[:database]
       params["--unique-md-filenames"] = nil  if options[:unique_file_names]
