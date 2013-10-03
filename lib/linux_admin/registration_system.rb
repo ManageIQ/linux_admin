@@ -22,10 +22,10 @@ class LinuxAdmin
     private
 
     def self.registration_type_uncached
-      if SubscriptionManager.new.registered?
-        SubscriptionManager
-      elsif Rhn.new.registered?
+      if Rhn.new.registered?
         Rhn
+      elsif SubscriptionManager.new.registered?
+        SubscriptionManager
       else
         self
       end
