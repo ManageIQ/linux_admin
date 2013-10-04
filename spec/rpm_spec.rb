@@ -26,4 +26,9 @@ describe LinuxAdmin::Rpm do
       "zlib-devel"                            =>"1.2.3-29.el6",
       })
   end
+
+  it ".upgrade" do
+    described_class.should_receive(:run!).with("rpm -U", {:params=>{nil=>"abc"}}).and_return(CommandResult.new("", "", 0))
+    expect(described_class.upgrade("abc")).to be_true
+  end
 end
