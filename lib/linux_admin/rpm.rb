@@ -7,5 +7,12 @@ class LinuxAdmin
         pkg_hash[name] = ver
       end
     end
+
+    def self.upgrade(pkg)
+      cmd     = "rpm -U"
+      params  = { nil => pkg }
+
+      run(cmd, :params => params).exit_status == 0
+    end
   end
 end
