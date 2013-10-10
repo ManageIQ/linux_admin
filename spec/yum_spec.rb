@@ -19,7 +19,7 @@ describe LinuxAdmin::Yum do
 
   context ".download_packages" do
     it "with valid input" do
-      described_class.should_receive(:run!).once.with("yum repotrack", {:params=>{"-p"=>"some/path", nil=>"pkg_a pkg_b"}})
+      described_class.should_receive(:run!).once.with("repotrack", {:params=>{"-p"=>"some/path", nil=>"pkg_a pkg_b"}})
       described_class.download_packages("some/path", "pkg_a pkg_b")
     end
 

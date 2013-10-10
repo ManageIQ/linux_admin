@@ -25,7 +25,7 @@ class LinuxAdmin
       FileUtils.mkdir_p(path)
 
       cmd = case options[:mirror_type]
-            when :package;  "yum repotrack"
+            when :package;  "repotrack"
             else;           raise ArgumentError, "mirror_type unsupported"
             end
       params = {"-p" => path}
