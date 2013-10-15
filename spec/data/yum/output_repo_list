@@ -1,0 +1,13 @@
+Loaded plugins: product-id, rhnplugin, security, subscription-manager
+This system is receiving updates from Red Hat Subscription Management.
+This system is not registered with RHN Classic or RHN Satellite.
+You can use rhn_register to register.
+RHN Satellite or RHN Classic support will be disabled.
+rhel-6-server-rpms                                                                                                                                                | 3.7 kB     00:00     
+rhel-ha-for-rhel-6-server-rpms                                                                                                                                    | 3.7 kB     00:00     
+rhel-lb-for-rhel-6-server-rpms                                                                                                                                    | 3.7 kB     00:00     
+repo id                                                               repo name                                                                                                    status
+rhel-6-server-rpms                                                    Red Hat Enterprise Linux 6 Server (RPMs)                                                                     11,016
+rhel-ha-for-rhel-6-server-rpms                                        Red Hat Enterprise Linux High Availability (for RHEL 6 Server) (RPMs)                                           269
+rhel-lb-for-rhel-6-server-rpms                                        Red Hat Enterprise Linux Load Balancer (for RHEL 6 Server) (RPMs)                                                 0
+repolist: 11,909
