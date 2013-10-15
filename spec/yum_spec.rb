@@ -124,4 +124,16 @@ describe LinuxAdmin::Yum do
       })
     end
   end
+
+  context ".repo_list" do
+    it "with no arguments" do
+      described_class.should_receive(:run!).with("yum repolist", {:params=>{nil=>"enabled"}}).and_return(double(:output => sample_output("yum/output_repo_list")))
+      expect(described_class.repo_list).to eq(["rhel-6-server-rpms", "rhel-ha-for-rhel-6-server-rpms", "rhel-lb-for-rhel-6-server-rpms"])
+    end
+
+    it "with argument" do
+      described_class.should_receive(:run!).with("yum repolist", {:params=>{nil=>"enabled"}}).and_return(double(:output => sample_output("yum/output_repo_list")))
+      expect(described_class.repo_list("enabled")).to eq(["rhel-6-server-rpms", "rhel-ha-for-rhel-6-server-rpms", "rhel-lb-for-rhel-6-server-rpms"])
+    end
+  end
 end

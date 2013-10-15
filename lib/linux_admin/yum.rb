@@ -72,6 +72,16 @@ class LinuxAdmin
       end
     end
 
+    def self.repo_list(scope = "enabled")
+      # Scopes could be "enabled", "all"
+
+      cmd     = "yum repolist"
+      params  = {nil => scope}
+      output  = run!(cmd, :params => params).output
+
+      parse_repo_list_output(output)
+    end
+
     private
 
     def self.parse_repo_dir(dir)
@@ -86,6 +96,22 @@ class LinuxAdmin
       content   = IniFile.load(file).to_h
       content.each do |name, data|
         int_keys.each { |k| data[k] = data[k].to_i if data.has_key?(k) }
+      end
+    end
+
+    def self.parse_repo_list_output(content)
+      collect_content = false
+      index_start = "repo id"
+      index_end   = "repolist:"
+
+      content.split("\n").each_with_object([]) do |line, array|
+        collect_content = false if line.start_with?(index_end)
+        collect_content = true  if line.start_with?(index_start)
+        next if line.start_with?(index_start)
+        next if !collect_content
+
+        repo_id, repo_name, status = line.split(/\s{2,}/)
+        array.push(repo_id)
       end
     end
   end
