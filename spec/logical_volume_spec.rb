@@ -23,8 +23,8 @@ eos
 
   describe "#extend_with" do
     it "uses lvextend" do
-      lv = described_class.new :name => 'lv'
       vg = LinuxAdmin::VolumeGroup.new :name => 'vg'
+      lv = described_class.new :name => 'lv', :volume_group => vg
       lv.should_receive(:run!).
          with(vg.cmd(:lvextend),
               :params => ['lv', 'vg'])
@@ -32,8 +32,8 @@ eos
     end
 
     it "returns self" do
-      lv = described_class.new :name => 'lv'
       vg = LinuxAdmin::VolumeGroup.new :name => 'vg'
+      lv = described_class.new :name => 'lv', :volume_group => vg
       lv.stub(:run!)
       lv.extend_with(vg).should == lv
     end
@@ -86,6 +86,24 @@ eos
       lv.name.should == 'lv'
     end
 
+    context "name is specified" do
+      it "sets path under volume group" do
+        LinuxAdmin::VolumeGroup.stub(:run! => double(:output => ""))
+        described_class.stub(:run! => double(:output => ""))
+        lv = described_class.create 'lv', @vg, 256.gigabytes
+        lv.path.to_s.should == "#{described_class::DEVICE_PATH}#{@vg.name}/lv"
+      end
+    end
+
+    context "path is specified" do
+      it "sets name" do
+        LinuxAdmin::VolumeGroup.stub(:run! => double(:output => ""))
+        described_class.stub(:run! => double(:output => ""))
+        lv = described_class.create '/dev/lv', @vg, 256.gigabytes
+        lv.name.should == "lv"
+      end
+    end
+
     it "adds logical volume to local registry" do
       LinuxAdmin::VolumeGroup.stub(:run! => double(:output => ""))
       described_class.stub(:run! => double(:output => ""))
@@ -110,11 +128,13 @@ eos
       lvs = described_class.scan
 
       lvs[0].should be_an_instance_of(described_class)
-      lvs[0].name.should == '/dev/vg_foobar/lv_swap'
+      lvs[0].path.should == '/dev/vg_foobar/lv_swap'
+      lvs[0].name.should == 'lv_swap'
       lvs[0].sectors.should == 4128768
 
       lvs[1].should be_an_instance_of(described_class)
-      lvs[1].name.should == '/dev/vg_foobar/lv_root'
+      lvs[1].path.should == '/dev/vg_foobar/lv_root'
+      lvs[1].name.should == 'lv_root'
       lvs[1].sectors.should == 19988480
     end
 

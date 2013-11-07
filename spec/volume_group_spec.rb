@@ -18,8 +18,8 @@ eos
 
   describe "#attach_to" do
     it "uses lvextend" do
-      lv = LinuxAdmin::LogicalVolume.new :name => 'lv'
       vg = described_class.new :name => 'vg'
+      lv = LinuxAdmin::LogicalVolume.new :name => 'lv', :volume_group => vg
       vg.should_receive(:run!).
          with(vg.cmd(:lvextend),
               :params => ['lv', 'vg'])
@@ -27,8 +27,8 @@ eos
     end
 
     it "returns self" do
-      lv = LinuxAdmin::LogicalVolume.new :name => 'lv'
       vg = described_class.new :name => 'vg'
+      lv = LinuxAdmin::LogicalVolume.new :name => 'lv', :volume_group => vg
       vg.stub(:run!)
       vg.attach_to(lv).should == vg
     end
