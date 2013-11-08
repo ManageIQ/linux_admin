@@ -5,6 +5,11 @@
 
 class LinuxAdmin
   class LogicalVolume < Volume
+    DEVICE_PATH  = Pathname.new('/dev/')
+
+    # path to logical volume
+    attr_accessor :path
+
     # logical volume name
     attr_accessor :name
 
@@ -26,10 +31,19 @@ class LinuxAdmin
     # major device number of logical volume
     # minor device number of logical volume
 
+    def path=(value)
+      @path = value.include?(File::SEPARATOR) ? value : DEVICE_PATH.join(@volume_group.name, value)
+    end
+
+    def name=(value)
+      @name = value.include?(File::SEPARATOR) ? value.split(File::SEPARATOR).last : value
+    end
+
     def initialize(args = {})
-      @name         = args[:name]
       @volume_group = args[:volume_group]
       @sectors      = args[:sectors]
+      self.path     = args[:name]
+      self.name     = args[:name]
     end
 
     def extend_with(vg)
@@ -66,9 +80,10 @@ class LinuxAdmin
         params.merge!({'-L' => bytes_to_string(size)})
       end
       run!(cmd(:lvcreate), :params => params)
-      lv = LogicalVolume.new :name => name,
+
+      lv = LogicalVolume.new(:name => name,
                              :volume_group => vg,
-                             :sectors => size
+                             :sectors => size)
       @lvs << lv
       lv
     end
