@@ -27,6 +27,52 @@ describe LinuxAdmin::Rpm do
       })
   end
 
+  describe "#info" do
+    it "returns package metadata" do
+      # as output w/ rpm -qi ruby on F19
+      data = <<EOS
+Name        : ruby
+Version     : 2.0.0.247
+Release     : 15.fc19
+Architecture: x86_64
+Install Date: Sat 19 Oct 2013 08:17:20 PM EDT
+Group       : Development/Languages
+Size        : 64473
+License     : (Ruby or BSD) and Public Domain
+Signature   : RSA/SHA256, Thu 01 Aug 2013 02:07:03 PM EDT, Key ID 07477e65fb4b18e6
+Source RPM  : ruby-2.0.0.247-15.fc19.src.rpm
+Build Date  : Wed 31 Jul 2013 08:26:49 AM EDT
+Build Host  : buildvm-16.phx2.fedoraproject.org
+Relocations : (not relocatable)
+Packager    : Fedora Project
+Vendor      : Fedora Project
+URL         : http://ruby-lang.org/
+Summary     : An interpreter of object-oriented scripting language
+Description :
+Ruby is the interpreted scripting language for quick and easy
+object-oriented programming.  It has many features to process text
+files and to do system management tasks (as in Perl).  It is simple,
+straight-forward, and extensible.
+EOS
+      described_class.should_receive(:run).
+                      with(described_class::RPM_CMD, :params => {"-qi" => "ruby"}).
+                      and_return(CommandResult.new(data, "", 0))
+      metadata = described_class.info("ruby")
+      metadata['name'].should == 'ruby'
+      metadata['version'].should == '2.0.0.247'
+      metadata['release'].should == '15.fc19'
+      metadata['architecture'].should == 'x86_64'
+      metadata['group'].should == 'Development/Languages'
+      metadata['size'].should == '64473'
+      metadata['license'].should == '(Ruby or BSD) and Public Domain'
+      metadata['source_rpm'].should == 'ruby-2.0.0.247-15.fc19.src.rpm'
+      metadata['build_host'].should == 'buildvm-16.phx2.fedoraproject.org'
+      metadata['packager'].should == 'Fedora Project'
+      metadata['vendor'].should == 'Fedora Project'
+      metadata['summary'].should == 'An interpreter of object-oriented scripting language'
+    end
+  end
+
   it ".upgrade" do
     described_class.should_receive(:run).with("rpm -U", {:params=>{nil=>"abc"}}).and_return(CommandResult.new("", "", 0))
     expect(described_class.upgrade("abc")).to be_true
