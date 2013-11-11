@@ -56,7 +56,7 @@ straight-forward, and extensible.
 EOS
       described_class.should_receive(:run).
                       with(described_class::RPM_CMD, :params => {"-qi" => "ruby"}).
-                      and_return(CommandResult.new(data, "", 0))
+                      and_return(CommandResult.new("", data, "", 0))
       metadata = described_class.info("ruby")
       metadata['name'].should == 'ruby'
       metadata['version'].should == '2.0.0.247'
@@ -74,7 +74,7 @@ EOS
   end
 
   it ".upgrade" do
-    described_class.should_receive(:run).with("rpm -U", {:params=>{nil=>"abc"}}).and_return(CommandResult.new("", "", 0))
+    described_class.should_receive(:run).with("rpm -U", {:params=>{nil=>"abc"}}).and_return(CommandResult.new("", "", "", 0))
     expect(described_class.upgrade("abc")).to be_true
   end
 end
