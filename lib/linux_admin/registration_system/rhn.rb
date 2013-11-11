@@ -28,6 +28,7 @@ class LinuxAdmin
       params["--proxyUser="]      = options[:proxy_username]  if options[:proxy_username]
       params["--proxyPassword="]  = options[:proxy_password]  if options[:proxy_password]
       params["--serverUrl="]      = options[:server_url]      if options[:server_url]
+      params["--systemorgid="]    = options[:org]             if options[:server_url] && options[:org]
 
       run!(cmd, :params => params)
     end

@@ -24,7 +24,7 @@ describe LinuxAdmin::Rhn do
     end
 
     it "with username and password" do
-      described_class.any_instance.should_receive(:run!).once.with("rhnreg_ks", {:params=>{"--username="=>"SomeUser", "--password="=>"SomePass", "--proxy="=>"1.2.3.4", "--proxyUser="=>"ProxyUser", "--proxyPassword="=>"ProxyPass", "--serverUrl="=>"192.168.1.1"}})
+      described_class.any_instance.should_receive(:run!).once.with("rhnreg_ks", {:params=>{"--username="=>"SomeUser", "--password="=>"SomePass", "--proxy="=>"1.2.3.4", "--proxyUser="=>"ProxyUser", "--proxyPassword="=>"ProxyPass", "--serverUrl="=>"192.168.1.1", "--systemorgid="=>1}})
       described_class.new.register(
         :username       => "SomeUser",
         :password       => "SomePass",
@@ -32,6 +32,7 @@ describe LinuxAdmin::Rhn do
         :proxy_username => "ProxyUser",
         :proxy_password => "ProxyPass",
         :server_url     => "192.168.1.1",
+        :org            => 1,
       )
     end
 
