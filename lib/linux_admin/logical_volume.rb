@@ -3,6 +3,8 @@
 # Copyright (C) 2013 Red Hat Inc.
 # Licensed under the MIT License
 
+require 'pathname'
+
 class LinuxAdmin
   class LogicalVolume < Volume
     DEVICE_PATH  = Pathname.new('/dev/')
