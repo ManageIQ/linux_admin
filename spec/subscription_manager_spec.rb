@@ -121,7 +121,7 @@ describe LinuxAdmin::SubscriptionManager do
 
     it "with invalid credentials" do
       run_options = ["subscription-manager orgs", {:params=>{"--username="=>"BadUser", "--password="=>"BadPass"}}]
-      described_class.any_instance.should_receive(:run).once.with(*run_options).and_return(CommandResult.new("", "Invalid username or password. To create a login, please visit https://www.redhat.com/wapps/ugc/register.html", 255))
+      described_class.any_instance.should_receive(:run).once.with(*run_options).and_return(CommandResult.new("", "", "Invalid username or password. To create a login, please visit https://www.redhat.com/wapps/ugc/register.html", 255))
       expect { described_class.new.organizations({:username=>"BadUser", :password=>"BadPass"}) }.to raise_error(LinuxAdmin::CredentialError)
     end
   end

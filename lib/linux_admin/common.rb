@@ -12,12 +12,13 @@ class LinuxAdmin
       launch_params = {}
       launch_params[:chdir] = options[:chdir] if options[:chdir]
 
-      output = ""
-      error  = ""
-      status = nil
+      output        = ""
+      error         = ""
+      status        = nil
+      command_line  = build_cmd(cmd, params)
 
       begin
-        output, error = launch(build_cmd(cmd, params), launch_params)
+        output, error = launch(command_line, launch_params)
         status = exitstatus
       ensure
         output ||= ""
@@ -28,7 +29,7 @@ class LinuxAdmin
       raise NoSuchFileError.new(err.message) if NoSuchFileError.detected?(err.message)
       raise
     else
-      CommandResult.new(output, error, status)
+      CommandResult.new(command_line, output, error, status)
     end
 
     def run!(cmd, options = {})

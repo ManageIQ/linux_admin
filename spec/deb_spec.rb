@@ -41,7 +41,7 @@ Task: kubuntu-desktop, kubuntu-full, kubuntu-active, kubuntu-active-desktop, kub
 EOS
       described_class.should_receive(:run).
                       with(described_class::APT_CACHE_CMD, :params => ["show", "ruby"]).
-                      and_return(CommandResult.new(data, "", 0))
+                      and_return(CommandResult.new("", data, "", 0))
       metadata = described_class.info("ruby")
       metadata['package'].should == 'ruby'
       metadata['priority'].should == 'optional'
