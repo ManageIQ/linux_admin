@@ -2,6 +2,8 @@ require 'nokogiri'
 
 class LinuxAdmin
   class Rhn < RegistrationSystem
+    SATELLITE5_SERVER_CERT_PATH = "pub/rhn-org-trusted-ssl-cert-1.0-1.noarch.rpm"
+
     def registered?
       id = ""
       if File.exists?(systemid_file)
@@ -23,6 +25,8 @@ class LinuxAdmin
       else
         raise ArgumentError, "activation key or username and password are required"
       end
+
+      install_server_certificate(options[:server_url], SATELLITE5_SERVER_CERT_PATH) if options[:server_url]
 
       params["--proxy="]          = options[:proxy_address]   if options[:proxy_address]
       params["--proxyUser="]      = options[:proxy_username]  if options[:proxy_username]

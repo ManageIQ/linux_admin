@@ -9,6 +9,8 @@ class LinuxAdmin
       raise
     end
 
+    SATELLITE6_SERVER_CERT_PATH = "pub/candlepin-cert-consumer-latest.noarch.rpm"
+
     def validate_credentials(options)
       !!organizations(options)
     end
@@ -35,6 +37,9 @@ class LinuxAdmin
 
     def register(options)
       raise ArgumentError, "username and password are required" unless options[:username] && options[:password]
+
+      install_server_certificate(options[:server_url], SATELLITE6_SERVER_CERT_PATH) if options[:server_url]
+
       cmd = "subscription-manager register"
 
       params = {"--username=" => options[:username], "--password=" => options[:password]}
