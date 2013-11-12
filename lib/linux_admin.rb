@@ -13,6 +13,7 @@ require 'linux_admin/version'
 require 'linux_admin/yum'
 
 require 'linux_admin/service'
+require 'linux_admin/mountable'
 require 'linux_admin/disk'
 require 'linux_admin/hosts'
 require 'linux_admin/partition'

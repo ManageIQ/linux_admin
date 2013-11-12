@@ -39,6 +39,14 @@ eos
     end
   end
 
+  describe "#path" do
+    it "returns /dev/vgname/lvname" do
+      vg = LinuxAdmin::VolumeGroup.new :name => 'vg'
+      lv = described_class.new :name => 'lv', :volume_group => vg
+      lv.path.should == '/dev/vg/lv'
+    end
+  end
+
   describe "#create" do
     before(:each) do
       @vg = LinuxAdmin::VolumeGroup.new :name => 'vg'
