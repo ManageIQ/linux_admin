@@ -23,18 +23,34 @@ describe LinuxAdmin::SubscriptionManager do
       expect { described_class.new.register }.to raise_error(ArgumentError)
     end
 
-    it "with username and password" do
-      run_options = ["subscription-manager register", {:params=>{"--username="=>"SomeUser@SomeDomain.org", "--password="=>"SomePass", "--org="=>"IT", "--proxy="=>"1.2.3.4", "--proxyuser="=>"ProxyUser", "--proxypassword="=>"ProxyPass", "--serverurl="=>"192.168.1.1"}}]
-      described_class.any_instance.should_receive(:run!).once.with(*run_options)
-      described_class.new.register(
-        :username       => "SomeUser@SomeDomain.org",
-        :password       => "SomePass",
-        :org            => "IT",
-        :proxy_address  => "1.2.3.4",
-        :proxy_username => "ProxyUser",
-        :proxy_password => "ProxyPass",
-        :server_url     => "192.168.1.1",
-      )
+    context "with username and password" do
+      let(:base_options) { {:username       => "SomeUser@SomeDomain.org",
+                            :password       => "SomePass",
+                            :org            => "IT",
+                            :proxy_address  => "1.2.3.4",
+                            :proxy_username => "ProxyUser",
+                            :proxy_password => "ProxyPass",
+                          }
+                        }
+      let(:run_params) { {:params=>{"--username="=>"SomeUser@SomeDomain.org", "--password="=>"SomePass", "--proxy="=>"1.2.3.4", "--proxyuser="=>"ProxyUser", "--proxypassword="=>"ProxyPass"}} }
+
+      it "with server_url" do
+        run_params.store_path(:params, "--org=", "IT")
+        run_params.store_path(:params, "--serverurl=", "https://server.url")
+        base_options.store_path(:server_url, "https://server.url")
+
+        described_class.any_instance.should_receive(:run!).once.with("subscription-manager register", run_params)
+        LinuxAdmin::Rpm.should_receive(:upgrade).with("http://server.url/pub/candlepin-cert-consumer-latest.noarch.rpm")
+
+        described_class.new.register(base_options)
+      end
+
+      it "without server_url" do
+        described_class.any_instance.should_receive(:run!).once.with("subscription-manager register", run_params)
+        described_class.any_instance.should_not_receive(:install_server_certificate)
+
+        described_class.new.register(base_options)
+      end
     end
   end
 
