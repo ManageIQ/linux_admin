@@ -25,6 +25,9 @@ class LinuxAdmin
 
     def organizations(options)
       raise ArgumentError, "username and password are required" unless options[:username] && options[:password]
+
+      install_server_certificate(options[:server_url], SATELLITE6_SERVER_CERT_PATH) if options[:server_url]
+
       cmd = "subscription-manager orgs"
 
       params = {"--username=" => options[:username], "--password=" => options[:password]}
