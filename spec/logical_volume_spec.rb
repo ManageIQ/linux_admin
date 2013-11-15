@@ -104,6 +104,17 @@ eos
       end
     end
 
+    context "path is specified as Pathname" do
+      it "sets name" do
+        require 'pathname'
+        LinuxAdmin::VolumeGroup.stub(:run! => double(:output => ""))
+        described_class.stub(:run! => double(:output => ""))
+        lv = described_class.create Pathname.new("/dev/#{@vg.name}/lv"), @vg, 256.gigabytes
+        lv.name.should == "lv"
+        lv.path.should == "/dev/vg/lv"
+      end
+    end
+
     it "adds logical volume to local registry" do
       LinuxAdmin::VolumeGroup.stub(:run! => double(:output => ""))
       described_class.stub(:run! => double(:output => ""))
