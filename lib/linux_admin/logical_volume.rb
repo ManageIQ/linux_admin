@@ -44,8 +44,9 @@ class LinuxAdmin
     def initialize(args = {})
       @volume_group = args[:volume_group]
       @sectors      = args[:sectors]
-      self.path     = args[:name]
-      self.name     = args[:name]
+      provided_name = args[:name].to_s
+      self.path     = provided_name
+      self.name     = provided_name
     end
 
     def extend_with(vg)
