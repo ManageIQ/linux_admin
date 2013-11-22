@@ -7,6 +7,8 @@ require 'pathname'
 
 class LinuxAdmin
   class LogicalVolume < Volume
+    include Mountable
+
     DEVICE_PATH  = Pathname.new('/dev/')
 
     # path to logical volume
@@ -53,6 +55,10 @@ class LinuxAdmin
       run!(cmd(:lvextend),
           :params => [self.name, vg.name])
       self
+    end
+
+    def path
+      "/dev/#{self.volume_group.name}/#{self.name}"
     end
 
     private
