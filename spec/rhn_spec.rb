@@ -30,9 +30,10 @@ describe LinuxAdmin::Rhn do
                             :proxy_address  => "1.2.3.4",
                             :proxy_username => "ProxyUser",
                             :proxy_password => "ProxyPass",
+                            :server_cert    => "/path/to/cert",
                           }
                         }
-      let(:run_params) { {:params=>{"--username="=>"SomeUser@SomeDomain.org", "--password="=>"SomePass", "--proxy="=>"1.2.3.4", "--proxyUser="=>"ProxyUser", "--proxyPassword="=>"ProxyPass"}} }
+      let(:run_params) { {:params=>{"--username="=>"SomeUser@SomeDomain.org", "--password="=>"SomePass", "--proxy="=>"1.2.3.4", "--proxyUser="=>"ProxyUser", "--proxyPassword="=>"ProxyPass", "--sslCACert="=>"/path/to/cert"}} }
 
       it "with server_url" do
         run_params.store_path(:params, "--systemorgid=", "2")
