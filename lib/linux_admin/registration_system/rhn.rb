@@ -3,6 +3,7 @@ require 'nokogiri'
 class LinuxAdmin
   class Rhn < RegistrationSystem
     SATELLITE5_SERVER_CERT_PATH = "pub/rhn-org-trusted-ssl-cert-1.0-1.noarch.rpm"
+    INSTALLED_SERVER_CERT_PATH  = "/usr/share/rhn/RHN-ORG-TRUSTED-SSL-CERT"
 
     def registered?
       id = ""
@@ -27,13 +28,14 @@ class LinuxAdmin
       end
 
       install_server_certificate(options[:server_url], SATELLITE5_SERVER_CERT_PATH) if options[:server_url]
+      certificate_installed = LinuxAdmin::Rpm.list_installed["rhn-org-trusted-ssl-cert"]
 
-      params["--proxy="]          = options[:proxy_address]   if options[:proxy_address]
-      params["--proxyUser="]      = options[:proxy_username]  if options[:proxy_username]
-      params["--proxyPassword="]  = options[:proxy_password]  if options[:proxy_password]
-      params["--serverUrl="]      = options[:server_url]      if options[:server_url]
-      params["--systemorgid="]    = options[:org]             if options[:server_url] && options[:org]
-      params["--sslCACert="]      = options[:server_cert]     if options[:server_cert]
+      params["--proxy="]          = options[:proxy_address]     if options[:proxy_address]
+      params["--proxyUser="]      = options[:proxy_username]    if options[:proxy_username]
+      params["--proxyPassword="]  = options[:proxy_password]    if options[:proxy_password]
+      params["--serverUrl="]      = options[:server_url]        if options[:server_url]
+      params["--systemorgid="]    = options[:org]               if options[:server_url] && options[:org]
+      params["--sslCACert="]      = INSTALLED_SERVER_CERT_PATH  if certificate_installed
 
       run!(cmd, :params => params)
     end
