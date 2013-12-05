@@ -33,15 +33,17 @@ describe LinuxAdmin::Rhn do
                             :server_cert    => "/path/to/cert",
                           }
                         }
-      let(:run_params) { {:params=>{"--username="=>"SomeUser@SomeDomain.org", "--password="=>"SomePass", "--proxy="=>"1.2.3.4", "--proxyUser="=>"ProxyUser", "--proxyPassword="=>"ProxyPass", "--sslCACert="=>"/path/to/cert"}} }
+      let(:run_params) { {:params=>{"--username="=>"SomeUser@SomeDomain.org", "--password="=>"SomePass", "--proxy="=>"1.2.3.4", "--proxyUser="=>"ProxyUser", "--proxyPassword="=>"ProxyPass"}} }
 
       it "with server_url" do
         run_params.store_path(:params, "--systemorgid=", "2")
         run_params.store_path(:params, "--serverUrl=", "https://server.url")
+        run_params.store_path(:params, "--sslCACert=", "/usr/share/rhn/RHN-ORG-TRUSTED-SSL-CERT")
         base_options.store_path(:server_url, "https://server.url")
 
         described_class.any_instance.should_receive(:run!).once.with("rhnreg_ks", run_params)
         LinuxAdmin::Rpm.should_receive(:upgrade).with("http://server.url/pub/rhn-org-trusted-ssl-cert-1.0-1.noarch.rpm")
+        LinuxAdmin::Rpm.should_receive(:list_installed).and_return({"rhn-org-trusted-ssl-cert" => "1.0"})
 
         described_class.new.register(base_options)
       end
@@ -49,6 +51,7 @@ describe LinuxAdmin::Rhn do
       it "without server_url" do
         described_class.any_instance.should_receive(:run!).once.with("rhnreg_ks", run_params)
         described_class.any_instance.should_not_receive(:install_server_certificate)
+        LinuxAdmin::Rpm.should_receive(:list_installed).and_return({"rhn-org-trusted-ssl-cert" => nil})
 
         described_class.new.register(base_options)
       end
@@ -56,6 +59,8 @@ describe LinuxAdmin::Rhn do
 
     it "with activation key" do
       described_class.any_instance.should_receive(:run!).once.with("rhnreg_ks", {:params=>{"--activationkey="=>"123abc", "--proxy="=>"1.2.3.4", "--proxyUser="=>"ProxyUser", "--proxyPassword="=>"ProxyPass"}})
+      LinuxAdmin::Rpm.should_receive(:list_installed).and_return({"rhn-org-trusted-ssl-cert" => nil})
+
       described_class.new.register(
         :activationkey  => "123abc",
         :proxy_address  => "1.2.3.4",
