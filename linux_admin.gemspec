@@ -31,8 +31,8 @@ registration, updates, etc.
   spec.add_development_dependency "rspec",    "~> 2.13"
   spec.add_development_dependency "coveralls"
 
-  spec.add_dependency "activesupport",        "< 4.0"
+  spec.add_dependency "activesupport",        "> 3.2"
   spec.add_dependency "inifile",              "~> 2.0.2"
-  spec.add_dependency "more_core_extensions", "~> 1.1"
+  spec.add_dependency "more_core_extensions", "~> 1.1.2"
   spec.add_dependency "nokogiri"
 end
