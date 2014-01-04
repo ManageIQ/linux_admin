@@ -27,20 +27,20 @@ eos
 
   describe "#mount_point_exists?" do
     it "uses mount" do
-      TestMountable.should_receive(:run!).with(TestMountable.cmd(:mount)).and_return(CommandResult.new("", "", "", 0))
+      TestMountable.should_receive(:run!).with(TestMountable.cmd(:mount)).and_return(double(:output => ""))
       TestMountable.mount_point_exists?('/mnt/usb')
     end
 
     context "disk mounted at specified location" do
       it "returns true" do
-        TestMountable.should_receive(:run!).and_return(CommandResult.new("", @mount_out1, "", 0))
+        TestMountable.should_receive(:run!).and_return(double(:output => @mount_out1))
         TestMountable.mount_point_exists?('/mnt/usb').should be_true
       end
     end
 
     context "no disk mounted at specified location" do
       it "returns false" do
-        TestMountable.should_receive(:run!).and_return(CommandResult.new("", @mount_out2, "", 0))
+        TestMountable.should_receive(:run!).and_return(double(:output => @mount_out2))
         TestMountable.mount_point_exists?('/mnt/usb').should be_false
       end
     end
@@ -48,20 +48,20 @@ eos
 
   describe "#mount_point_available?" do
     it "uses mount" do
-      TestMountable.should_receive(:run!).with(TestMountable.cmd(:mount)).and_return(CommandResult.new("", "", "", 0))
+      TestMountable.should_receive(:run!).with(TestMountable.cmd(:mount)).and_return(double(:output => ""))
       TestMountable.mount_point_available?('/mnt/usb')
     end
 
     context "disk mounted at specified location" do
       it "returns false" do
-        TestMountable.should_receive(:run!).and_return(CommandResult.new("", @mount_out1, "", 0))
+        TestMountable.should_receive(:run!).and_return(double(:output => @mount_out1))
         TestMountable.mount_point_available?('/mnt/usb').should be_false
       end
     end
 
     context "no disk mounted at specified location" do
       it "returns true" do
-        TestMountable.should_receive(:run!).and_return(CommandResult.new("", @mount_out2, "", 0))
+        TestMountable.should_receive(:run!).and_return(double(:output => @mount_out2))
         TestMountable.mount_point_available?('/mnt/usb').should be_true
       end
     end
@@ -85,8 +85,8 @@ eos
   describe "#mount" do
     it "sets mount point" do
       # ignore actual mount cmds
-      @mountable.should_receive(:run!).and_return(CommandResult.new("", "", "", ""))
-      TestMountable.should_receive(:run!).and_return(CommandResult.new("", "", "", ""))
+      @mountable.should_receive(:run!).and_return(double(:output => ""))
+      TestMountable.should_receive(:run!).and_return(double(:output => ""))
 
       @mountable.mount('/mnt/sda2').should == '/mnt/sda2'
       @mountable.mount_point.should == '/mnt/sda2'

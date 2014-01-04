@@ -28,8 +28,8 @@ describe LinuxAdmin::Rpm do
   end
 
   it ".import_key" do
-    described_class.should_receive(:run).with("rpm", {:params=>{"--import"=>"abc"}}).and_return(CommandResult.new("", "", "", 0))
-    expect(described_class.import_key("abc")).to be_true
+    described_class.should_receive(:run!).with("rpm", {:params => {"--import" => "abc"}})
+    expect { described_class.import_key("abc") }.to_not raise_error
   end
 
   describe "#info" do
@@ -59,9 +59,9 @@ object-oriented programming.  It has many features to process text
 files and to do system management tasks (as in Perl).  It is simple,
 straight-forward, and extensible.
 EOS
-      described_class.should_receive(:run).
+      described_class.should_receive(:run!).
                       with(described_class::RPM_CMD, :params => {"-qi" => "ruby"}).
-                      and_return(CommandResult.new("", data, "", 0))
+                      and_return(double(:output => data))
       metadata = described_class.info("ruby")
       metadata['name'].should == 'ruby'
       metadata['version'].should == '2.0.0.247'
@@ -79,7 +79,7 @@ EOS
   end
 
   it ".upgrade" do
-    described_class.should_receive(:run).with("rpm -U", {:params=>{nil=>"abc"}}).and_return(CommandResult.new("", "", "", 0))
+    described_class.should_receive(:run).with("rpm -U", {:params=>{nil=>"abc"}}).and_return(double(:exit_status => 0))
     expect(described_class.upgrade("abc")).to be_true
   end
 end

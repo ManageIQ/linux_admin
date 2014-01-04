@@ -4,7 +4,7 @@ class LinuxAdmin
   class SubscriptionManager < RegistrationSystem
     def run!(cmd, options = {})
       super(cmd, options)
-    rescue CommandResultError => err
+    rescue AwesomeSpawn::CommandResultError => err
       raise CredentialError.new(err.result) if err.result.error.downcase.include?("invalid username or password")
       raise
     end

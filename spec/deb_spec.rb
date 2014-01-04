@@ -39,9 +39,9 @@ Origin: Ubuntu
 Supported: 9m
 Task: kubuntu-desktop, kubuntu-full, kubuntu-active, kubuntu-active-desktop, kubuntu-active-full, kubuntu-active, edubuntu-desktop-gnome, ubuntustudio-font-meta
 EOS
-      described_class.should_receive(:run).
+      described_class.should_receive(:run!).
                       with(described_class::APT_CACHE_CMD, :params => ["show", "ruby"]).
-                      and_return(CommandResult.new("", data, "", 0))
+                      and_return(double(:output => data))
       metadata = described_class.info("ruby")
       metadata['package'].should == 'ruby'
       metadata['priority'].should == 'optional'
