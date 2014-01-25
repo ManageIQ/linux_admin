@@ -10,6 +10,14 @@ class LinuxAdmin
       end
     end
 
+    # Import a GPG file for use with RPM
+    #
+    #   Rpm.import_key("/etc/pki/my-gpg-key")
+    def self.import_key(file)
+      params = {"--import" => file}
+      run!("rpm", :params => params)
+    end
+
     def self.info(pkg)
       params = { "-qi" => pkg}
       in_description = false
