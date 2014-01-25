@@ -27,6 +27,11 @@ describe LinuxAdmin::Rpm do
       })
   end
 
+  it ".import_key" do
+    described_class.should_receive(:run).with("rpm", {:params=>{"--import"=>"abc"}}).and_return(CommandResult.new("", "", "", 0))
+    expect(described_class.import_key("abc")).to be_true
+  end
+
   describe "#info" do
     it "returns package metadata" do
       # as output w/ rpm -qi ruby on F19
