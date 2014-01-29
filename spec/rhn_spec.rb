@@ -70,19 +70,10 @@ describe LinuxAdmin::Rhn do
     end
   end
 
-  context "#subscribe" do
-    it "without arguments" do
-      expect { described_class.new.subscribe({}) }.to raise_error(ArgumentError)
-    end
+  it "#enable_channel" do
+    described_class.any_instance.should_receive(:run!).once.with("rhn-channel -a", {:params=>{"--user="=>"SomeUser", "--password="=>"SomePass", "--channel="=>123}})
 
-    it "with channels" do
-      described_class.any_instance.should_receive(:run!).once.with("rhn-channel -a", {:params=>[["--user=", "SomeUser"], ["--password=", "SomePass"], ["--channel=", 123], ["--channel=", 456]]})
-      described_class.new.subscribe({
-        :username => "SomeUser",
-        :password => "SomePass",
-        :channels => [123, 456]
-        })
-    end
+    described_class.new.enable_channel(123, :username => "SomeUser", :password => "SomePass")
   end
 
   it "#subscribed_products" do

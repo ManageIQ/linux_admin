@@ -40,26 +40,33 @@ class LinuxAdmin
       run!(cmd, :params => params)
     end
 
-    def subscribe(options)
-      raise ArgumentError, "channels, username and password are required" if options[:channels].blank? || options[:username].blank? || options[:password].blank?
-      cmd = "rhn-channel -a"
+    def enable_channel(repo, options)
+      cmd       = "rhn-channel -a"
+      params    = user_pwd(options).merge("--channel=" => repo)
 
-      channels = options[:channels].collect {|channel| ["--channel=", channel]}
+      run!(cmd, :params => params)
+    end
+    alias_method :subscribe,    :enable_channel
+    alias_method :enable_repo,  :enable_channel
 
-      params                = {}
-      params["--user="]     = options[:username]
-      params["--password="] = options[:password]
-      params                = params.to_a + channels
 
       run!(cmd, :params => params)
     end
 
-    def subscribed_products
+    def enabled_channels
       cmd = "rhn-channel -l"
       run!(cmd).output.split("\n").compact
     end
+    alias_method :subscribed_products, :enabled_channels
+
 
     private
+
+    def user_pwd(options)
+      raise ArgumentError, "username and password are required" if options[:username].blank? || options[:password].blank?
+
+      {"--user=" => options[:username], "--password=" => options[:password]}
+    end
 
     def systemid_file
       "/etc/sysconfig/rhn/systemid"
