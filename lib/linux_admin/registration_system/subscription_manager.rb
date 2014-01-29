@@ -87,6 +87,13 @@ class LinuxAdmin
       run!(cmd, :params => params)
     end
 
+    def disable_repo(repo, options = nil)
+      cmd     = "subscription-manager repos"
+      params  = {"--disable=" => repo}
+
+      run!(cmd, :params => params)
+    end
+
     private
 
     def parse_output(output)

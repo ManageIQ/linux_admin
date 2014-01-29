@@ -151,4 +151,9 @@ describe LinuxAdmin::SubscriptionManager do
     described_class.new.enable_repo("abc")
   end
 
+  it "#disable_repo" do
+    described_class.any_instance.should_receive(:run!).once.with("subscription-manager repos", {:params=>{"--disable="=>"abc"}})
+
+    described_class.new.disable_repo("abc")
+  end
 end
