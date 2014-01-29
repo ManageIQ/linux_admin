@@ -144,4 +144,11 @@ describe LinuxAdmin::SubscriptionManager do
       expect { described_class.new.organizations({:username=>"BadUser", :password=>"BadPass"}) }.to raise_error(LinuxAdmin::CredentialError)
     end
   end
+
+  it "#enable_repo" do
+    described_class.any_instance.should_receive(:run!).once.with("subscription-manager repos", {:params=>{"--enable="=>"abc"}})
+
+    described_class.new.enable_repo("abc")
+  end
+
 end

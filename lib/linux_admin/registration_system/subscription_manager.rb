@@ -80,6 +80,13 @@ class LinuxAdmin
       parse_output(output).index_by {|i| i[:pool_id]}
     end
 
+    def enable_repo(repo, options = nil)
+      cmd     = "subscription-manager repos"
+      params  = {"--enable=" => repo}
+
+      run!(cmd, :params => params)
+    end
+
     private
 
     def parse_output(output)
