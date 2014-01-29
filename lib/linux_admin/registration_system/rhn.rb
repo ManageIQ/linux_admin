@@ -70,8 +70,26 @@ class LinuxAdmin
       run!(cmd, :params => params).output.chomp.split("\n").compact
     end
 
+    def all_repos(options)
+      available = available_channels_with_status(options)
+      merge_enabled_channels_with_status(available)
+    end
 
     private
+
+    def available_channels_with_status(options)
+      available_channels(options).collect { |ac| {:repo_id => ac, :enabled => false} }
+    end
+
+    def merge_enabled_channels_with_status(available)
+      enabled_channels.each_with_object(available) do |enabled, all|
+        if repo = all.detect { |i| i[:repo_id] == enabled }
+          repo[:enabled] = true
+        else
+          all.push({:repo_id => enabled, :enabled => true})
+        end
+      end
+    end
 
     def user_pwd(options)
       raise ArgumentError, "username and password are required" if options[:username].blank? || options[:password].blank?

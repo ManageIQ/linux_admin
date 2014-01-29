@@ -110,4 +110,23 @@ describe LinuxAdmin::Rhn do
 
     expect(described_class.new.available_channels(credentials)).to eq(expected)
   end
+
+  it "#all_repos" do
+    credentials = {
+      :username => "some_user",
+      :password => "password"
+    }
+    expected = [
+      {:repo_id => "rhel-x86_64-server-6-cf-me-2",      :enabled => true},
+      {:repo_id => "rhel-x86_64-server-6-cf-me-2-beta", :enabled => false},
+      {:repo_id => "rhel-x86_64-server-6-cf-me-3",      :enabled => false},
+      {:repo_id => "rhel-x86_64-server-6-cf-me-3-beta", :enabled => false},
+      {:repo_id => "rhel-x86_64-server-6",              :enabled => true}
+    ]
+
+    described_class.any_instance.should_receive(:run!).once.and_return(double(:output => sample_output("rhn/output_rhn-channel_list_available")))
+    described_class.any_instance.should_receive(:run!).once.with("rhn-channel -l").and_return(double(:output => sample_output("rhn/output_rhn-channel_list")))
+
+    expect(described_class.new.all_repos(credentials)).to eq(expected)
+  end
 end
