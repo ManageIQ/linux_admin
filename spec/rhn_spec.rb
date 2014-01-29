@@ -81,6 +81,12 @@ describe LinuxAdmin::Rhn do
     expect(described_class.new.subscribed_products).to eq(["rhel-x86_64-server-6", "rhel-x86_64-server-6-cf-me-2"])
   end
 
+  it "#disable_channel" do
+    described_class.any_instance.should_receive(:run!).once.with("rhn-channel -r", {:params=>{"--user="=>"SomeUser", "--password="=>"SomePass", "--channel="=>123}})
+
+    described_class.new.disable_channel(123, :username => "SomeUser", :password => "SomePass")
+  end
+
   it "#available_channels" do
     credentials = {
       :username => "some_user",
