@@ -80,4 +80,28 @@ describe LinuxAdmin::Rhn do
     described_class.any_instance.should_receive(:run!).once.with("rhn-channel -l").and_return(double(:output => sample_output("rhn/output_rhn-channel_list")))
     expect(described_class.new.subscribed_products).to eq(["rhel-x86_64-server-6", "rhel-x86_64-server-6-cf-me-2"])
   end
+
+  it "#available_channels" do
+    credentials = {
+      :username => "some_user",
+      :password => "password"
+    }
+    expected    = [
+      "rhel-x86_64-server-6-cf-me-2",
+      "rhel-x86_64-server-6-cf-me-2-beta",
+      "rhel-x86_64-server-6-cf-me-3",
+      "rhel-x86_64-server-6-cf-me-3-beta"
+    ]
+    cmd         = "rhn-channel -L"
+    params      = {
+      :params => {
+        "--user="     => "some_user",
+        "--password=" => "password"
+      }
+    }
+
+    described_class.any_instance.should_receive(:run!).once.with(cmd, params).and_return(double(:output => sample_output("rhn/output_rhn-channel_list_available")))
+
+    expect(described_class.new.available_channels(credentials)).to eq(expected)
+  end
 end

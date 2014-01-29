@@ -49,15 +49,18 @@ class LinuxAdmin
     alias_method :subscribe,    :enable_channel
     alias_method :enable_repo,  :enable_channel
 
-
-      run!(cmd, :params => params)
-    end
-
     def enabled_channels
       cmd = "rhn-channel -l"
       run!(cmd).output.split("\n").compact
     end
     alias_method :subscribed_products, :enabled_channels
+
+    def available_channels(options)
+      cmd     = "rhn-channel -L"
+      params  = user_pwd(options)
+
+      run!(cmd, :params => params).output.chomp.split("\n").compact
+    end
 
 
     private
