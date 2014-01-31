@@ -156,4 +156,31 @@ describe LinuxAdmin::SubscriptionManager do
 
     described_class.new.disable_repo("abc")
   end
+
+  it "#all_repos" do
+    expected = [
+      {
+        :repo_id   => "some-repo-source-rpms",
+        :repo_name => "Some Repo (Source RPMs)",
+        :repo_url  => "https://my.host.example.com/repos/some-repo/source/rpms",
+        :enabled   => true
+      },
+      {
+        :repo_id   => "some-repo-rpms",
+        :repo_name => "Some Repo",
+        :repo_url  => "https://my.host.example.com/repos/some-repo/rpms",
+        :enabled   => true
+      },
+      {
+        :repo_id   => "some-repo-2-beta-rpms",
+        :repo_name => "Some Repo (Beta RPMs)",
+        :repo_url  => "https://my.host.example.com/repos/some-repo-2/beta/rpms",
+        :enabled   => false
+      }
+    ]
+
+    described_class.any_instance.should_receive(:run!).once.with("subscription-manager repos").and_return(double(:output => sample_output("subscription_manager/output_repos")))
+
+    expect(described_class.new.all_repos).to eq(expected)
+  end
 end

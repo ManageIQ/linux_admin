@@ -94,6 +94,13 @@ class LinuxAdmin
       run!(cmd, :params => params)
     end
 
+    def all_repos(options = nil)
+      cmd     = "subscription-manager repos"
+      output  = run!(cmd).output
+
+      parse_output(output)
+    end
+
     private
 
     def parse_output(output)
@@ -115,6 +122,7 @@ class LinuxAdmin
     end
 
     def format_values(content_group)
+      content_group[:enabled] = content_group[:enabled].to_i == 1  if content_group[:enabled]
       content_group[:ends]    = Date.strptime(content_group[:ends], "%m/%d/%Y")   if content_group[:ends]
       content_group[:starts]  = Date.strptime(content_group[:starts], "%m/%d/%Y") if content_group[:starts]
       content_group
