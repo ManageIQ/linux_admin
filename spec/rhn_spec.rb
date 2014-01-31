@@ -70,23 +70,64 @@ describe LinuxAdmin::Rhn do
     end
   end
 
-  context "#subscribe" do
-    it "without arguments" do
-      expect { described_class.new.subscribe({}) }.to raise_error(ArgumentError)
-    end
+  it "#enable_channel" do
+    described_class.any_instance.should_receive(:run!).once.with("rhn-channel -a", {:params=>{"--user="=>"SomeUser", "--password="=>"SomePass", "--channel="=>123}})
 
-    it "with channels" do
-      described_class.any_instance.should_receive(:run!).once.with("rhn-channel -a", {:params=>[["--user=", "SomeUser"], ["--password=", "SomePass"], ["--channel=", 123], ["--channel=", 456]]})
-      described_class.new.subscribe({
-        :username => "SomeUser",
-        :password => "SomePass",
-        :channels => [123, 456]
-        })
-    end
+    described_class.new.enable_channel(123, :username => "SomeUser", :password => "SomePass")
   end
 
-  it "#subscribed_products" do
+  it "#enabled_channels" do
     described_class.any_instance.should_receive(:run!).once.with("rhn-channel -l").and_return(double(:output => sample_output("rhn/output_rhn-channel_list")))
-    expect(described_class.new.subscribed_products).to eq(["rhel-x86_64-server-6", "rhel-x86_64-server-6-cf-me-2"])
+
+    expect(described_class.new.enabled_channels).to eq(["rhel-x86_64-server-6", "rhel-x86_64-server-6-cf-me-2"])
+  end
+
+  it "#disable_channel" do
+    described_class.any_instance.should_receive(:run!).once.with("rhn-channel -r", {:params=>{"--user="=>"SomeUser", "--password="=>"SomePass", "--channel="=>123}})
+
+    described_class.new.disable_channel(123, :username => "SomeUser", :password => "SomePass")
+  end
+
+  it "#available_channels" do
+    credentials = {
+      :username => "some_user",
+      :password => "password"
+    }
+    expected    = [
+      "rhel-x86_64-server-6-cf-me-2",
+      "rhel-x86_64-server-6-cf-me-2-beta",
+      "rhel-x86_64-server-6-cf-me-3",
+      "rhel-x86_64-server-6-cf-me-3-beta"
+    ]
+    cmd         = "rhn-channel -L"
+    params      = {
+      :params => {
+        "--user="     => "some_user",
+        "--password=" => "password"
+      }
+    }
+
+    described_class.any_instance.should_receive(:run!).once.with(cmd, params).and_return(double(:output => sample_output("rhn/output_rhn-channel_list_available")))
+
+    expect(described_class.new.available_channels(credentials)).to eq(expected)
+  end
+
+  it "#all_repos" do
+    credentials = {
+      :username => "some_user",
+      :password => "password"
+    }
+    expected = [
+      {:repo_id => "rhel-x86_64-server-6-cf-me-2",      :enabled => true},
+      {:repo_id => "rhel-x86_64-server-6-cf-me-2-beta", :enabled => false},
+      {:repo_id => "rhel-x86_64-server-6-cf-me-3",      :enabled => false},
+      {:repo_id => "rhel-x86_64-server-6-cf-me-3-beta", :enabled => false},
+      {:repo_id => "rhel-x86_64-server-6",              :enabled => true}
+    ]
+
+    described_class.any_instance.should_receive(:run!).once.and_return(double(:output => sample_output("rhn/output_rhn-channel_list_available")))
+    described_class.any_instance.should_receive(:run!).once.with("rhn-channel -l").and_return(double(:output => sample_output("rhn/output_rhn-channel_list")))
+
+    expect(described_class.new.all_repos(credentials)).to eq(expected)
   end
 end

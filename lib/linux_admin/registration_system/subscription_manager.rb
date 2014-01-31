@@ -80,6 +80,31 @@ class LinuxAdmin
       parse_output(output).index_by {|i| i[:pool_id]}
     end
 
+    def enable_repo(repo, options = nil)
+      cmd     = "subscription-manager repos"
+      params  = {"--enable=" => repo}
+
+      run!(cmd, :params => params)
+    end
+
+    def disable_repo(repo, options = nil)
+      cmd     = "subscription-manager repos"
+      params  = {"--disable=" => repo}
+
+      run!(cmd, :params => params)
+    end
+
+    def all_repos(options = nil)
+      cmd     = "subscription-manager repos"
+      output  = run!(cmd).output
+
+      parse_output(output)
+    end
+
+    def enabled_repos
+      all_repos.select { |i| i[:enabled] }.collect { |r| r[:repo_id] }
+    end
+
     private
 
     def parse_output(output)
@@ -101,6 +126,7 @@ class LinuxAdmin
     end
 
     def format_values(content_group)
+      content_group[:enabled] = content_group[:enabled].to_i == 1  if content_group[:enabled]
       content_group[:ends]    = Date.strptime(content_group[:ends], "%m/%d/%Y")   if content_group[:ends]
       content_group[:starts]  = Date.strptime(content_group[:starts], "%m/%d/%Y") if content_group[:starts]
       content_group

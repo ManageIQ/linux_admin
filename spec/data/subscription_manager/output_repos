@@ -1,0 +1,18 @@
++----------------------------------------------------------+
+    Available Repositories in /etc/yum.repos.d/redhat.repo
++----------------------------------------------------------+
+Repo ID:   some-repo-source-rpms
+Repo Name: Some Repo (Source RPMs)
+Repo URL:  https://my.host.example.com/repos/some-repo/source/rpms
+Enabled:   1
+
+Repo ID:   some-repo-rpms
+Repo Name: Some Repo
+Repo URL:  https://my.host.example.com/repos/some-repo/rpms
+Enabled:   1
+
+Repo ID:   some-repo-2-beta-rpms
+Repo Name: Some Repo (Beta RPMs)
+Repo URL:  https://my.host.example.com/repos/some-repo-2/beta/rpms
+Enabled:   0
+
