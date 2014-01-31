@@ -59,8 +59,10 @@ class LinuxAdmin
 
     def enabled_channels
       cmd = "rhn-channel -l"
+
       run!(cmd).output.split("\n").compact
     end
+    alias_method :enabled_repos, :enabled_channels
     alias_method :subscribed_products, :enabled_channels
 
     def available_channels(options)
