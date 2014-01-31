@@ -183,4 +183,12 @@ describe LinuxAdmin::SubscriptionManager do
 
     expect(described_class.new.all_repos).to eq(expected)
   end
+
+  it "#enabled_repos" do
+    expected = ["some-repo-source-rpms", "some-repo-rpms"]
+
+    described_class.any_instance.should_receive(:run!).once.with("subscription-manager repos").and_return(double(:output => sample_output("subscription_manager/output_repos")))
+
+    expect(described_class.new.enabled_repos).to eq(expected)
+  end
 end

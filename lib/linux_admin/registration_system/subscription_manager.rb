@@ -101,6 +101,10 @@ class LinuxAdmin
       parse_output(output)
     end
 
+    def enabled_repos
+      all_repos.select { |i| i[:enabled] }.collect { |r| r[:repo_id] }
+    end
+
     private
 
     def parse_output(output)
