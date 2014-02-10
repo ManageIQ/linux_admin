@@ -54,8 +54,7 @@ eos
 
     it "returns [] on non-zero parted rc" do
       disk = LinuxAdmin::Disk.new :path => '/dev/hda'
-      disk.stub(:exitstatus => 1)
-      disk.stub(:launch)
+      disk.should_receive(:run).and_return(double(:output => "", :exit_status => 1))
       disk.partitions.should == []
     end
 
