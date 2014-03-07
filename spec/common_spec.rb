@@ -15,10 +15,12 @@ describe LinuxAdmin::Common do
 
   context "#cmd" do
     it "looks up local command from id" do
-      d = double(LinuxAdmin::Distro)
-      d.class::COMMANDS = {:sh => '/bin/sh'}
-      LinuxAdmin::Distro.should_receive(:local).and_return(d)
+      stub_distro(:sh => '/bin/sh')
       subject.cmd(:sh).should == '/bin/sh'
+    end
+
+    it "complains when command not found" do
+      expect { subject.cmd(:notfound) }.to raise_error
     end
   end
 

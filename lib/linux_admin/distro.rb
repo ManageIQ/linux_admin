@@ -5,10 +5,11 @@
 
 class LinuxAdmin
   class Distro < LinuxAdmin
-    attr_accessor :id
+    attr_accessor :id, :commands
 
-    def initialize(id)
+    def initialize(id, commands)
       @id = id
+      @commands = commands
     end
 
     def self.local
@@ -50,42 +51,39 @@ class LinuxAdmin
     end
 
     class Generic < Distro
-      COMMANDS = {}
-
       def initialize
-        @id = :generic
+        super(:generic, {})
       end
     end
 
     class RedHat < Distro
-      COMMANDS = {:service   => '/sbin/service',
-                  :chkconfig => '/sbin/chkconfig',
-                  :parted    => '/sbin/parted',
-                  :mount     => '/bin/mount',
-                  :umount    => '/bin/umount',
-                  :shutdown  => '/sbin/shutdown',
-                  :mke2fs    => '/sbin/mke2fs',
-                  :fdisk     => '/sbin/fdisk',
-                  :dd        => '/bin/dd',
-                  :vgdisplay => '/sbin/vgdisplay',
-                  :pvdisplay => '/sbin/pvdisplay',
-                  :lvdisplay => '/sbin/lvdisplay',
-                  :lvextend  => '/sbin/lvextend',
-                  :vgextend  => '/sbin/vgextend',
-                  :lvcreate  => '/sbin/lvcreate',
-                  :pvcreate  => '/sbin/pvcreate',
-                  :vgcreate  => '/sbin/vgcreate'}
-
       def initialize
-        @id = :redhat
+        super(
+          :redhat,
+          :service   => '/sbin/service',
+          :chkconfig => '/sbin/chkconfig',
+          :parted    => '/sbin/parted',
+          :mount     => '/bin/mount',
+          :umount    => '/bin/umount',
+          :shutdown  => '/sbin/shutdown',
+          :mke2fs    => '/sbin/mke2fs',
+          :fdisk     => '/sbin/fdisk',
+          :dd        => '/bin/dd',
+          :vgdisplay => '/sbin/vgdisplay',
+          :pvdisplay => '/sbin/pvdisplay',
+          :lvdisplay => '/sbin/lvdisplay',
+          :lvextend  => '/sbin/lvextend',
+          :vgextend  => '/sbin/vgextend',
+          :lvcreate  => '/sbin/lvcreate',
+          :pvcreate  => '/sbin/pvcreate',
+          :vgcreate  => '/sbin/vgcreate'
+        )
       end
     end
 
     class Ubuntu < Distro
-      COMMANDS = {}
-
       def initialize
-        @id = :ubuntu
+        super(:ubuntu, {})
       end
     end
   end

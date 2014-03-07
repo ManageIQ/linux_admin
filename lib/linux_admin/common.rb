@@ -3,7 +3,7 @@ require 'awesome_spawn'
 class LinuxAdmin
   module Common
     def cmd(cmd)
-      Distro.local.class::COMMANDS[cmd]
+      Distro.local.commands[cmd] || raise(ArgumentError, "command #{cmd} not defined for #{Distro.local.id}")
     end
 
     def run(cmd, options = {})
