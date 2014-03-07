@@ -17,7 +17,7 @@ class LinuxAdmin
           issue = File.read('/etc/issue')
           if issue.include?('ubuntu')
             return Distros.ubuntu
-          elsif ['Fedora', 'red hat', 'Red Hat', 'centos'].any? { |d| issue.include?(d) }
+          elsif ['fedora', 'red hat', 'centos'].any? { |d| issue.downcase.include?(d) }
             return Distros.redhat
           end
 

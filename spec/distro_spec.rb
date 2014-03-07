@@ -10,6 +10,7 @@ describe LinuxAdmin::Distro do
     [['ubuntu',  :ubuntu],
      ['Fedora',  :redhat],
      ['red hat', :redhat],
+     ['CentOS',  :redhat],
      ['centos',  :redhat]].each do |i,d|
       context "/etc/issue contains '#{i}'" do
         before(:each) do
