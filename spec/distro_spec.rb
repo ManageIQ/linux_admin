@@ -2,6 +2,10 @@ require 'spec_helper'
 
 describe LinuxAdmin::Distro do
   describe "#local" do
+    before do
+      LinuxAdmin::Distro.unstub(:local)
+    end
+
     after(:each) do
       # distro generates a local copy, reset after each run
       LinuxAdmin::Distro.instance_variable_set(:@local, nil)
