@@ -59,9 +59,9 @@ object-oriented programming.  It has many features to process text
 files and to do system management tasks (as in Perl).  It is simple,
 straight-forward, and extensible.
 EOS
-      described_class.should_receive(:run!).
-                      with(described_class::RPM_CMD, :params => {"-qi" => "ruby"}).
-                      and_return(double(:output => data))
+      arguments = [described_class.rpm_cmd, :params => {"-qi" => "ruby"}]
+      result = AwesomeSpawn::CommandResult.new("", data, "", 0)
+      described_class.should_receive(:run!).with(*arguments).and_return(result)
       metadata = described_class.info("ruby")
       metadata['name'].should == 'ruby'
       metadata['version'].should == '2.0.0.247'
