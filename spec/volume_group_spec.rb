@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe LinuxAdmin::VolumeGroup do
   before(:each) do
-    LinuxAdmin::Distro.stub(:local => LinuxAdmin::Distros::Test.new)
+    LinuxAdmin::Distros::Distro.stub(:local => LinuxAdmin::Distros::Test.new)
 
     @groups = <<eos
   vg_foobar:r/w:772:-1:0:2:2:-1:0:1:1:12058624:32768:368:368:0:tILZUF-IspH-H90I-pT5j-vVFl-b76L-zWx3CW

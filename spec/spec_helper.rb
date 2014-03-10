@@ -21,6 +21,9 @@ RSpec.configure do |config|
 
   config.after do
     clear_caches
+
+    # reset the distro, tested in various placed & used extensively
+    LinuxAdmin::Distros::Distro.instance_variable_set(:@local, nil)
   end
 end
 

@@ -1,9 +1,11 @@
 class LinuxAdmin
   class Rpm < Package
-    RPM_CMD = '/usr/bin/rpm'
+    def self.rpm_cmd
+      Distros::Distro.local.class::COMMANDS[:rpm]
+    end
 
     def self.list_installed
-      out = run!("rpm -qa --qf \"%{NAME} %{VERSION}-%{RELEASE}\n\"").output
+      out = run!("#{rpm_cmd} -qa --qf \"%{NAME} %{VERSION}-%{RELEASE}\n\"").output
       out.split("\n").each_with_object({}) do |line, pkg_hash|
         name, ver = line.split(" ")
         pkg_hash[name] = ver
@@ -21,8 +23,12 @@ class LinuxAdmin
     def self.info(pkg)
       params = { "-qi" => pkg}
       in_description = false
-      out = run!(RPM_CMD, :params => params).output
+      out = run!(rpm_cmd, :params => params).output
+      # older versions of rpm may have multiple fields per line,
+      # split up lines with multiple tags/values:
+      out.gsub!(/(^.*:.*)\s\s+(.*:.*)$/, "\\1\n\\2")
       out.split("\n").each.with_object({}) do |line, rpm|
+        next if !line || line.empty?
         tag,value = line.split(':')
         tag = tag.strip
         if tag == 'Description'
