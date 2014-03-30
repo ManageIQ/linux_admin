@@ -52,7 +52,7 @@ class LinuxAdmin
       end
 
       def detected_by_etc_issue?
-        etc_issue_keywords && etc_issue_keywords.any? { |k| EtcIssue.instance.to_s.include?(k) }
+        etc_issue_keywords && etc_issue_keywords.any? { |k| EtcIssue.instance.include?(k) }
       end
 
       def detected_by_etc_release?
@@ -100,7 +100,7 @@ class LinuxAdmin
 
     class RHEL < RedHat
       def initialize
-        super({:rpm => '/bin/rpm'}, '/etc/redhat-release', ['red hat', 'Red Hat', 'centos', 'CentOS'])
+        super({:rpm => '/bin/rpm'}, '/etc/redhat-release', ['red hat','centos'])
       end
 
       # def detected?

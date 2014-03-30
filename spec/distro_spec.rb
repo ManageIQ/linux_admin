@@ -14,7 +14,7 @@ describe LinuxAdmin::Distros::Distro do
      ['centos',  :rhel]].each do |i, d|
       context "/etc/issue contains '#{i}'" do
         before(:each) do
-          expect(LinuxAdmin::EtcIssue.instance).to receive(:to_s).at_least(:once).and_return(i)
+          etc_issue_contains(i)
           exists("/etc/fedora-release" => false, "/etc/redhat-release" => false)
         end
 
@@ -27,7 +27,7 @@ describe LinuxAdmin::Distros::Distro do
 
     context "/etc/issue did not match" do
       before(:each) do
-        LinuxAdmin::EtcIssue.instance.should_receive(:to_s).at_least(:once).and_return('')
+        etc_issue_contains('')
       end
 
       context "/etc/redhat-release exists" do
@@ -46,7 +46,7 @@ describe LinuxAdmin::Distros::Distro do
     end
 
     it "returns Distros.generic" do
-      LinuxAdmin::EtcIssue.instance.should_receive(:to_s).at_least(:once).and_return('')
+      etc_issue_contains('')
       exists("/etc/fedora-release" => false, "/etc/redhat-release" => false)
       expect(subject).to eq(LinuxAdmin::Distros.generic)
     end

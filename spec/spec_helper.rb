@@ -37,6 +37,12 @@ end
 
 require 'linux_admin'
 
+def etc_issue_contains(contents)
+  LinuxAdmin::EtcIssue.instance.send(:refresh)
+  allow(File).to receive(:exists?).with('/etc/issue').at_least(:once).and_return(true)
+  allow(File).to receive(:read).with('/etc/issue').at_least(:once).and_return(contents)
+end
+
 def stub_distro(distro = LinuxAdmin::Distros.rhel)
   # simply alias test distro to redhat distro for time being
   LinuxAdmin::Distros.stub(:local => distro)
