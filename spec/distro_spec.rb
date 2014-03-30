@@ -1,7 +1,12 @@
 require 'spec_helper'
 
 describe LinuxAdmin::Distros::Distro do
+  let(:subject) { LinuxAdmin::Distros.local }
   describe "#local" do
+    before do
+      LinuxAdmin::Distros.unstub(:local)
+    end
+
     [['ubuntu',  :ubuntu],
      ['Fedora',  :fedora],
      ['red hat', :rhel],
@@ -9,13 +14,13 @@ describe LinuxAdmin::Distros::Distro do
      ['centos',  :rhel]].each do |i, d|
       context "/etc/issue contains '#{i}'" do
         before(:each) do
-          LinuxAdmin::EtcIssue.instance.should_receive(:to_s).at_least(:once).and_return(i)
-          File.should_receive(:exists?).at_least(:once).and_return(false)
+          expect(LinuxAdmin::EtcIssue.instance).to receive(:to_s).at_least(:once).and_return(i)
+          exists("/etc/fedora-release" => false, "/etc/redhat-release" => false)
         end
 
         it "returns Distros.#{d}" do
           distro = LinuxAdmin::Distros.send(d)
-          described_class.local.should == distro
+          expect(subject).to eq(distro)
         end
       end
     end
@@ -27,27 +32,29 @@ describe LinuxAdmin::Distros::Distro do
 
       context "/etc/redhat-release exists" do
         it "returns Distros.rhel" do
-          File.should_receive(:exists?).with('/etc/redhat-release').and_return(true)
-          LinuxAdmin::Distros::Fedora.should_receive(:detected?).and_return(false)
-          File.should_receive(:exists?).at_least(:once).and_call_original
-          described_class.local.should == LinuxAdmin::Distros.rhel
+          exists("/etc/fedora-release" => false, "/etc/redhat-release" => true)
+          expect(subject).to eq(LinuxAdmin::Distros.rhel)
         end
       end
 
       context "/etc/fedora-release exists" do
         it "returns Distros.fedora" do
-          File.should_receive(:exists?).with('/etc/redhat-release').and_return(false)
-          File.should_receive(:exists?).with('/etc/fedora-release').and_return(true)
-          File.should_receive(:exists?).at_least(:once).and_call_original
-          described_class.local.should == LinuxAdmin::Distros.fedora
+          exists("/etc/fedora-release" => true, "/etc/redhat-release" => false)
+          expect(subject).to eq(LinuxAdmin::Distros.fedora)
         end
       end
     end
 
     it "returns Distros.generic" do
       LinuxAdmin::EtcIssue.instance.should_receive(:to_s).at_least(:once).and_return('')
-      File.should_receive(:exists?).at_least(:once).and_return(false)
-      described_class.local.should == LinuxAdmin::Distros.generic
+      exists("/etc/fedora-release" => false, "/etc/redhat-release" => false)
+      expect(subject).to eq(LinuxAdmin::Distros.generic)
     end
+  end
+
+  private
+
+  def exists(files)
+    files.each_pair { |file, value| allow(File).to receive(:exists?).with(file).and_return(value) }
   end
 end

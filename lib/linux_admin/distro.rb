@@ -32,11 +32,20 @@ class LinuxAdmin
     end
 
     def self.local
-      Distro.local
+      @local ||= begin
+        result = nil
+        Distros.constants.each do |cdistro|
+          distro_method = cdistro.to_s.downcase.to_sym
+          distro = Distros.const_get(cdistro)
+          next unless distro < Distro
+          result = Distros.send(distro_method) if distro.detected?
+        end
+        result || Distros.generic
+      end
     end
 
     class Distro
-      RELEASE_FILE = ''
+      RELEASE_FILE = nil
       ETC_ISSUE_KEYWORDS = []
 
       def self.etc_issue_keywords
@@ -45,20 +54,6 @@ class LinuxAdmin
 
       def self.release_file
         self::RELEASE_FILE
-      end
-
-      def self.local
-        # this can be cleaned up..
-        @local ||= begin
-          result = nil
-          Distros.constants.each do |cdistro|
-            distro_method = cdistro.to_s.downcase.to_sym
-            distro = Distros.const_get(cdistro)
-            next unless distro < Distro
-            result = Distros.send(distro_method) if distro.detected?
-          end
-          result || Distros.generic
-        end
       end
 
       def self.detected?
@@ -70,7 +65,7 @@ class LinuxAdmin
       end
 
       def self.detected_by_etc_release?
-        File.exists?(release_file)
+        release_file && File.exists?(release_file)
       end
     end
 

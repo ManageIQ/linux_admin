@@ -1,7 +1,7 @@
 class LinuxAdmin
   class Rpm < Package
     def self.rpm_cmd
-      Distros::Distro.local.class::COMMANDS[:rpm]
+      Distros.local.class::COMMANDS[:rpm]
     end
 
     def self.list_installed
