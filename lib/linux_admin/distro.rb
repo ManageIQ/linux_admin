@@ -8,19 +8,19 @@ require 'linux_admin/etc_issue'
 class LinuxAdmin
   module Distros
     def self.generic
-      @generic ||= Generic.new
+      @generic ||= Distro.new(:generic)
     end
 
     def self.rhel
-      @rhel ||= RHEL.new
+      @rhel ||= Distro.new(:rhel, '/etc/redhat-release', ['red hat', 'centos'], LinuxAdmin::Rpm)
     end
 
     def self.fedora
-      @fedora ||= Fedora.new
+      @fedora ||= Distro.new(:fedora, "/etc/fedora-release", ['Fedora'], LinuxAdmin::Rpm)
     end
 
     def self.ubuntu
-      @ubuntu ||= Ubuntu.new
+      @ubuntu ||= Distro.new(:ubuntu, nil, ['ubuntu'], LinuxAdmin::Deb)
     end
 
     def self.all
@@ -36,15 +36,12 @@ class LinuxAdmin
     class Distro
       attr_accessor :release_file, :etc_issue_keywords, :info_class
 
-      def initialize(release_file = nil, etc_issue_keywords = [], info_class = nil)
+      def initialize(id, release_file = nil, etc_issue_keywords = [], info_class = nil)
+        @id                 = id
         @path               = %w(/sbin /bin /usr/bin /usr/sbin)
         @release_file       = release_file
         @etc_issue_keywords = etc_issue_keywords
         @info_class         = info_class
-      end
-
-      def id
-        @id ||= self.class.name.downcase.to_sym
       end
 
       def detected?
@@ -65,40 +62,6 @@ class LinuxAdmin
 
       def info(pkg)
         info_class ? info_class.info(pkg) : nil
-      end
-    end
-
-    class Generic < Distro
-      def initialize
-        super()
-      end
-    end
-
-    class RedHat < Distro
-      def initialize(release_file, etc_issue_keywords)
-        super(release_file, etc_issue_keywords, LinuxAdmin::Rpm)
-      end
-    end
-
-    class RHEL < RedHat
-      def initialize
-        super('/etc/redhat-release', ['red hat','centos'])
-      end
-
-      # def detected?
-      #   super || File.exists?("/etc/redhat-release")
-      # end
-    end
-
-    class Fedora < RedHat
-      def initialize
-        super("/etc/fedora-release", ['Fedora'])
-      end
-    end
-
-    class Ubuntu < Distro
-      def initialize
-        super(nil, ['ubuntu'], LinuxAdmin::Deb)
       end
     end
   end
