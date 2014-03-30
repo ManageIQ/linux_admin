@@ -34,10 +34,10 @@ class LinuxAdmin
     end
 
     class Distro
-      attr_accessor :commands, :release_file, :etc_issue_keywords, :info_class
+      attr_accessor :release_file, :etc_issue_keywords, :info_class
 
-      def initialize(commands, release_file = nil, etc_issue_keywords = [], info_class = nil)
-        @commands           = commands
+      def initialize(release_file = nil, etc_issue_keywords = [], info_class = nil)
+        @path               = %w(/sbin /bin /usr/bin /usr/sbin)
         @release_file       = release_file
         @etc_issue_keywords = etc_issue_keywords
         @info_class         = info_class
@@ -60,7 +60,7 @@ class LinuxAdmin
       end
 
       def command(name)
-        commands[name]
+        @path.collect { |dir| "#{dir}/#{name}" }.detect { |cmd| File.exists?(cmd) }
       end
 
       def info(pkg)
@@ -70,37 +70,19 @@ class LinuxAdmin
 
     class Generic < Distro
       def initialize
-        super({})
+        super()
       end
     end
 
     class RedHat < Distro
-      def initialize(extra_commands, release_file, etc_issue_keywords)
-        super({
-          :service   => '/sbin/service',
-          :chkconfig => '/sbin/chkconfig',
-          :parted    => '/sbin/parted',
-          :mount     => '/bin/mount',
-          :umount    => '/bin/umount',
-          :shutdown  => '/sbin/shutdown',
-          :mke2fs    => '/sbin/mke2fs',
-          :fdisk     => '/sbin/fdisk',
-          :dd        => '/bin/dd',
-          :vgdisplay => '/sbin/vgdisplay',
-          :pvdisplay => '/sbin/pvdisplay',
-          :lvdisplay => '/sbin/lvdisplay',
-          :lvextend  => '/sbin/lvextend',
-          :vgextend  => '/sbin/vgextend',
-          :lvcreate  => '/sbin/lvcreate',
-          :pvcreate  => '/sbin/pvcreate',
-          :vgcreate  => '/sbin/vgcreate'
-          }.merge(extra_commands), release_file, etc_issue_keywords, LinuxAdmin::Rpm)
+      def initialize(release_file, etc_issue_keywords)
+        super(release_file, etc_issue_keywords, LinuxAdmin::Rpm)
       end
     end
 
     class RHEL < RedHat
       def initialize
-        super({:rpm => '/bin/rpm'}, '/etc/redhat-release', ['red hat','centos'])
+        super('/etc/redhat-release', ['red hat','centos'])
       end
 
       # def detected?
@@ -110,13 +92,13 @@ class LinuxAdmin
 
     class Fedora < RedHat
       def initialize
-        super({:rpm => '/usr/bin/rpm'}, "/etc/fedora-release", ['Fedora'])
+        super("/etc/fedora-release", ['Fedora'])
       end
     end
 
     class Ubuntu < Distro
       def initialize
-        super({}, nil, ['ubuntu'], LinuxAdmin::Deb)
+        super(nil, ['ubuntu'], LinuxAdmin::Deb)
       end
     end
   end
