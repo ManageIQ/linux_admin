@@ -52,6 +52,25 @@ describe LinuxAdmin::Distros::Distro do
     end
   end
 
+  describe "#info" do
+    it "dispatches to redhat lookup mechanism" do
+      stub_distro(LinuxAdmin::Distros.rhel)
+      expect(LinuxAdmin::Rpm).to receive(:info).with('ruby')
+      LinuxAdmin::Distros.local.info 'ruby'
+    end
+
+    it "dispatches to ubuntu lookup mechanism" do
+      stub_distro(LinuxAdmin::Distros.ubuntu)
+      expect(LinuxAdmin::Deb).to receive(:info).with('ruby')
+      LinuxAdmin::Distros.local.info 'ruby'
+    end
+
+    it "dispatches to ubuntu lookup mechanism" do
+      stub_distro(LinuxAdmin::Distros.generic)
+      expect { LinuxAdmin::Distros.local.info 'ruby' }.not_to raise_error
+    end
+  end
+
   private
 
   def exists(files)

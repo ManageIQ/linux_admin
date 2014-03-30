@@ -1,17 +1,7 @@
 require 'spec_helper'
 
 describe LinuxAdmin::Common do
-  before do
-    class TestClass
-      extend LinuxAdmin::Common
-    end
-  end
-
-  after do
-    Object.send(:remove_const, :TestClass)
-  end
-
-  subject { TestClass }
+  subject { Class.new { include LinuxAdmin::Common }.new }
 
   context "#cmd" do
     it "looks up local command from id" do
