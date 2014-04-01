@@ -3,7 +3,7 @@ require 'awesome_spawn'
 class LinuxAdmin
   module Common
     def cmd(cmd)
-      Distros::Distro.local.class::COMMANDS[cmd]
+      Distros.local.command(cmd)
     end
 
     def run(cmd, options = {})

@@ -2,10 +2,6 @@ require 'spec_helper'
 
 describe LinuxAdmin::Service do
   before(:each) do
-    # stub distro.local to return test distro for command lookup
-    LinuxAdmin::Distros::Distro.stub(:local)
-                               .and_return(LinuxAdmin::Distros::Test.new)
-
     @service = LinuxAdmin::Service.new 'foo'
   end
 

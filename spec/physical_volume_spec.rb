@@ -2,8 +2,6 @@ require 'spec_helper'
 
 describe LinuxAdmin::PhysicalVolume do
   before(:each) do
-    LinuxAdmin::Distros::Distro.stub(:local => LinuxAdmin::Distros::Test.new)
-
     @physical_volumes = <<eos
   /dev/vda2:vg_foobar:24139776:-1:8:8:-1:32768:368:0:368:pxR32D-YkC2-PfHe-zOwb-eaGD-9Ar0-mAOl9u
 eos

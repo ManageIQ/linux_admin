@@ -17,13 +17,15 @@ RSpec.configure do |config|
 
   config.before do
     Kernel.stub(:spawn).and_raise("Spawning is not permitted in specs.  Please change your spec to use expectations/stubs.")
+    # by default, have it say it is running Red Hat linux
+    stub_distro
   end
 
   config.after do
     clear_caches
 
     # reset the distro, tested in various placed & used extensively
-    LinuxAdmin::Distros::Distro.instance_variable_set(:@local, nil)
+    LinuxAdmin::Distros.instance_variable_set(:@local, nil)
   end
 end
 
@@ -35,6 +37,16 @@ end
 
 require 'linux_admin'
 
+def etc_issue_contains(contents)
+  LinuxAdmin::EtcIssue.instance.send(:refresh)
+  allow(File).to receive(:exists?).with('/etc/issue').at_least(:once).and_return(true)
+  allow(File).to receive(:read).with('/etc/issue').at_least(:once).and_return(contents)
+end
+
+def stub_distro(distro = LinuxAdmin::Distros.rhel)
+  # simply alias test distro to redhat distro for time being
+  LinuxAdmin::Distros.stub(:local => distro)
+end
 
 def data_file_path(to)
   File.expand_path(to, File.join(File.dirname(__FILE__), "data"))
@@ -46,11 +58,4 @@ end
 
 def clear_caches
   LinuxAdmin::RegistrationSystem.instance_variable_set(:@registration_type, nil)
-end
-
-class LinuxAdmin
-  module Distros
-    # simply alias test distro to redhat distro for time being
-    Distros::Test = Distros::RedHat
-  end
 end

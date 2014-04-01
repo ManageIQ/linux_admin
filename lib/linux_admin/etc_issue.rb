@@ -11,18 +11,16 @@ class LinuxAdmin
 
     PATH = '/etc/issue'
 
-    def initialize
-      refresh
+    def include?(osname)
+      data.downcase.include?(osname.to_s.downcase)
     end
 
-    def to_s
-      @data.to_s
+    def data
+      @data ||= File.exists?(PATH) ? File.read(PATH) : ""
     end
-
-    private
 
     def refresh
-      @data = File.exists?(PATH) ? File.read(PATH) : ""
+      @data = nil
     end
   end
 end

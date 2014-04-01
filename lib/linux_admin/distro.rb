@@ -8,135 +8,60 @@ require 'linux_admin/etc_issue'
 class LinuxAdmin
   module Distros
     def self.generic
-      @generic ||= Generic.new
-    end
-
-    def self.redhat
-      @redhat ||= RedHat.new
+      @generic ||= Distro.new(:generic)
     end
 
     def self.rhel
-      @rhel ||= RHEL.new
+      @rhel ||= Distro.new(:rhel, '/etc/redhat-release', ['red hat', 'centos'], LinuxAdmin::Rpm)
     end
 
     def self.fedora
-      @fedora ||= Fedora.new
+      @fedora ||= Distro.new(:fedora, "/etc/fedora-release", ['Fedora'], LinuxAdmin::Rpm)
     end
 
     def self.ubuntu
-      @ubuntu ||= Ubuntu.new
+      @ubuntu ||= Distro.new(:ubuntu, nil, ['ubuntu'], LinuxAdmin::Deb)
     end
 
     def self.all
-     @distros ||= [generic, redhat, ubuntu]
+      @distros ||= [rhel, fedora, ubuntu, generic]
     end
 
     def self.local
-      Distro.local
+      @local ||= begin
+        Distros.all.detect(&:detected?) || Distros.generic
+      end
     end
 
     class Distro
-      RELEASE_FILE = ''
-      ETC_ISSUE_KEYWORDS = []
+      attr_accessor :release_file, :etc_issue_keywords, :info_class
 
-      def self.etc_issue_keywords
-        self::ETC_ISSUE_KEYWORDS
+      def initialize(id, release_file = nil, etc_issue_keywords = [], info_class = nil)
+        @id                 = id
+        @path               = %w(/sbin /bin /usr/bin /usr/sbin)
+        @release_file       = release_file
+        @etc_issue_keywords = etc_issue_keywords
+        @info_class         = info_class
       end
 
-      def self.release_file
-        self::RELEASE_FILE
-      end
-
-      def self.local
-        # this can be cleaned up..
-        @local ||= begin
-          result = nil
-          Distros.constants.each do |cdistro|
-            distro_method = cdistro.to_s.downcase.to_sym
-            distro = Distros.const_get(cdistro)
-            next unless distro < Distro
-            result = Distros.send(distro_method) if distro.detected?
-          end
-          result || Distros.generic
-        end
-      end
-
-      def self.detected?
+      def detected?
         detected_by_etc_issue? || detected_by_etc_release?
       end
 
-      def self.detected_by_etc_issue?
-        etc_issue_keywords.any? { |k| EtcIssue.instance.to_s.include?(k) }
+      def detected_by_etc_issue?
+        etc_issue_keywords && etc_issue_keywords.any? { |k| EtcIssue.instance.include?(k) }
       end
 
-      def self.detected_by_etc_release?
-        File.exists?(release_file)
+      def detected_by_etc_release?
+        release_file && File.exists?(release_file)
       end
-    end
 
-    class Generic < Distro
-      COMMANDS = {}
-
-      def initialize
-        @id = :generic
+      def command(name)
+        @path.collect { |dir| "#{dir}/#{name}" }.detect { |cmd| File.exists?(cmd) }
       end
-    end
 
-    class RedHat < Distro
-      COMMANDS = {:service   => '/sbin/service',
-                  :chkconfig => '/sbin/chkconfig',
-                  :parted    => '/sbin/parted',
-                  :mount     => '/bin/mount',
-                  :umount    => '/bin/umount',
-                  :shutdown  => '/sbin/shutdown',
-                  :mke2fs    => '/sbin/mke2fs',
-                  :fdisk     => '/sbin/fdisk',
-                  :dd        => '/bin/dd',
-                  :vgdisplay => '/sbin/vgdisplay',
-                  :pvdisplay => '/sbin/pvdisplay',
-                  :lvdisplay => '/sbin/lvdisplay',
-                  :lvextend  => '/sbin/lvextend',
-                  :vgextend  => '/sbin/vgextend',
-                  :lvcreate  => '/sbin/lvcreate',
-                  :pvcreate  => '/sbin/pvcreate',
-                  :vgcreate  => '/sbin/vgcreate'}
-
-      def initialize
-        @id = :redhat
-      end
-    end
-
-    class RHEL < RedHat
-      RELEASE_FILE =       "/etc/redhat-release"
-      ETC_ISSUE_KEYWORDS = ['red hat', 'Red Hat', 'centos', 'CentOS']
-
-      COMMANDS = COMMANDS.merge(
-                   :rpm => '/bin/rpm'
-                 )
-      def initialize
-        @id = :rhel
-      end
-    end
-
-    class Fedora < RedHat
-      RELEASE_FILE =       "/etc/fedora-release"
-      ETC_ISSUE_KEYWORDS = ['Fedora']
-
-      COMMANDS = COMMANDS.merge(
-                   :rpm => '/usr/bin/rpm'
-                 )
-      def initialize
-        @id = :fedora
-      end
-    end
-
-    class Ubuntu < Distro
-      ETC_ISSUE_KEYWORDS = ['ubuntu']
-
-      COMMANDS = {}
-
-      def initialize
-        @id = :ubuntu
+      def info(pkg)
+        info_class ? info_class.info(pkg) : nil
       end
     end
   end

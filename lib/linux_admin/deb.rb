@@ -4,7 +4,7 @@
 # Licensed under the MIT License
 
 class LinuxAdmin
-  class Deb < Package
+  class Deb
     APT_CACHE_CMD = '/usr/bin/apt-cache'
 
     def self.from_line(apt_cache_line, in_description=false)
@@ -34,6 +34,5 @@ class LinuxAdmin
     def self.info(pkg)
       self.from_string(run!(APT_CACHE_CMD, :params => ["show", pkg]).output)
     end
-
   end
 end

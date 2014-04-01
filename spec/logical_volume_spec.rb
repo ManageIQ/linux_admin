@@ -2,8 +2,6 @@ require 'spec_helper'
 
 describe LinuxAdmin::LogicalVolume do
   before(:each) do
-    LinuxAdmin::Distros::Distro.stub(:local => LinuxAdmin::Distros::Test.new)
-
     @logical_volumes = <<eos
   /dev/vg_foobar/lv_swap:vg_foobar:3:1:-1:2:4128768:63:-1:0:-1:253:0
   /dev/vg_foobar/lv_root:vg_foobar:3:1:-1:1:19988480:305:-1:0:-1:253:1
