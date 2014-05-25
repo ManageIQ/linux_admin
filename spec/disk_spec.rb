@@ -3,7 +3,7 @@ require 'spec_helper'
 describe LinuxAdmin::Disk do
   describe "#local" do
     it "returns local disks" do
-      Dir.should_receive(:glob).with('/dev/[vhs]d[a-z]').
+      Dir.should_receive(:glob).with(['/dev/[vhs]d[a-z]', '/dev/xvd[a-z]']).
           and_return(['/dev/hda', '/dev/sda'])
       disks = LinuxAdmin::Disk.local
       paths = disks.collect { |disk| disk.path }
