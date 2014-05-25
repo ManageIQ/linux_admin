@@ -53,7 +53,7 @@ class LinuxAdmin
     public
 
     def self.local
-      Dir.glob('/dev/[vhs]d[a-z]').collect do |d|
+      Dir.glob(['/dev/[vhs]d[a-z]', '/dev/xvd[a-z]']).collect do |d|
         Disk.new :path => d
       end
     end
