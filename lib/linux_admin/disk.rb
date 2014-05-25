@@ -152,7 +152,7 @@ class LinuxAdmin
       end
 
       id = partitions.empty? ? 1 : (partitions.last.id + 1)
-      options = parted_options_array('mkpart', '-a opt', partition_type, start, finish)
+      options = parted_options_array('mkpart', '-a', 'opt', partition_type, start, finish)
       run!(cmd(:parted), :params => { nil => options})
 
       partition = Partition.new(:disk           => self,
