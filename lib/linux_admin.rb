@@ -1,4 +1,5 @@
 require 'more_core_extensions/all'
+require 'active_support'
 require 'active_support/core_ext'
 
 require 'linux_admin/registration_system'
