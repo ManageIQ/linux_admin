@@ -3,7 +3,7 @@ require 'spec_helper'
 describe LinuxAdmin::Disk do
   describe "#local" do
     it "returns local disks" do
-      Dir.should_receive(:glob).with('/dev/[vhs]d[a-z]').
+      Dir.should_receive(:glob).with(['/dev/[vhs]d[a-z]', '/dev/xvd[a-z]']).
           and_return(['/dev/hda', '/dev/sda'])
       disks = LinuxAdmin::Disk.local
       paths = disks.collect { |disk| disk.path }
@@ -138,13 +138,13 @@ eos
     end
 
     it "uses parted" do
-      params = ['--script', '/dev/hda', 'mkpart', '-a opt', 'primary', 1024, 2048]
+      params = ['--script', '/dev/hda', 'mkpart', '-a', 'opt', 'primary', 1024, 2048]
       @disk.should_receive(:run!).with(@disk.cmd(:parted), :params => { nil => params })
       @disk.create_partition 'primary', 1024
     end
 
     it "accepts start/end params" do
-      params = ['--script', '/dev/hda', 'mkpart', '-a opt', 'primary', "0%", "50%"]
+      params = ['--script', '/dev/hda', 'mkpart', '-a', 'opt', 'primary', "0%", "50%"]
       @disk.should_receive(:run!).with(@disk.cmd(:parted), :params => { nil => params })
       @disk.create_partition 'primary', "0%", "50%"
     end
