@@ -4,7 +4,7 @@
 # Licensed under the MIT License
 
 class LinuxAdmin
-  class Deb
+  class Deb < Package
     APT_CACHE_CMD = '/usr/bin/apt-cache'
 
     def self.from_line(apt_cache_line, in_description=false)

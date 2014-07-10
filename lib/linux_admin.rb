@@ -6,6 +6,7 @@ require 'linux_admin/registration_system'
 
 require 'linux_admin/common'
 require 'linux_admin/exceptions'
+require 'linux_admin/package'
 require 'linux_admin/rpm'
 require 'linux_admin/deb'
 require 'linux_admin/version'

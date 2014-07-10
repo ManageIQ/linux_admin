@@ -1,5 +1,5 @@
 class LinuxAdmin
-  class Rpm
+  class Rpm < Package
     def self.rpm_cmd
       Distros.local.command(:rpm)
     end
