@@ -38,6 +38,12 @@ class LinuxAdmin
       self
     end
 
+    def start_and_detach
+      detach(cmd(:service),
+             :params => [id, "start"])
+      self
+    end
+
     def stop
       run!(cmd(:service),
           :params => { nil => [id, "stop"] })

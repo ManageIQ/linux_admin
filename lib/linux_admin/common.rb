@@ -13,5 +13,13 @@ class LinuxAdmin
     def run!(cmd, options = {})
       AwesomeSpawn.run!(cmd, options)
     end
+
+    # NOTE: only currently supports options: :params => []
+    def detach(cmd, options = {})
+      params = Array(options[:params])
+      Process.detach(Kernel.spawn(
+        "#{cmd} #{params.join(" ")}",
+        [:out, :err] => ["/dev/null", "w"]))
+    end
   end
 end
