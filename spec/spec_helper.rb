@@ -90,7 +90,7 @@ require 'linux_admin'
 
 def etc_issue_contains(contents)
   LinuxAdmin::EtcIssue.instance.send(:refresh)
-  allow(File).to receive(:exists?).with('/etc/issue').at_least(:once).and_return(true)
+  allow(File).to receive(:exist?).with('/etc/issue').at_least(:once).and_return(true)
   allow(File).to receive(:read).with('/etc/issue').at_least(:once).and_return(contents)
 end
 

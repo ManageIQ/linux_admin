@@ -7,7 +7,7 @@ class LinuxAdmin
 
     def registered?
       id = ""
-      if File.exists?(systemid_file)
+      if File.exist?(systemid_file)
         xml = Nokogiri.XML(File.read(systemid_file))
         id = xml.xpath('/params/param/value/struct/member[name="system_id"]/value/string').text
       end

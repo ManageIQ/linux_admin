@@ -72,6 +72,6 @@ describe LinuxAdmin::Distros::Distro do
   private
 
   def exists(files)
-    files.each_pair { |file, value| allow(File).to receive(:exists?).with(file).and_return(value) }
+    files.each_pair { |file, value| allow(File).to receive(:exist?).with(file).and_return(value) }
   end
 end

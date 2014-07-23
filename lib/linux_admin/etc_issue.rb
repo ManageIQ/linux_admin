@@ -16,7 +16,7 @@ class LinuxAdmin
     end
 
     def data
-      @data ||= File.exists?(PATH) ? File.read(PATH) : ""
+      @data ||= File.exist?(PATH) ? File.read(PATH) : ""
     end
 
     def refresh
