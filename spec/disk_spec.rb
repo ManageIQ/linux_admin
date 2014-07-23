@@ -134,7 +134,7 @@ eos
       @disk.instance_variable_set(:@partitions,
                                   [LinuxAdmin::Partition.new(:id => 1,
                                                  :end_sector => 1024)])
-      @disk.stub(:has_partition_table? => true)
+      allow(@disk).to receive_messages(:has_partition_table? => true)
     end
 
     it "uses parted" do
@@ -187,7 +187,7 @@ eos
     end
 
     it "creates partition table if missing" do
-      @disk.stub(:has_partition_table? => false)
+      allow(@disk).to receive_messages(:has_partition_table? => false)
       expect(@disk).to receive(:create_partition_table)
       expect(@disk).to receive(:run!)
       @disk.create_partition 'primary', 1024

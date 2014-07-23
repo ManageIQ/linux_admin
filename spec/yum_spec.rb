@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe LinuxAdmin::Yum do
   before(:each) do
-    FileUtils.stub(:mkdir_p => true)
+    allow(FileUtils).to receive_messages(:mkdir_p => true)
   end
 
   context ".create_repo" do
@@ -73,17 +73,17 @@ describe LinuxAdmin::Yum do
     end
 
     it "updates are available" do
-      described_class.stub(:run => double(:exit_status => 100))
+      allow(described_class).to receive_messages(:run => double(:exit_status => 100))
       expect(described_class.updates_available?).to be_truthy
     end
 
     it "updates not available" do
-      described_class.stub(:run => double(:exit_status => 0))
+      allow(described_class).to receive_messages(:run => double(:exit_status => 0))
       expect(described_class.updates_available?).to be_falsey
     end
 
     it "other exit code" do
-      described_class.stub(:run => double(:exit_status => 255))
+      allow(described_class).to receive_messages(:run => double(:exit_status => 255))
       expect { described_class.updates_available? }.to raise_error
     end
 

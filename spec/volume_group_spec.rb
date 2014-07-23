@@ -72,14 +72,14 @@ eos
     end
 
     it "returns new volume group" do
-      described_class.stub(:run! => double(:output => ""))
+      allow(described_class).to receive_messages(:run! => double(:output => ""))
       vg = described_class.create 'vg', @pv
       expect(vg).to be_an_instance_of(described_class)
       expect(vg.name).to eq('vg')
     end
 
     it "adds volume group to local registry" do
-      described_class.stub(:run! => double(:output => ""))
+      allow(described_class).to receive_messages(:run! => double(:output => ""))
       vg = described_class.create 'vg', @pv
       expect(described_class.scan).to include(vg)
     end

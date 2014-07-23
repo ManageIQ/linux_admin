@@ -45,7 +45,7 @@ end
 
 def stub_distro(distro = LinuxAdmin::Distros.rhel)
   # simply alias test distro to redhat distro for time being
-  LinuxAdmin::Distros.stub(:local => distro)
+  allow(LinuxAdmin::Distros).to receive_messages(:local => distro)
 end
 
 def data_file_path(to)

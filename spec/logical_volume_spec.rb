@@ -85,8 +85,8 @@ eos
     end
 
     it "returns new logical volume" do
-      LinuxAdmin::VolumeGroup.stub(:run! => double(:output => ""))
-      described_class.stub(:run! => double(:output => ""))
+      allow(LinuxAdmin::VolumeGroup).to receive_messages(:run! => double(:output => ""))
+      allow(described_class).to receive_messages(:run! => double(:output => ""))
       lv = described_class.create 'lv', @vg, 256.gigabytes
       expect(lv).to be_an_instance_of(described_class)
       expect(lv.name).to eq('lv')
@@ -94,8 +94,8 @@ eos
 
     context "name is specified" do
       it "sets path under volume group" do
-        LinuxAdmin::VolumeGroup.stub(:run! => double(:output => ""))
-        described_class.stub(:run! => double(:output => ""))
+        allow(LinuxAdmin::VolumeGroup).to receive_messages(:run! => double(:output => ""))
+        allow(described_class).to receive_messages(:run! => double(:output => ""))
         lv = described_class.create 'lv', @vg, 256.gigabytes
         expect(lv.path.to_s).to eq("#{described_class::DEVICE_PATH}#{@vg.name}/lv")
       end
@@ -103,8 +103,8 @@ eos
 
     context "path is specified" do
       it "sets name" do
-        LinuxAdmin::VolumeGroup.stub(:run! => double(:output => ""))
-        described_class.stub(:run! => double(:output => ""))
+        allow(LinuxAdmin::VolumeGroup).to receive_messages(:run! => double(:output => ""))
+        allow(described_class).to receive_messages(:run! => double(:output => ""))
         lv = described_class.create '/dev/lv', @vg, 256.gigabytes
         expect(lv.name).to eq("lv")
       end
@@ -113,8 +113,8 @@ eos
     context "path is specified as Pathname" do
       it "sets name" do
         require 'pathname'
-        LinuxAdmin::VolumeGroup.stub(:run! => double(:output => ""))
-        described_class.stub(:run! => double(:output => ""))
+        allow(LinuxAdmin::VolumeGroup).to receive_messages(:run! => double(:output => ""))
+        allow(described_class).to receive_messages(:run! => double(:output => ""))
         lv = described_class.create Pathname.new("/dev/#{@vg.name}/lv"), @vg, 256.gigabytes
         expect(lv.name).to eq("lv")
         expect(lv.path).to eq("/dev/vg/lv")
@@ -122,8 +122,8 @@ eos
     end
 
     it "adds logical volume to local registry" do
-      LinuxAdmin::VolumeGroup.stub(:run! => double(:output => ""))
-      described_class.stub(:run! => double(:output => ""))
+      allow(LinuxAdmin::VolumeGroup).to receive_messages(:run! => double(:output => ""))
+      allow(described_class).to receive_messages(:run! => double(:output => ""))
       lv = described_class.create 'lv', @vg, 256.gigabytes
       expect(described_class.scan).to include(lv)
     end

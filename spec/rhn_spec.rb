@@ -3,17 +3,17 @@ require 'spec_helper'
 describe LinuxAdmin::Rhn do
   context "#registered?" do
     it "with registered system_id" do
-      described_class.any_instance.stub(:systemid_file => data_file_path("rhn/systemid"))
+      allow_any_instance_of(described_class).to receive_messages(:systemid_file => data_file_path("rhn/systemid"))
       expect(described_class.new).to be_registered
     end
 
     it "with unregistered system_id" do
-      described_class.any_instance.stub(:systemid_file => data_file_path("rhn/systemid.missing_system_id"))
+      allow_any_instance_of(described_class).to receive_messages(:systemid_file => data_file_path("rhn/systemid.missing_system_id"))
       expect(described_class.new).to_not be_registered
     end
 
     it "with missing systemid file" do
-      described_class.any_instance.stub(:systemid_file => data_file_path("rhn/systemid.missing_file"))
+      allow_any_instance_of(described_class).to receive_messages(:systemid_file => data_file_path("rhn/systemid.missing_file"))
       expect(described_class.new).to_not be_registered
     end
   end

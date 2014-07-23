@@ -54,7 +54,7 @@ describe LinuxAdmin::RegistrationSystem do
   end
 
   def stub_registered_to_system(*system)
-    LinuxAdmin::SubscriptionManager.any_instance.stub(:registered? => (system.include?(:sm)))
-    LinuxAdmin::Rhn.any_instance.stub(:registered? => (system.include?(:rhn)))
+    allow_any_instance_of(LinuxAdmin::SubscriptionManager).to receive_messages(:registered? => (system.include?(:sm)))
+    allow_any_instance_of(LinuxAdmin::Rhn).to receive_messages(:registered? => (system.include?(:rhn)))
   end
 end

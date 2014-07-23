@@ -61,16 +61,16 @@ eos
     end
 
     it "returns new physical volume" do
-      LinuxAdmin::VolumeGroup.stub(:run! => double(:output => ""))
-      described_class.stub(:run! => double(:output => ""))
+      allow(LinuxAdmin::VolumeGroup).to receive_messages(:run! => double(:output => ""))
+      allow(described_class).to receive_messages(:run! => double(:output => ""))
       pv = described_class.create disk
       expect(pv).to be_an_instance_of(described_class)
       expect(pv.device_name).to eq('/dev/hda')
     end
 
     it "adds physical volume to local registry" do
-      LinuxAdmin::VolumeGroup.stub(:run! => double(:output => ""))
-      described_class.stub(:run! => double(:output => ""))
+      allow(LinuxAdmin::VolumeGroup).to receive_messages(:run! => double(:output => ""))
+      allow(described_class).to receive_messages(:run! => double(:output => ""))
       pv = described_class.create disk
       expect(described_class.scan).to include(pv)
     end
