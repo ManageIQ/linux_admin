@@ -11,11 +11,8 @@ class LinuxAdmin
 
     DEVICE_PATH  = Pathname.new('/dev/')
 
-    # path to logical volume
-    attr_accessor :path
-
     # logical volume name
-    attr_accessor :name
+    attr_reader :name
 
     # volume group name
     attr_accessor :volume_group
@@ -34,6 +31,11 @@ class LinuxAdmin
     # read ahead sectors of logical volume
     # major device number of logical volume
     # minor device number of logical volume
+
+    # path to logical volume
+    def path
+      "/dev/#{self.volume_group.name}/#{self.name}"
+    end
 
     def path=(value)
       @path = value.include?(File::SEPARATOR) ? value : DEVICE_PATH.join(@volume_group.name, value)
@@ -55,10 +57,6 @@ class LinuxAdmin
       run!(cmd(:lvextend),
           :params => [self.name, vg.name])
       self
-    end
-
-    def path
-      "/dev/#{self.volume_group.name}/#{self.name}"
     end
 
     private

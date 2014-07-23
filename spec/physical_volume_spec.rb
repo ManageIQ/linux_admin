@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 describe LinuxAdmin::PhysicalVolume do
   before(:each) do
     @physical_volumes = <<eos

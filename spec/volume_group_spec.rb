@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 describe LinuxAdmin::VolumeGroup do
   before(:each) do
     @groups = <<eos

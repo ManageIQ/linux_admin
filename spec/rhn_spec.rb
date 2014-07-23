@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 describe LinuxAdmin::Rhn do
   context "#registered?" do
     it "with registered system_id" do

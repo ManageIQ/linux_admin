@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 describe LinuxAdmin::SubscriptionManager do
   context "#registered?" do
     it "system with subscription-manager commands" do

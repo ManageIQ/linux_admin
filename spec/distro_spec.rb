@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 describe LinuxAdmin::Distros::Distro do
   let(:subject) { LinuxAdmin::Distros.local }
   describe "#local" do

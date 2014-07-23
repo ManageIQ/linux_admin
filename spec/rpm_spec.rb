@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 describe LinuxAdmin::Rpm do
   it ".list_installed" do
     allow(described_class).to receive_messages(:run! => double(:output => sample_output("rpm/cmd_output_for_list_installed")))

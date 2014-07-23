@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 describe LinuxAdmin::RegistrationSystem do
   context ".registration_type" do
     it "when registered Subscription Manager" do

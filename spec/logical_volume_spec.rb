@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 describe LinuxAdmin::LogicalVolume do
   before(:each) do
     @logical_volumes = <<eos

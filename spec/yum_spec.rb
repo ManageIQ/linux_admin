@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 describe LinuxAdmin::Yum do
   before(:each) do
     allow(FileUtils).to receive_messages(:mkdir_p => true)

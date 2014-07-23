@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 describe LinuxAdmin::Service do
   before(:each) do
     @service = LinuxAdmin::Service.new 'foo'

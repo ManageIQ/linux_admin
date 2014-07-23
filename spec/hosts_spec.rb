@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 describe LinuxAdmin::Hosts do
   etc_hosts = "\n #Some Comment\n127.0.0.1\tlocalhost localhost.localdomain # with a comment\n127.0.1.1  my.domain.local"
   before do

@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 describe LinuxAdmin::Common do
   subject { Class.new { include LinuxAdmin::Common }.new }
 

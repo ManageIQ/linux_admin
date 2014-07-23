@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 describe LinuxAdmin::System do
   describe "#reboot!" do
     it "reboots the system" do

@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 describe LinuxAdmin::Partition do
   before(:each) do
     @disk = LinuxAdmin::Disk.new :path => '/dev/sda'

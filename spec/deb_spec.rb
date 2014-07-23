@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 describe LinuxAdmin::Deb do
   describe "#info" do
     it "returns package metadata" do

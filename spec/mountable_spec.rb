@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 class TestMountable < LinuxAdmin
   include LinuxAdmin::Mountable
 

@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 describe LinuxAdmin::Disk do
   describe "#local" do
     it "returns local disks" do
