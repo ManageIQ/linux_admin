@@ -18,13 +18,13 @@ describe LinuxAdmin::RegistrationSystem do
     end
 
     it "should memoize results" do
-      described_class.should_receive(:registration_type_uncached).once.and_return("anything_non_nil")
+      expect(described_class).to receive(:registration_type_uncached).once.and_return("anything_non_nil")
       described_class.registration_type
       described_class.registration_type
     end
 
     it "with reload should refresh results" do
-      described_class.should_receive(:registration_type_uncached).twice.and_return("anything_non_nil")
+      expect(described_class).to receive(:registration_type_uncached).twice.and_return("anything_non_nil")
       described_class.registration_type
       described_class.registration_type(true)
     end
@@ -32,7 +32,7 @@ describe LinuxAdmin::RegistrationSystem do
 
   it "#registered? when unregistered" do
     stub_registered_to_system(nil)
-    expect(described_class.registered?).to be_false
+    expect(described_class.registered?).to be_falsey
   end
 
   context ".method_missing" do
@@ -41,7 +41,7 @@ describe LinuxAdmin::RegistrationSystem do
     end
 
     it "exists on the subclass" do
-      expect(LinuxAdmin::RegistrationSystem.registered?).to be_true
+      expect(LinuxAdmin::RegistrationSystem.registered?).to be_truthy
     end
 
     it "does not exist on the subclass" do
@@ -49,7 +49,7 @@ describe LinuxAdmin::RegistrationSystem do
     end
 
     it "is an unknown method" do
-      expect { LinuxAdmin::RegistrationSystem.method_does_not_exist }.to be_true
+      expect { LinuxAdmin::RegistrationSystem.method_does_not_exist }.to raise_error(NoMethodError)
     end
   end
 

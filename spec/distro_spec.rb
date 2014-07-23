@@ -4,7 +4,7 @@ describe LinuxAdmin::Distros::Distro do
   let(:subject) { LinuxAdmin::Distros.local }
   describe "#local" do
     before do
-      LinuxAdmin::Distros.unstub(:local)
+      allow(LinuxAdmin::Distros).to receive(:local).and_call_original
     end
 
     [['ubuntu',  :ubuntu],

@@ -10,12 +10,12 @@ describe LinuxAdmin::Common do
   end
 
   it "#run" do
-    AwesomeSpawn.should_receive(:run).with("echo", nil => "test")
+    expect(AwesomeSpawn).to receive(:run).with("echo", nil => "test")
     subject.run("echo", nil => "test")
   end
 
   it "#run!" do
-    AwesomeSpawn.should_receive(:run!).with("echo", nil => "test")
+    expect(AwesomeSpawn).to receive(:run!).with("echo", nil => "test")
     subject.run!("echo", nil => "test")
   end
 end

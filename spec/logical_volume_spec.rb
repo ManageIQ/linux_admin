@@ -23,7 +23,7 @@ eos
     it "uses lvextend" do
       vg = LinuxAdmin::VolumeGroup.new :name => 'vg'
       lv = described_class.new :name => 'lv', :volume_group => vg
-      lv.should_receive(:run!).
+      expect(lv).to receive(:run!).
          with(vg.cmd(:lvextend),
               :params => ['lv', 'vg'])
       lv.extend_with(vg)
@@ -32,8 +32,8 @@ eos
     it "returns self" do
       vg = LinuxAdmin::VolumeGroup.new :name => 'vg'
       lv = described_class.new :name => 'lv', :volume_group => vg
-      lv.stub(:run!)
-      lv.extend_with(vg).should == lv
+      allow(lv).to receive(:run!)
+      expect(lv.extend_with(vg)).to eq(lv)
     end
   end
 
@@ -41,7 +41,7 @@ eos
     it "returns /dev/vgname/lvname" do
       vg = LinuxAdmin::VolumeGroup.new :name => 'vg'
       lv = described_class.new :name => 'lv', :volume_group => vg
-      lv.path.should == '/dev/vg/lv'
+      expect(lv.path).to eq('/dev/vg/lv')
     end
   end
 
@@ -52,7 +52,7 @@ eos
 
     it "uses lvcreate" do
       described_class.instance_variable_set(:@lvs, [])
-      described_class.should_receive(:run!).
+      expect(described_class).to receive(:run!).
                                 with(LinuxAdmin.cmd(:lvcreate),
                                      :params => { '-n' => 'lv',
                                                    nil => 'vg',
@@ -63,7 +63,7 @@ eos
     context "size is specified" do
       it "passes -L option to lvcreate" do
         described_class.instance_variable_set(:@lvs, [])
-        described_class.should_receive(:run!).
+        expect(described_class).to receive(:run!).
                                   with(LinuxAdmin.cmd(:lvcreate),
                                        :params => { '-n' => 'lv',
                                                      nil => 'vg',
@@ -75,7 +75,7 @@ eos
     context "extents is specified" do
       it "passes -l option to lvcreate" do
         described_class.instance_variable_set(:@lvs, [])
-        described_class.should_receive(:run!).
+        expect(described_class).to receive(:run!).
                                   with(LinuxAdmin.cmd(:lvcreate),
                                        :params => { '-n' => 'lv',
                                                      nil => 'vg',
@@ -88,8 +88,8 @@ eos
       LinuxAdmin::VolumeGroup.stub(:run! => double(:output => ""))
       described_class.stub(:run! => double(:output => ""))
       lv = described_class.create 'lv', @vg, 256.gigabytes
-      lv.should be_an_instance_of(described_class)
-      lv.name.should == 'lv'
+      expect(lv).to be_an_instance_of(described_class)
+      expect(lv.name).to eq('lv')
     end
 
     context "name is specified" do
@@ -97,7 +97,7 @@ eos
         LinuxAdmin::VolumeGroup.stub(:run! => double(:output => ""))
         described_class.stub(:run! => double(:output => ""))
         lv = described_class.create 'lv', @vg, 256.gigabytes
-        lv.path.to_s.should == "#{described_class::DEVICE_PATH}#{@vg.name}/lv"
+        expect(lv.path.to_s).to eq("#{described_class::DEVICE_PATH}#{@vg.name}/lv")
       end
     end
 
@@ -106,7 +106,7 @@ eos
         LinuxAdmin::VolumeGroup.stub(:run! => double(:output => ""))
         described_class.stub(:run! => double(:output => ""))
         lv = described_class.create '/dev/lv', @vg, 256.gigabytes
-        lv.name.should == "lv"
+        expect(lv.name).to eq("lv")
       end
     end
 
@@ -116,8 +116,8 @@ eos
         LinuxAdmin::VolumeGroup.stub(:run! => double(:output => ""))
         described_class.stub(:run! => double(:output => ""))
         lv = described_class.create Pathname.new("/dev/#{@vg.name}/lv"), @vg, 256.gigabytes
-        lv.name.should == "lv"
-        lv.path.should == "/dev/vg/lv"
+        expect(lv.name).to eq("lv")
+        expect(lv.path).to eq("/dev/vg/lv")
       end
     end
 
@@ -125,44 +125,44 @@ eos
       LinuxAdmin::VolumeGroup.stub(:run! => double(:output => ""))
       described_class.stub(:run! => double(:output => ""))
       lv = described_class.create 'lv', @vg, 256.gigabytes
-      described_class.scan.should include(lv)
+      expect(described_class.scan).to include(lv)
     end
   end
 
   describe "#scan" do
     it "uses lvdisplay" do
-      described_class.should_receive(:run!).
+      expect(described_class).to receive(:run!).
                                 with(LinuxAdmin.cmd(:lvdisplay),
                                      :params => { '-c' => nil}).
                                 and_return(double(:output => @logical_volumes))
-      LinuxAdmin::VolumeGroup.should_receive(:run!).and_return(double(:output => @groups)) # stub out call to vgdisplay
+      expect(LinuxAdmin::VolumeGroup).to receive(:run!).and_return(double(:output => @groups)) # stub out call to vgdisplay
       described_class.scan
     end
 
     it "returns local logical volumes" do
-      described_class.should_receive(:run!).and_return(double(:output => @logical_volumes))
-      LinuxAdmin::VolumeGroup.should_receive(:run!).and_return(double(:output => @groups))
+      expect(described_class).to receive(:run!).and_return(double(:output => @logical_volumes))
+      expect(LinuxAdmin::VolumeGroup).to receive(:run!).and_return(double(:output => @groups))
       lvs = described_class.scan
 
-      lvs[0].should be_an_instance_of(described_class)
-      lvs[0].path.should == '/dev/vg_foobar/lv_swap'
-      lvs[0].name.should == 'lv_swap'
-      lvs[0].sectors.should == 4128768
+      expect(lvs[0]).to be_an_instance_of(described_class)
+      expect(lvs[0].path).to eq('/dev/vg_foobar/lv_swap')
+      expect(lvs[0].name).to eq('lv_swap')
+      expect(lvs[0].sectors).to eq(4128768)
 
-      lvs[1].should be_an_instance_of(described_class)
-      lvs[1].path.should == '/dev/vg_foobar/lv_root'
-      lvs[1].name.should == 'lv_root'
-      lvs[1].sectors.should == 19988480
+      expect(lvs[1]).to be_an_instance_of(described_class)
+      expect(lvs[1].path).to eq('/dev/vg_foobar/lv_root')
+      expect(lvs[1].name).to eq('lv_root')
+      expect(lvs[1].sectors).to eq(19988480)
     end
 
     it "resolves volume group references" do
-      described_class.should_receive(:run!).and_return(double(:output => @logical_volumes))
-      LinuxAdmin::VolumeGroup.should_receive(:run!).and_return(double(:output => @groups))
+      expect(described_class).to receive(:run!).and_return(double(:output => @logical_volumes))
+      expect(LinuxAdmin::VolumeGroup).to receive(:run!).and_return(double(:output => @groups))
       lvs = described_class.scan
-      lvs[0].volume_group.should be_an_instance_of(LinuxAdmin::VolumeGroup)
-      lvs[0].volume_group.name.should == 'vg_foobar'
-      lvs[1].volume_group.should be_an_instance_of(LinuxAdmin::VolumeGroup)
-      lvs[1].volume_group.name.should == 'vg_foobar'
+      expect(lvs[0].volume_group).to be_an_instance_of(LinuxAdmin::VolumeGroup)
+      expect(lvs[0].volume_group.name).to eq('vg_foobar')
+      expect(lvs[1].volume_group).to be_an_instance_of(LinuxAdmin::VolumeGroup)
+      expect(lvs[1].volume_group.name).to eq('vg_foobar')
     end
   end
 end

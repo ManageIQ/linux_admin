@@ -22,7 +22,7 @@ eos
     it "uses vgextend" do
       vg = LinuxAdmin::VolumeGroup.new :name => 'vg'
       pv = described_class.new :device_name => '/dev/hda'
-      pv.should_receive(:run!).
+      expect(pv).to receive(:run!).
          with(pv.cmd(:vgextend),
               :params => ['vg', '/dev/hda'])
       pv.attach_to(vg)
@@ -31,30 +31,30 @@ eos
     it "assigns volume group to physical volume" do
       vg = LinuxAdmin::VolumeGroup.new :name => 'vg'
       pv = described_class.new :device_name => '/dev/hda'
-      pv.stub(:run!)
+      allow(pv).to receive(:run!)
       pv.attach_to(vg)
-      pv.volume_group.should == vg
+      expect(pv.volume_group).to eq(vg)
     end
 
     it "returns self" do
       vg = LinuxAdmin::VolumeGroup.new :name => 'vg'
       pv = described_class.new :device_name => '/dev/hda'
-      pv.stub(:run!)
-      pv.attach_to(vg).should == pv
+      allow(pv).to receive(:run!)
+      expect(pv.attach_to(vg)).to eq(pv)
     end
   end
 
   describe "#create" do
     before do
       @disk = LinuxAdmin::Disk.new :path => '/dev/hda'
-      @disk.stub(:size)
+      allow(@disk).to receive(:size)
     end
 
     let(:disk) {@disk}
 
     it "uses pvcreate" do
       described_class.instance_variable_set(:@pvs, [])
-      described_class.should_receive(:run!).
+      expect(described_class).to receive(:run!).
                                  with(LinuxAdmin.cmd(:pvcreate),
                                       :params => { nil => '/dev/hda'})
       described_class.create disk
@@ -64,44 +64,44 @@ eos
       LinuxAdmin::VolumeGroup.stub(:run! => double(:output => ""))
       described_class.stub(:run! => double(:output => ""))
       pv = described_class.create disk
-      pv.should be_an_instance_of(described_class)
-      pv.device_name.should == '/dev/hda'
+      expect(pv).to be_an_instance_of(described_class)
+      expect(pv.device_name).to eq('/dev/hda')
     end
 
     it "adds physical volume to local registry" do
       LinuxAdmin::VolumeGroup.stub(:run! => double(:output => ""))
       described_class.stub(:run! => double(:output => ""))
       pv = described_class.create disk
-      described_class.scan.should include(pv)
+      expect(described_class.scan).to include(pv)
     end
   end
 
   describe "#scan" do
     it "uses pvdisplay" do
-      described_class.should_receive(:run!).
+      expect(described_class).to receive(:run!).
                                  with(LinuxAdmin.cmd(:pvdisplay),
                                      :params => { '-c' => nil}).
                                  and_return(double(:output => @physical_volumes))
-      LinuxAdmin::VolumeGroup.should_receive(:run!).and_return(double(:output => @groups)) # stub out call to vgdisplay
+      expect(LinuxAdmin::VolumeGroup).to receive(:run!).and_return(double(:output => @groups)) # stub out call to vgdisplay
       described_class.scan
     end
 
     it "returns local physical volumes" do
-      described_class.should_receive(:run!).and_return(double(:output => @physical_volumes))
-      LinuxAdmin::VolumeGroup.should_receive(:run!).and_return(double(:output => @groups))
+      expect(described_class).to receive(:run!).and_return(double(:output => @physical_volumes))
+      expect(LinuxAdmin::VolumeGroup).to receive(:run!).and_return(double(:output => @groups))
       pvs = described_class.scan
 
-      pvs[0].should be_an_instance_of(described_class)
-      pvs[0].device_name.should == '/dev/vda2'
-      pvs[0].size.should == 24139776
+      expect(pvs[0]).to be_an_instance_of(described_class)
+      expect(pvs[0].device_name).to eq('/dev/vda2')
+      expect(pvs[0].size).to eq(24139776)
     end
 
     it "resolves volume group references" do
-      described_class.should_receive(:run!).and_return(double(:output => @physical_volumes))
-      LinuxAdmin::VolumeGroup.should_receive(:run!).and_return(double(:output => @groups))
+      expect(described_class).to receive(:run!).and_return(double(:output => @physical_volumes))
+      expect(LinuxAdmin::VolumeGroup).to receive(:run!).and_return(double(:output => @groups))
       pvs = described_class.scan
-      pvs[0].volume_group.should be_an_instance_of(LinuxAdmin::VolumeGroup)
-      pvs[0].volume_group.name.should == 'vg_foobar'
+      expect(pvs[0].volume_group).to be_an_instance_of(LinuxAdmin::VolumeGroup)
+      expect(pvs[0].volume_group.name).to eq('vg_foobar')
     end
   end
 end

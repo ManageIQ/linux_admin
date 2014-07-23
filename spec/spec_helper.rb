@@ -16,7 +16,7 @@ RSpec.configure do |config|
   config.order = 'random'
 
   config.before do
-    Kernel.stub(:spawn).and_raise("Spawning is not permitted in specs.  Please change your spec to use expectations/stubs.")
+    allow(Kernel).to receive(:spawn).and_raise("Spawning is not permitted in specs.  Please change your spec to use expectations/stubs.")
     # by default, have it say it is running Red Hat linux
     stub_distro
   end
