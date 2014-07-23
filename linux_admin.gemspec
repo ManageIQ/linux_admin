@@ -29,7 +29,7 @@ registration, updates, etc.
 
   spec.add_development_dependency "bundler",  "~> 1.3"
   spec.add_development_dependency "rake"
-  spec.add_development_dependency "rspec",    "~> 2.99"
+  spec.add_development_dependency "rspec",    "~> 3.0"
   spec.add_development_dependency "coveralls"
 
   spec.add_dependency "activesupport",        "> 3.2"
