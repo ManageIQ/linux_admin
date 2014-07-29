@@ -70,7 +70,6 @@ class LinuxAdmin
 
     def write!
       content = ''
-      comment_index = 0
       @entries.each do |entry|
         if entry.has_content?
           content << entry.formatted_columns(@maximum_column_lengths) << "\n"

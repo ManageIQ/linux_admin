@@ -110,7 +110,7 @@ class LinuxAdmin
         next if line.start_with?(index_start)
         next if !collect_content
 
-        repo_id, repo_name, status = line.split(/\s{2,}/)
+        repo_id, _repo_name, _status = line.split(/\s{2,}/)
         array.push(repo_id)
       end
     end

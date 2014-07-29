@@ -1,9 +1,7 @@
-require 'spec_helper'
-
 describe LinuxAdmin::Hosts do
   etc_hosts = "\n #Some Comment\n127.0.0.1\tlocalhost localhost.localdomain # with a comment\n127.0.1.1  my.domain.local"
   before do
-    File.stub(:read).and_return(etc_hosts)
+    allow(File).to receive(:read).and_return(etc_hosts)
     @instance = LinuxAdmin::Hosts.new
   end
 
@@ -35,7 +33,7 @@ describe LinuxAdmin::Hosts do
 
   describe "#save" do
     before do
-      File.stub(:write)
+      allow(File).to receive(:write)
     end
 
     it "properly generates file with new content" do

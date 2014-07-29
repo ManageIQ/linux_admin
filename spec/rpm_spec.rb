@@ -1,8 +1,6 @@
-require 'spec_helper'
-
 describe LinuxAdmin::Rpm do
   it ".list_installed" do
-    described_class.stub(:run! => double(:output => sample_output("rpm/cmd_output_for_list_installed")))
+    allow(described_class).to receive_messages(:run! => double(:output => sample_output("rpm/cmd_output_for_list_installed")))
     expect(described_class.list_installed).to eq({
       "ruby193-rubygem-some_really_long_name" =>"1.0.7-1.el6",
       "fipscheck-lib"                         =>"1.2.0-7.el6",
@@ -28,7 +26,7 @@ describe LinuxAdmin::Rpm do
   end
 
   it ".import_key" do
-    described_class.should_receive(:run!).with("rpm", {:params => {"--import" => "abc"}})
+    expect(described_class).to receive(:run!).with("rpm", {:params => {"--import" => "abc"}})
     expect { described_class.import_key("abc") }.to_not raise_error
   end
 
@@ -61,25 +59,25 @@ straight-forward, and extensible.
 EOS
       arguments = [described_class.rpm_cmd, :params => {"-qi" => "ruby"}]
       result = AwesomeSpawn::CommandResult.new("", data, "", 0)
-      described_class.should_receive(:run!).with(*arguments).and_return(result)
+      expect(described_class).to receive(:run!).with(*arguments).and_return(result)
       metadata = described_class.info("ruby")
-      metadata['name'].should == 'ruby'
-      metadata['version'].should == '2.0.0.247'
-      metadata['release'].should == '15.fc19'
-      metadata['architecture'].should == 'x86_64'
-      metadata['group'].should == 'Development/Languages'
-      metadata['size'].should == '64473'
-      metadata['license'].should == '(Ruby or BSD) and Public Domain'
-      metadata['source_rpm'].should == 'ruby-2.0.0.247-15.fc19.src.rpm'
-      metadata['build_host'].should == 'buildvm-16.phx2.fedoraproject.org'
-      metadata['packager'].should == 'Fedora Project'
-      metadata['vendor'].should == 'Fedora Project'
-      metadata['summary'].should == 'An interpreter of object-oriented scripting language'
+      expect(metadata['name']).to eq('ruby')
+      expect(metadata['version']).to eq('2.0.0.247')
+      expect(metadata['release']).to eq('15.fc19')
+      expect(metadata['architecture']).to eq('x86_64')
+      expect(metadata['group']).to eq('Development/Languages')
+      expect(metadata['size']).to eq('64473')
+      expect(metadata['license']).to eq('(Ruby or BSD) and Public Domain')
+      expect(metadata['source_rpm']).to eq('ruby-2.0.0.247-15.fc19.src.rpm')
+      expect(metadata['build_host']).to eq('buildvm-16.phx2.fedoraproject.org')
+      expect(metadata['packager']).to eq('Fedora Project')
+      expect(metadata['vendor']).to eq('Fedora Project')
+      expect(metadata['summary']).to eq('An interpreter of object-oriented scripting language')
     end
   end
 
   it ".upgrade" do
-    described_class.should_receive(:run).with("rpm -U", {:params=>{nil=>"abc"}}).and_return(double(:exit_status => 0))
-    expect(described_class.upgrade("abc")).to be_true
+    expect(described_class).to receive(:run).with("rpm -U", {:params=>{nil=>"abc"}}).and_return(double(:exit_status => 0))
+    expect(described_class.upgrade("abc")).to be_truthy
   end
 end

@@ -1,10 +1,8 @@
-require 'spec_helper'
-
 describe LinuxAdmin::Distros::Distro do
   let(:subject) { LinuxAdmin::Distros.local }
   describe "#local" do
     before do
-      LinuxAdmin::Distros.unstub(:local)
+      allow(LinuxAdmin::Distros).to receive(:local).and_call_original
     end
 
     [['ubuntu',  :ubuntu],
@@ -74,6 +72,6 @@ describe LinuxAdmin::Distros::Distro do
   private
 
   def exists(files)
-    files.each_pair { |file, value| allow(File).to receive(:exists?).with(file).and_return(value) }
+    files.each_pair { |file, value| allow(File).to receive(:exist?).with(file).and_return(value) }
   end
 end

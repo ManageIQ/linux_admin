@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 describe LinuxAdmin::Deb do
   describe "#info" do
     it "returns package metadata" do
@@ -39,16 +37,16 @@ Origin: Ubuntu
 Supported: 9m
 Task: kubuntu-desktop, kubuntu-full, kubuntu-active, kubuntu-active-desktop, kubuntu-active-full, kubuntu-active, edubuntu-desktop-gnome, ubuntustudio-font-meta
 EOS
-      described_class.should_receive(:run!).
+      expect(described_class).to receive(:run!).
                       with(described_class::APT_CACHE_CMD, :params => ["show", "ruby"]).
                       and_return(double(:output => data))
       metadata = described_class.info("ruby")
-      metadata['package'].should == 'ruby'
-      metadata['priority'].should == 'optional'
-      metadata['section'].should == 'interpreters'
-      metadata['architecture'].should == 'all'
-      metadata['version'].should == '4.9'
-      metadata['origin'].should == 'Ubuntu'
+      expect(metadata['package']).to eq('ruby')
+      expect(metadata['priority']).to eq('optional')
+      expect(metadata['section']).to eq('interpreters')
+      expect(metadata['architecture']).to eq('all')
+      expect(metadata['version']).to eq('4.9')
+      expect(metadata['origin']).to eq('Ubuntu')
     end
   end
 end

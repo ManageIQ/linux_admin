@@ -1,25 +1,23 @@
-require 'spec_helper'
-
 describe LinuxAdmin::Yum do
   before(:each) do
-    FileUtils.stub(:mkdir_p => true)
+    allow(FileUtils).to receive_messages(:mkdir_p => true)
   end
 
   context ".create_repo" do
     it "default arguments" do
-      described_class.should_receive(:run!).once.with("createrepo", {:params=>{nil=>"some/path", "--database"=>nil, "--unique-md-filenames"=>nil}})
+      expect(described_class).to receive(:run!).once.with("createrepo", {:params=>{nil=>"some/path", "--database"=>nil, "--unique-md-filenames"=>nil}})
       described_class.create_repo("some/path")
     end
 
     it "bare create" do
-      described_class.should_receive(:run!).once.with("createrepo", {:params=>{nil=>"some/path"}})
+      expect(described_class).to receive(:run!).once.with("createrepo", {:params=>{nil=>"some/path"}})
       described_class.create_repo("some/path", :database => false, :unique_file_names => false)
     end
   end
 
   context ".download_packages" do
     it "with valid input" do
-      described_class.should_receive(:run!).once.with("repotrack", {:params=>{"-p"=>"some/path", nil=>"pkg_a pkg_b"}})
+      expect(described_class).to receive(:run!).once.with("repotrack", {:params=>{"-p"=>"some/path", nil=>"pkg_a pkg_b"}})
       described_class.download_packages("some/path", "pkg_a pkg_b")
     end
 
@@ -29,8 +27,8 @@ describe LinuxAdmin::Yum do
   end
 
   it ".repo_settings" do
-    described_class.should_receive(:parse_repo_dir).once.with("/etc/yum.repos.d").and_return(true)
-    expect(described_class.repo_settings).to be_true
+    expect(described_class).to receive(:parse_repo_dir).once.with("/etc/yum.repos.d").and_return(true)
+    expect(described_class.repo_settings).to be_truthy
   end
 
   it ".parse_repo_dir" do
@@ -68,39 +66,39 @@ describe LinuxAdmin::Yum do
 
   context ".updates_available?" do
     it "check updates for a specific package" do
-      described_class.should_receive(:run).once.with("yum check-update", {:params=>{nil=>["abc"]}}).and_return(double(:exit_status => 100))
-      expect(described_class.updates_available?("abc")).to be_true
+      expect(described_class).to receive(:run).once.with("yum check-update", {:params=>{nil=>["abc"]}}).and_return(double(:exit_status => 100))
+      expect(described_class.updates_available?("abc")).to be_truthy
     end
 
     it "updates are available" do
-      described_class.stub(:run => double(:exit_status => 100))
-      expect(described_class.updates_available?).to be_true
+      allow(described_class).to receive_messages(:run => double(:exit_status => 100))
+      expect(described_class.updates_available?).to be_truthy
     end
 
     it "updates not available" do
-      described_class.stub(:run => double(:exit_status => 0))
-      expect(described_class.updates_available?).to be_false
+      allow(described_class).to receive_messages(:run => double(:exit_status => 0))
+      expect(described_class.updates_available?).to be_falsey
     end
 
     it "other exit code" do
-      described_class.stub(:run => double(:exit_status => 255))
+      allow(described_class).to receive_messages(:run => double(:exit_status => 255))
       expect { described_class.updates_available? }.to raise_error
     end
 
     it "other error" do
-      described_class.stub(:run).and_raise(RuntimeError)
+      allow(described_class).to receive(:run).and_raise(RuntimeError)
       expect { described_class.updates_available? }.to raise_error(RuntimeError)
     end
   end
 
   context ".update" do
     it "no arguments" do
-      described_class.should_receive(:run!).once.with("yum -y update", {:params=>nil})
+      expect(described_class).to receive(:run!).once.with("yum -y update", {:params=>nil})
       described_class.update
     end
 
     it "with arguments" do
-      described_class.should_receive(:run!).once.with("yum -y update", {:params=>{nil=>["1 2", "3"]}})
+      expect(described_class).to receive(:run!).once.with("yum -y update", {:params=>{nil=>["1 2", "3"]}})
       described_class.update("1 2", "3")
     end
   end
@@ -111,12 +109,12 @@ describe LinuxAdmin::Yum do
     end
 
     it "with one package" do
-      described_class.should_receive(:run!).once.with("repoquery --qf=\"%{name} %{version}\"", {:params=>{nil=>["subscription-manager"]}}).and_return(double(:output => sample_output("yum/output_repoquery_single")))
+      expect(described_class).to receive(:run!).once.with("repoquery --qf=\"%{name} %{version}\"", {:params=>{nil=>["subscription-manager"]}}).and_return(double(:output => sample_output("yum/output_repoquery_single")))
       expect(described_class.version_available("subscription-manager")).to eq({"subscription-manager" => "1.1.23.1"})
     end
 
     it "with multiple packages" do
-      described_class.should_receive(:run!).once.with("repoquery --qf=\"%{name} %{version}\"", {:params=>{nil=>["curl", "subscription-manager", "wget"]}}).and_return(double(:output => sample_output("yum/output_repoquery_multiple")))
+      expect(described_class).to receive(:run!).once.with("repoquery --qf=\"%{name} %{version}\"", {:params=>{nil=>["curl", "subscription-manager", "wget"]}}).and_return(double(:output => sample_output("yum/output_repoquery_multiple")))
       expect(described_class.version_available("curl", "subscription-manager", "wget")).to eq({
         "curl"                  => "7.19.7",
         "subscription-manager"  => "1.1.23.1",
@@ -127,12 +125,12 @@ describe LinuxAdmin::Yum do
 
   context ".repo_list" do
     it "with no arguments" do
-      described_class.should_receive(:run!).with("yum repolist", {:params=>{nil=>"enabled"}}).and_return(double(:output => sample_output("yum/output_repo_list")))
+      expect(described_class).to receive(:run!).with("yum repolist", {:params=>{nil=>"enabled"}}).and_return(double(:output => sample_output("yum/output_repo_list")))
       expect(described_class.repo_list).to eq(["rhel-6-server-rpms", "rhel-ha-for-rhel-6-server-rpms", "rhel-lb-for-rhel-6-server-rpms"])
     end
 
     it "with argument" do
-      described_class.should_receive(:run!).with("yum repolist", {:params=>{nil=>"enabled"}}).and_return(double(:output => sample_output("yum/output_repo_list")))
+      expect(described_class).to receive(:run!).with("yum repolist", {:params=>{nil=>"enabled"}}).and_return(double(:output => sample_output("yum/output_repo_list")))
       expect(described_class.repo_list("enabled")).to eq(["rhel-6-server-rpms", "rhel-ha-for-rhel-6-server-rpms", "rhel-lb-for-rhel-6-server-rpms"])
     end
   end

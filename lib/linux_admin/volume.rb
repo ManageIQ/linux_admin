@@ -10,9 +10,9 @@ class LinuxAdmin
     def self.process_volume_display_line(line)
       groups = VolumeGroup.scan
       fields = line.split(':')
-      vgname = fields[1] 
-      vg = groups.find { |vg| vg.name == vgname }
-      return fields, vg 
+      vgname = fields[1]
+      vg = groups.find { |g| g.name == vgname }
+      return fields, vg
     end
 
     protected

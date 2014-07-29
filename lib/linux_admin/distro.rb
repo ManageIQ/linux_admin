@@ -53,11 +53,11 @@ class LinuxAdmin
       end
 
       def detected_by_etc_release?
-        release_file && File.exists?(release_file)
+        release_file && File.exist?(release_file)
       end
 
       def command(name)
-        @path.collect { |dir| "#{dir}/#{name}" }.detect { |cmd| File.exists?(cmd) }
+        @path.collect { |dir| "#{dir}/#{name}" }.detect { |cmd| File.exist?(cmd) }
       end
 
       def info(pkg)

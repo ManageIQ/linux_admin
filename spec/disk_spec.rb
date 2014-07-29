@@ -1,21 +1,19 @@
-require 'spec_helper'
-
 describe LinuxAdmin::Disk do
   describe "#local" do
     it "returns local disks" do
-      Dir.should_receive(:glob).with(['/dev/[vhs]d[a-z]', '/dev/xvd[a-z]']).
+      expect(Dir).to receive(:glob).with(['/dev/[vhs]d[a-z]', '/dev/xvd[a-z]']).
           and_return(['/dev/hda', '/dev/sda'])
       disks = LinuxAdmin::Disk.local
       paths = disks.collect { |disk| disk.path }
-      paths.should include('/dev/hda')
-      paths.should include('/dev/sda')
+      expect(paths).to include('/dev/hda')
+      expect(paths).to include('/dev/sda')
     end
   end
 
   describe "#size" do
     it "uses fdisk" do
       disk = LinuxAdmin::Disk.new :path => '/dev/hda'
-      disk.should_receive(:run!).
+      expect(disk).to receive(:run!).
         with(disk.cmd(:fdisk),
              :params => {"-l" => nil}).
         and_return(double(:output => ""))
@@ -38,15 +36,15 @@ Disk identifier: 0x3ddb508b
 eos
 
       disk = LinuxAdmin::Disk.new :path => '/dev/hda'
-      disk.stub(:run!).and_return(double(:output => fdisk))
-      disk.size.should == 500.1.gigabytes
+      allow(disk).to receive(:run!).and_return(double(:output => fdisk))
+      expect(disk.size).to eq(500.1.gigabytes)
     end
   end
 
   describe "#partitions" do
     it "uses parted" do
       disk = LinuxAdmin::Disk.new :path => '/dev/hda'
-      disk.should_receive(:run).
+      expect(disk).to receive(:run).
         with(disk.cmd(:parted),
              :params => { nil => %w(--script /dev/hda print) }).and_return(double(:output => ""))
       disk.partitions
@@ -54,8 +52,8 @@ eos
 
     it "returns [] on non-zero parted rc" do
       disk = LinuxAdmin::Disk.new :path => '/dev/hda'
-      disk.should_receive(:run).and_return(double(:output => "", :exit_status => 1))
-      disk.partitions.should == []
+      expect(disk).to receive(:run).and_return(double(:output => "", :exit_status => 1))
+      expect(disk.partitions).to eq([])
     end
 
     it "sets partitons" do
@@ -72,29 +70,29 @@ Number  Start   End     Size    Type      File system     Flags
  3      162GB   163GB   1074MB  logical   linux-swap(v1)
 eos
       disk = LinuxAdmin::Disk.new
-      disk.should_receive(:run).and_return(double(:output => partitions))
+      expect(disk).to receive(:run).and_return(double(:output => partitions))
 
-      disk.partitions[0].id.should == 1
-      disk.partitions[0].disk.should == disk
-      disk.partitions[0].size.should == 80.5.gigabytes
-      disk.partitions[0].start_sector.should == 1259.megabytes
-      disk.partitions[0].end_sector.should == 81.8.gigabytes
-      disk.partitions[0].partition_type.should == 'primary'
-      disk.partitions[0].fs_type.should == 'ntfs'
-      disk.partitions[1].id.should == 2
-      disk.partitions[1].disk.should == disk
-      disk.partitions[1].size.should == 80.5.gigabytes
-      disk.partitions[1].start_sector.should == 81.8.gigabytes
-      disk.partitions[1].end_sector.should == 162.gigabytes
-      disk.partitions[1].partition_type.should == 'primary'
-      disk.partitions[1].fs_type.should == 'ext4'
-      disk.partitions[2].id.should == 3
-      disk.partitions[2].disk.should == disk
-      disk.partitions[2].size.should == 1074.megabytes
-      disk.partitions[2].start_sector.should == 162.gigabytes
-      disk.partitions[2].end_sector.should == 163.gigabytes
-      disk.partitions[2].partition_type.should == 'logical'
-      disk.partitions[2].fs_type.should == 'linux-swap(v1)'
+      expect(disk.partitions[0].id).to eq(1)
+      expect(disk.partitions[0].disk).to eq(disk)
+      expect(disk.partitions[0].size).to eq(80.5.gigabytes)
+      expect(disk.partitions[0].start_sector).to eq(1259.megabytes)
+      expect(disk.partitions[0].end_sector).to eq(81.8.gigabytes)
+      expect(disk.partitions[0].partition_type).to eq('primary')
+      expect(disk.partitions[0].fs_type).to eq('ntfs')
+      expect(disk.partitions[1].id).to eq(2)
+      expect(disk.partitions[1].disk).to eq(disk)
+      expect(disk.partitions[1].size).to eq(80.5.gigabytes)
+      expect(disk.partitions[1].start_sector).to eq(81.8.gigabytes)
+      expect(disk.partitions[1].end_sector).to eq(162.gigabytes)
+      expect(disk.partitions[1].partition_type).to eq('primary')
+      expect(disk.partitions[1].fs_type).to eq('ext4')
+      expect(disk.partitions[2].id).to eq(3)
+      expect(disk.partitions[2].disk).to eq(disk)
+      expect(disk.partitions[2].size).to eq(1074.megabytes)
+      expect(disk.partitions[2].start_sector).to eq(162.gigabytes)
+      expect(disk.partitions[2].end_sector).to eq(163.gigabytes)
+      expect(disk.partitions[2].partition_type).to eq('logical')
+      expect(disk.partitions[2].fs_type).to eq('linux-swap(v1)')
     end
   end
 
@@ -104,14 +102,14 @@ eos
     end
 
     it "dispatches to create_partition" do
-      @disk.should_receive(:create_partition).with("primary", "0%", "50%")
+      expect(@disk).to receive(:create_partition).with("primary", "0%", "50%")
       @disk.create_partitions "primary", :start => "0%", :end => "50%"
     end
 
     context "multiple partitions specified" do
       it "calls create_partition for each partition" do
-        @disk.should_receive(:create_partition).with("primary", "0%", "49%")
-        @disk.should_receive(:create_partition).with("primary", "50%", "100%")
+        expect(@disk).to receive(:create_partition).with("primary", "0%", "49%")
+        expect(@disk).to receive(:create_partition).with("primary", "50%", "100%")
         @disk.create_partitions("primary", {:start => "0%",  :end => "49%"},
                                            {:start => "50%", :end => "100%"})
       end
@@ -134,18 +132,18 @@ eos
       @disk.instance_variable_set(:@partitions,
                                   [LinuxAdmin::Partition.new(:id => 1,
                                                  :end_sector => 1024)])
-      @disk.stub(:has_partition_table? => true)
+      allow(@disk).to receive_messages(:has_partition_table? => true)
     end
 
     it "uses parted" do
       params = ['--script', '/dev/hda', 'mkpart', '-a', 'opt', 'primary', 1024, 2048]
-      @disk.should_receive(:run!).with(@disk.cmd(:parted), :params => { nil => params })
+      expect(@disk).to receive(:run!).with(@disk.cmd(:parted), :params => { nil => params })
       @disk.create_partition 'primary', 1024
     end
 
     it "accepts start/end params" do
       params = ['--script', '/dev/hda', 'mkpart', '-a', 'opt', 'primary', "0%", "50%"]
-      @disk.should_receive(:run!).with(@disk.cmd(:parted), :params => { nil => params })
+      expect(@disk).to receive(:run!).with(@disk.cmd(:parted), :params => { nil => params })
       @disk.create_partition 'primary', "0%", "50%"
     end
 
@@ -162,34 +160,34 @@ eos
     end
 
     it "returns partition" do
-      @disk.should_receive(:run!) # stub out call to parted
+      expect(@disk).to receive(:run!) # stub out call to parted
       partition = @disk.create_partition 'primary', 1024
-      partition.should be_an_instance_of(LinuxAdmin::Partition)
+      expect(partition).to be_an_instance_of(LinuxAdmin::Partition)
     end
 
     it "increments partition id" do
-      @disk.should_receive(:run!) # stub out call to parted
+      expect(@disk).to receive(:run!) # stub out call to parted
       partition = @disk.create_partition 'primary', 1024
-      partition.id.should == 2
+      expect(partition.id).to eq(2)
     end
 
     it "sets partition start to first unused sector on disk" do
-      @disk.should_receive(:run!) # stub out call to parted
+      expect(@disk).to receive(:run!) # stub out call to parted
       partition = @disk.create_partition 'primary', 1024
-      partition.start_sector.should == 1024
+      expect(partition.start_sector).to eq(1024)
     end
 
     it "stores new partition locally" do
-      @disk.should_receive(:run!) # stub out call to parted
-      lambda {
+      expect(@disk).to receive(:run!) # stub out call to parted
+      expect {
         @disk.create_partition 'primary', 1024
-      }.should change{@disk.partitions.size}.by(1)
+      }.to change{@disk.partitions.size}.by(1)
     end
 
     it "creates partition table if missing" do
-      @disk.stub(:has_partition_table? => false)
-      @disk.should_receive(:create_partition_table)
-      @disk.should_receive(:run!)
+      allow(@disk).to receive_messages(:has_partition_table? => false)
+      expect(@disk).to receive(:create_partition_table)
+      expect(@disk).to receive(:run!)
       @disk.create_partition 'primary', 1024
     end
   end
@@ -197,39 +195,39 @@ eos
   describe "#has_partition_table?" do
     it "positive case" do
       disk = LinuxAdmin::Disk.new :path => '/dev/hda'
-      disk.should_receive(:run).and_return(double(:output => "", :exit_status => 0))
-      disk.should have_partition_table
+      expect(disk).to receive(:run).and_return(double(:output => "", :exit_status => 0))
+      expect(disk).to have_partition_table
     end
 
     it "negative case" do
       disk = LinuxAdmin::Disk.new :path => '/dev/hda'
       output = "\e[?1034h\r\rError: /dev/sdb: unrecognised disk label\n"
-      disk.should_receive(:run).and_return(double(:output => output, :exit_status => 1))
-      disk.should_not have_partition_table
+      expect(disk).to receive(:run).and_return(double(:output => output, :exit_status => 1))
+      expect(disk).not_to have_partition_table
     end
   end
 
   it "#create_partition_table" do
     disk = LinuxAdmin::Disk.new :path => '/dev/hda'
     options = {:params => {nil => %w(--script /dev/hda mklabel msdos)}}
-    disk.should_receive(:run!).with(disk.cmd(:parted), options)
+    expect(disk).to receive(:run!).with(disk.cmd(:parted), options)
     disk.create_partition_table
   end
 
   describe "#clear!" do
     it "clears partitions" do
       disk = LinuxAdmin::Disk.new :path => '/dev/hda'
-      disk.should_receive(:run).and_return(double(:output => "")) # stub out call to cmds
+      expect(disk).to receive(:run).and_return(double(:output => "")) # stub out call to cmds
       disk.partitions << LinuxAdmin::Partition.new
 
-      disk.should_receive(:run!)
+      expect(disk).to receive(:run!)
       disk.clear!
-      disk.partitions.should be_empty
+      expect(disk.partitions).to be_empty
     end
 
     it "uses dd to clear partition table" do
       disk = LinuxAdmin::Disk.new :path => '/dev/hda'
-      disk.should_receive(:run!).
+      expect(disk).to receive(:run!).
            with(disk.cmd(:dd),
                 :params => {'if=' => '/dev/zero', 'of=' => '/dev/hda',
                             'bs=' => 512, 'count=' => 1})
@@ -238,8 +236,8 @@ eos
 
     it "returns self" do
       disk = LinuxAdmin::Disk.new :path => '/dev/hda'
-      disk.stub(:run!) # stub out call to dd
-      disk.clear!.should == disk
+      allow(disk).to receive(:run!) # stub out call to dd
+      expect(disk.clear!).to eq(disk)
     end
   end
 

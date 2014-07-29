@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 class TestMountable < LinuxAdmin
   include LinuxAdmin::Mountable
 
@@ -13,8 +11,8 @@ describe LinuxAdmin::Mountable do
     @mountable = TestMountable.new
 
     # stub out calls that modify system
-    FileUtils.stub(:mkdir)
-    @mountable.stub(:run!)
+    allow(FileUtils).to receive(:mkdir)
+    allow(@mountable).to receive(:run!)
 
     @mount_out1 = <<eos
 /dev/sda on /mnt/usb type vfat (rw)
@@ -27,92 +25,92 @@ eos
 
   describe "#mount_point_exists?" do
     it "uses mount" do
-      TestMountable.should_receive(:run!).with(TestMountable.cmd(:mount)).and_return(double(:output => ""))
+      expect(TestMountable).to receive(:run!).with(TestMountable.cmd(:mount)).and_return(double(:output => ""))
       TestMountable.mount_point_exists?('/mnt/usb')
     end
 
     context "disk mounted at specified location" do
       it "returns true" do
-        TestMountable.should_receive(:run!).and_return(double(:output => @mount_out1))
-        TestMountable.mount_point_exists?('/mnt/usb').should be_true
+        expect(TestMountable).to receive(:run!).and_return(double(:output => @mount_out1))
+        expect(TestMountable.mount_point_exists?('/mnt/usb')).to be_truthy
       end
     end
 
     context "no disk mounted at specified location" do
       it "returns false" do
-        TestMountable.should_receive(:run!).and_return(double(:output => @mount_out2))
-        TestMountable.mount_point_exists?('/mnt/usb').should be_false
+        expect(TestMountable).to receive(:run!).and_return(double(:output => @mount_out2))
+        expect(TestMountable.mount_point_exists?('/mnt/usb')).to be_falsey
       end
     end
   end
 
   describe "#mount_point_available?" do
     it "uses mount" do
-      TestMountable.should_receive(:run!).with(TestMountable.cmd(:mount)).and_return(double(:output => ""))
+      expect(TestMountable).to receive(:run!).with(TestMountable.cmd(:mount)).and_return(double(:output => ""))
       TestMountable.mount_point_available?('/mnt/usb')
     end
 
     context "disk mounted at specified location" do
       it "returns false" do
-        TestMountable.should_receive(:run!).and_return(double(:output => @mount_out1))
-        TestMountable.mount_point_available?('/mnt/usb').should be_false
+        expect(TestMountable).to receive(:run!).and_return(double(:output => @mount_out1))
+        expect(TestMountable.mount_point_available?('/mnt/usb')).to be_falsey
       end
     end
 
     context "no disk mounted at specified location" do
       it "returns true" do
-        TestMountable.should_receive(:run!).and_return(double(:output => @mount_out2))
-        TestMountable.mount_point_available?('/mnt/usb').should be_true
+        expect(TestMountable).to receive(:run!).and_return(double(:output => @mount_out2))
+        expect(TestMountable.mount_point_available?('/mnt/usb')).to be_truthy
       end
     end
   end
 
   describe "#format_to" do
     it "uses mke2fs" do
-      @mountable.should_receive(:run!).
+      expect(@mountable).to receive(:run!).
          with(@mountable.cmd(:mke2fs),
               :params => { '-t' => 'ext4', nil => '/dev/foo'})
       @mountable.format_to('ext4')
     end
 
     it "sets fs type" do
-      @mountable.should_receive(:run!) # ignore actual formatting cmd
+      expect(@mountable).to receive(:run!) # ignore actual formatting cmd
       @mountable.format_to('ext4')
-      @mountable.fs_type.should == 'ext4'
+      expect(@mountable.fs_type).to eq('ext4')
     end
   end
 
   describe "#mount" do
     it "sets mount point" do
       # ignore actual mount cmds
-      @mountable.should_receive(:run!).and_return(double(:output => ""))
-      TestMountable.should_receive(:run!).and_return(double(:output => ""))
+      expect(@mountable).to receive(:run!).and_return(double(:output => ""))
+      expect(TestMountable).to receive(:run!).and_return(double(:output => ""))
 
-      @mountable.mount('/mnt/sda2').should == '/mnt/sda2'
-      @mountable.mount_point.should == '/mnt/sda2'
+      expect(@mountable.mount('/mnt/sda2')).to eq('/mnt/sda2')
+      expect(@mountable.mount_point).to eq('/mnt/sda2')
     end
     
     context "mountpoint does not exist" do
       it "creates mountpoint" do
-        TestMountable.should_receive(:mount_point_exists?).and_return(false)
-        File.should_receive(:directory?).with('/mnt/sda2').and_return(false)
-        FileUtils.should_receive(:mkdir).with('/mnt/sda2')
-        @mountable.should_receive(:run!) # ignore actual mount cmd
+        expect(TestMountable).to receive(:mount_point_exists?).and_return(false)
+        expect(File).to receive(:directory?).with('/mnt/sda2').and_return(false)
+        expect(FileUtils).to receive(:mkdir).with('/mnt/sda2')
+        expect(@mountable).to receive(:run!) # ignore actual mount cmd
         @mountable.mount '/mnt/sda2'
       end
     end
 
     context "disk mounted at mountpoint" do
       it "raises argument error" do
-        TestMountable.should_receive(:mount_point_exists?).and_return(true)
-        File.should_receive(:directory?).with('/mnt/sda2').and_return(true)
+        expect(TestMountable).to receive(:mount_point_exists?).and_return(true)
+        expect(File).to receive(:directory?).with('/mnt/sda2').and_return(true)
         expect { @mountable.mount '/mnt/sda2' }.to raise_error(ArgumentError, "disk already mounted at /mnt/sda2")
       end
     end
 
     it "mounts partition" do
-      TestMountable.should_receive(:mount_point_exists?).and_return(false)
-      @mountable.should_receive(:run!).
+      expect(TestMountable).to receive(:mount_point_exists?).and_return(false)
+      expect(@mountable).to receive(:run!).
          with(@mountable.cmd(:mount),
               :params => { nil => ['/dev/foo', '/mnt/sda2']})
       @mountable.mount '/mnt/sda2'
@@ -122,7 +120,7 @@ eos
   describe "#umount" do
     it "unmounts partition" do
       @mountable.mount_point = '/mnt/sda2'
-      @mountable.should_receive(:run!).with(@mountable.cmd(:umount), :params => { nil => ['/mnt/sda2']})
+      expect(@mountable).to receive(:run!).with(@mountable.cmd(:umount), :params => { nil => ['/mnt/sda2']})
       @mountable.umount
     end
   end

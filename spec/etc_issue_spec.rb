@@ -1,4 +1,3 @@
-require 'spec_helper'
 require 'stringio'
 
 describe LinuxAdmin::EtcIssue do
@@ -9,7 +8,7 @@ describe LinuxAdmin::EtcIssue do
   end
 
   it "should not find the phrase when the file is missing" do
-    expect(File).to receive(:exists?).with('/etc/issue').at_least(:once).and_return(false)
+    expect(File).to receive(:exist?).with('/etc/issue').at_least(:once).and_return(false)
     expect(subject).not_to include("phrase")
   end
 
