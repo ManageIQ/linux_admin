@@ -93,13 +93,19 @@ describe LinuxAdmin::Yum do
 
   context ".update" do
     it "no arguments" do
-      expect(described_class).to receive(:run!).once.with("yum -y update", {:params=>nil})
+      expect(described_class).to receive(:run!).once.with("yum -y update", :params => nil).and_return(AwesomeSpawn::CommandResult.new("", "", "", 0))
       described_class.update
     end
 
     it "with arguments" do
-      expect(described_class).to receive(:run!).once.with("yum -y update", {:params=>{nil=>["1 2", "3"]}})
+      expect(described_class).to receive(:run!).once.with("yum -y update", :params => {nil => ["1 2", "3"]}).and_return(AwesomeSpawn::CommandResult.new("", "", "", 0))
       described_class.update("1 2", "3")
+    end
+
+    it "with bad arguments" do
+      error = AwesomeSpawn::CommandResult.new("", "Loaded plugins: product-id\nNo Packages marked for Update\n", "Blah blah ...\nNo Match for argument: \n", 0)
+      expect(described_class).to receive(:run!).once.with("yum -y update", :params => {nil => [""]}).and_return(error)
+      expect { described_class.update("") }.to raise_error(AwesomeSpawn::CommandResultError)
     end
   end
 

@@ -55,7 +55,12 @@ class LinuxAdmin
       cmd    = "yum -y update"
       params = {nil => packages} unless packages.blank?
 
-      run!(cmd, :params => params)
+      out = run!(cmd, :params => params)
+
+      # Handle errors that exit 0  https://bugzilla.redhat.com/show_bug.cgi?id=1141318
+      raise AwesomeSpawn::CommandResultError.new(out.error, out) if out.error.include?("No Match for argument")
+
+      out
     end
 
     def self.version_available(*packages)
