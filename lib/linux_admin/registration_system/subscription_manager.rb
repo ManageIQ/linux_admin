@@ -9,7 +9,7 @@ class LinuxAdmin
       raise
     end
 
-    SATELLITE6_SERVER_CERT_PATH = "pub/candlepin-cert-consumer-latest.noarch.rpm"
+    SATELLITE6_SERVER_CERT_PATH = "pub/katello-ca-consumer-latest.noarch.rpm"
 
     def validate_credentials(options)
       !!organizations(options)
