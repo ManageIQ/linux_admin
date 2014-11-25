@@ -38,7 +38,7 @@ describe LinuxAdmin::SubscriptionManager do
         base_options.store_path(:server_url, "https://server.url")
 
         expect_any_instance_of(described_class).to receive(:run!).once.with("subscription-manager register", run_params)
-        expect(LinuxAdmin::Rpm).to receive(:upgrade).with("http://server.url/pub/candlepin-cert-consumer-latest.noarch.rpm")
+        expect(LinuxAdmin::Rpm).to receive(:upgrade).with("http://server.url/pub/katello-ca-consumer-latest.noarch.rpm")
 
         described_class.new.register(base_options)
       end
@@ -130,7 +130,7 @@ describe LinuxAdmin::SubscriptionManager do
     it "with valid credentials" do
       run_options = ["subscription-manager orgs", {:params=>{"--username="=>"SomeUser", "--password="=>"SomePass", "--proxy="=>"1.2.3.4", "--proxyuser="=>"ProxyUser", "--proxypassword="=>"ProxyPass", "--serverurl="=>"192.168.1.1"}}]
 
-      expect(LinuxAdmin::Rpm).to receive(:upgrade).with("http://192.168.1.1/pub/candlepin-cert-consumer-latest.noarch.rpm")
+      expect(LinuxAdmin::Rpm).to receive(:upgrade).with("http://192.168.1.1/pub/katello-ca-consumer-latest.noarch.rpm")
       expect_any_instance_of(described_class).to receive(:run!).once.with(*run_options).and_return(double(:output => sample_output("subscription_manager/output_orgs")))
 
       expect(described_class.new.organizations({:username=>"SomeUser", :password=>"SomePass", :proxy_address=>"1.2.3.4", :proxy_username=>"ProxyUser", :proxy_password=>"ProxyPass", :server_url=>"192.168.1.1"})).to eq({"SomeOrg"=>{:name=>"SomeOrg", :key=>"1234567"}})
