@@ -34,7 +34,6 @@ describe LinuxAdmin::SubscriptionManager do
 
       it "with server_url" do
         run_params.store_path(:params, "--org=", "IT")
-        run_params.store_path(:params, "--serverurl=", "https://server.url")
         base_options.store_path(:server_url, "https://server.url")
 
         expect_any_instance_of(described_class).to receive(:run!).once.with("subscription-manager register", run_params)
@@ -128,7 +127,7 @@ describe LinuxAdmin::SubscriptionManager do
 
   context "#organizations" do
     it "with valid credentials" do
-      run_options = ["subscription-manager orgs", {:params=>{"--username="=>"SomeUser", "--password="=>"SomePass", "--proxy="=>"1.2.3.4", "--proxyuser="=>"ProxyUser", "--proxypassword="=>"ProxyPass", "--serverurl="=>"192.168.1.1"}}]
+      run_options = ["subscription-manager orgs", {:params=>{"--username="=>"SomeUser", "--password="=>"SomePass", "--proxy="=>"1.2.3.4", "--proxyuser="=>"ProxyUser", "--proxypassword="=>"ProxyPass"}}]
 
       expect(LinuxAdmin::Rpm).to receive(:upgrade).with("http://192.168.1.1/pub/katello-ca-consumer-latest.noarch.rpm")
       expect_any_instance_of(described_class).to receive(:run!).once.with(*run_options).and_return(double(:output => sample_output("subscription_manager/output_orgs")))
