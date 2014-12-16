@@ -24,13 +24,14 @@ describe LinuxAdmin::SubscriptionManager do
     context "with username and password" do
       let(:base_options) { {:username       => "SomeUser@SomeDomain.org",
                             :password       => "SomePass",
+                            :environment    => "Library",
                             :org            => "IT",
                             :proxy_address  => "1.2.3.4",
                             :proxy_username => "ProxyUser",
                             :proxy_password => "ProxyPass",
                           }
                         }
-      let(:run_params) { {:params=>{"--username="=>"SomeUser@SomeDomain.org", "--password="=>"SomePass", "--proxy="=>"1.2.3.4", "--proxyuser="=>"ProxyUser", "--proxypassword="=>"ProxyPass"}} }
+      let(:run_params) { {:params=>{"--username="=>"SomeUser@SomeDomain.org", "--password="=>"SomePass", "--proxy="=>"1.2.3.4", "--proxyuser="=>"ProxyUser", "--proxypassword="=>"ProxyPass", "--environment="=>"Library"}} }
 
       it "with server_url" do
         run_params.store_path(:params, "--org=", "IT")
