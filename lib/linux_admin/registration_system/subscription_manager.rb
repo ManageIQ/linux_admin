@@ -46,7 +46,8 @@ class LinuxAdmin
 
       params = {"--username=" => options[:username], "--password=" => options[:password]}
       params.merge!(proxy_params(options))
-      params["--org="] = options[:org] if options[:server_url] && options[:org]
+      params["--environment="] = options[:environment] if options[:environment]
+      params["--org="]         = options[:org]         if options[:server_url] && options[:org]
 
       run!(cmd, :params => params)
     end
