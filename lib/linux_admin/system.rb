@@ -3,8 +3,10 @@
 # Copyright (C) 2013 Red Hat Inc.
 # Licensed under the MIT License
 
-class LinuxAdmin
-  class System < LinuxAdmin
+module LinuxAdmin
+  class System
+    extend Common
+
     def self.reboot!
       run!(cmd(:shutdown),
           :params => { "-r" => "now" })

@@ -5,7 +5,7 @@
 
 require 'linux_admin/etc_issue'
 
-class LinuxAdmin
+module LinuxAdmin
   module Distros
     def self.generic
       @generic ||= Distro.new(:generic)

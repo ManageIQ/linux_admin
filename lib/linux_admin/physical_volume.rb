@@ -3,8 +3,11 @@
 # Copyright (C) 2013 Red Hat Inc.
 # Licensed under the MIT License
 
-class LinuxAdmin
+module LinuxAdmin
   class PhysicalVolume < Volume
+    include Common
+    extend Common
+
     # physical volume device name
     attr_accessor :device_name
 

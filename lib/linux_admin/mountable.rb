@@ -3,14 +3,17 @@
 # Copyright (C) 2013 Red Hat Inc.
 # Licensed under the MIT License
 
-class LinuxAdmin
+module LinuxAdmin
   module Mountable
     attr_accessor :fs_type
     attr_accessor :mount_point
+    include Common
 
     module ClassMethods
+      include Common
+
       def mount_point_exists?(mount_point)
-        result = self.run!(cmd(:mount))
+        result = run!(cmd(:mount))
         result.output.split("\n").any? { |line| line.split[2] == mount_point }
       end
 

@@ -1,6 +1,6 @@
 require 'inifile'
 
-class LinuxAdmin
+module LinuxAdmin
   class Yum
     class RepoFile < IniFile
       def self.create(filename)

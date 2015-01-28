@@ -5,8 +5,8 @@
 
 require 'singleton'
 
-class LinuxAdmin
-  class FSTabEntry < LinuxAdmin
+module LinuxAdmin
+  class FSTabEntry
     attr_accessor :device
     attr_accessor :mount_point
     attr_accessor :fs_type
@@ -58,7 +58,7 @@ class LinuxAdmin
     end
   end
 
-  class FSTab < LinuxAdmin
+  class FSTab
     include Singleton
 
     attr_accessor :entries

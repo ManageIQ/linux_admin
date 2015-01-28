@@ -5,7 +5,7 @@
 
 require 'singleton'
 
-class LinuxAdmin
+module LinuxAdmin
   class EtcIssue
     include Singleton
 

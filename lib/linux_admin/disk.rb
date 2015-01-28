@@ -5,8 +5,10 @@
 
 require 'linux_admin/partition'
 
-class LinuxAdmin
-  class Disk < LinuxAdmin
+module LinuxAdmin
+  class Disk
+    include Common
+
     PARTED_FIELDS =
       [:id, :start_sector, :end_sector,
        :size, :partition_type, :fs_type]

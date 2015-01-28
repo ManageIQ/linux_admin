@@ -1,4 +1,4 @@
-class TestMountable < LinuxAdmin
+class TestMountable
   include LinuxAdmin::Mountable
 
   def path
