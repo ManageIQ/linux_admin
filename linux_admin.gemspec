@@ -37,6 +37,6 @@ registration, updates, etc.
   spec.add_dependency "activesupport",        "> 3.2"
   spec.add_dependency "inifile",              "~> 2.0.2"
   spec.add_dependency "more_core_extensions", "~> 1.1"
-  spec.add_dependency "awesome_spawn",        "~> 1.2"
+  spec.add_dependency "awesome_spawn",        "~> 1.3"
   spec.add_dependency "nokogiri"
 end
