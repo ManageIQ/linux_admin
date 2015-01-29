@@ -2,6 +2,7 @@ require 'more_core_extensions/all'
 require 'active_support'
 require 'active_support/core_ext'
 
+require 'linux_admin/null_logger'
 
 require 'linux_admin/common'
 require 'linux_admin/exceptions'
@@ -28,5 +29,12 @@ require 'linux_admin/volume_group'
 
 module LinuxAdmin
   extend Common
-  include Common
+
+  class << self
+    attr_writer :logger
+  end
+
+  def self.logger
+    @logger ||= NullLogger.new
+  end
 end
