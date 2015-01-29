@@ -1,6 +1,6 @@
 require 'date'
 
-class LinuxAdmin
+module LinuxAdmin
   class SubscriptionManager < RegistrationSystem
     def run!(cmd, options = {})
       super(cmd, options)

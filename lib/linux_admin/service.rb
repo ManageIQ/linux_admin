@@ -3,10 +3,11 @@
 # Copyright (C) 2013 Red Hat Inc.
 # Licensed under the MIT License
 
-class LinuxAdmin
-  class Service < LinuxAdmin
-    attr_accessor :id
+module LinuxAdmin
+  class Service
+    include Common
 
+    attr_accessor :id
     private
 
     public

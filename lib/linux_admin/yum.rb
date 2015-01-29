@@ -1,8 +1,10 @@
 require 'fileutils'
 require 'inifile'
 
-class LinuxAdmin
-  class Yum < LinuxAdmin
+module LinuxAdmin
+  class Yum
+    extend Common
+
     def self.create_repo(path, options = {})
       raise ArgumentError, "path is required" unless path
       options = options.reverse_merge(:database => true, :unique_file_names => true)

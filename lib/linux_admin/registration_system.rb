@@ -1,5 +1,7 @@
-class LinuxAdmin
-  class RegistrationSystem < LinuxAdmin
+module LinuxAdmin
+  class RegistrationSystem
+    include Common
+
     def self.registration_type(reload = false)
       return @registration_type if @registration_type && !reload
       @registration_type = registration_type_uncached

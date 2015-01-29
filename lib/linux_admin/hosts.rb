@@ -1,5 +1,5 @@
-class LinuxAdmin
-  class Hosts < LinuxAdmin
+module LinuxAdmin
+  class Hosts
     attr_accessor :filename
     attr_accessor :raw_lines
     attr_accessor :parsed_file

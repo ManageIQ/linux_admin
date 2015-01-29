@@ -1,6 +1,6 @@
 require 'nokogiri'
 
-class LinuxAdmin
+module LinuxAdmin
   class Rhn < RegistrationSystem
     SATELLITE5_SERVER_CERT_PATH = "pub/rhn-org-trusted-ssl-cert-1.0-1.noarch.rpm"
     INSTALLED_SERVER_CERT_PATH  = "/usr/share/rhn/RHN-ORG-TRUSTED-SSL-CERT"

@@ -3,7 +3,7 @@
 # Copyright (C) 2013 Red Hat Inc.
 # Licensed under the MIT License
 
-class LinuxAdmin
+module LinuxAdmin
   class Deb < Package
     APT_CACHE_CMD = '/usr/bin/apt-cache'
 

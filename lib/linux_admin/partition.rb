@@ -5,8 +5,8 @@
 
 require 'fileutils'
 
-class LinuxAdmin
-  class Partition < LinuxAdmin
+module LinuxAdmin
+  class Partition
     include Mountable
 
     attr_accessor :id

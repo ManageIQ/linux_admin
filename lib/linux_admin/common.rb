@@ -1,6 +1,6 @@
 require 'awesome_spawn'
 
-class LinuxAdmin
+module LinuxAdmin
   module Common
     def cmd(cmd)
       Distros.local.command(cmd)

@@ -5,7 +5,7 @@
 
 require 'pathname'
 
-class LinuxAdmin
+module LinuxAdmin
   class LogicalVolume < Volume
     include Mountable
 

@@ -2,11 +2,11 @@ require 'more_core_extensions/all'
 require 'active_support'
 require 'active_support/core_ext'
 
-require 'linux_admin/registration_system'
 
 require 'linux_admin/common'
 require 'linux_admin/exceptions'
 require 'linux_admin/package'
+require 'linux_admin/registration_system'
 require 'linux_admin/rpm'
 require 'linux_admin/deb'
 require 'linux_admin/version'
@@ -26,7 +26,7 @@ require 'linux_admin/logical_volume'
 require 'linux_admin/physical_volume'
 require 'linux_admin/volume_group'
 
-class LinuxAdmin
+module LinuxAdmin
   extend Common
   include Common
 end

@@ -3,8 +3,11 @@
 # Copyright (C) 2013 Red Hat Inc.
 # Licensed under the MIT License
 
-class LinuxAdmin
-  class VolumeGroup < LinuxAdmin
+module LinuxAdmin
+  class VolumeGroup
+    include Common
+    extend Common
+
     # volume group name
     attr_accessor :name
 
