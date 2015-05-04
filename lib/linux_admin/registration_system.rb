@@ -1,6 +1,7 @@
 module LinuxAdmin
   class RegistrationSystem
     include Common
+    include Logging
 
     def self.registration_type(reload = false)
       return @registration_type if @registration_type && !reload

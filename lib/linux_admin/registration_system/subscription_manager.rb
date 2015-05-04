@@ -83,6 +83,7 @@ module LinuxAdmin
       cmd     = "subscription-manager repos"
       params  = {"--enable=" => repo}
 
+      logger.info("#{self.class.name}##{__method__} Enabling repository: #{repo}")
       run!(cmd, :params => params)
     end
 
