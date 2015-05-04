@@ -44,6 +44,7 @@ module LinuxAdmin
       cmd       = "rhn-channel -a"
       params    = user_pwd(options).merge("--channel=" => repo)
 
+      logger.info("#{self.class.name}##{__method__} Enabling channel: #{repo}")
       run!(cmd, :params => params)
     end
     alias_method :subscribe,    :enable_channel
