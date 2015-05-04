@@ -1,5 +1,7 @@
 module LinuxAdmin
   class Rpm < Package
+    extend Logging
+
     def self.rpm_cmd
       Distros.local.command(:rpm)
     end
@@ -16,8 +18,8 @@ module LinuxAdmin
     #
     #   Rpm.import_key("/etc/pki/my-gpg-key")
     def self.import_key(file)
-      params = {"--import" => file}
-      run!("rpm", :params => params)
+      logger.info("#{self.class.name}##{__method__} Importing RPM-GPG-KEY: #{file}")
+      run!("rpm", :params => {"--import" => file})
     end
 
     def self.info(pkg)
