@@ -7,10 +7,12 @@ module LinuxAdmin
     end
 
     def run(cmd, options = {})
+      AwesomeSpawn.logger ||= logger
       AwesomeSpawn.run(cmd, options)
     end
 
     def run!(cmd, options = {})
+      AwesomeSpawn.logger ||= logger
       AwesomeSpawn.run!(cmd, options)
     end
   end
