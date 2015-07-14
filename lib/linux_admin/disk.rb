@@ -69,8 +69,8 @@ module LinuxAdmin
         size = nil
         out = run!(cmd(:fdisk), :params => {"-l" => nil}).output
         out.each_line { |l|
-          if l =~ /Disk #{path}: ([0-9\.]*) ([KMG])B.*/
-            size = str_to_bytes($1, $2)
+          if l =~ /Disk #{path}: .*B, (\d+) bytes/
+            size = $1.to_f
             break
           end
         }
