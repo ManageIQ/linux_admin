@@ -37,7 +37,7 @@ eos
 
       disk = LinuxAdmin::Disk.new :path => '/dev/hda'
       allow(disk).to receive(:run!).and_return(double(:output => fdisk))
-      expect(disk.size).to eq(500.1.gigabytes)
+      expect(disk.size).to eq(500107862016)
     end
   end
 
