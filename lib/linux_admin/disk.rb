@@ -70,7 +70,7 @@ module LinuxAdmin
         out = run!(cmd(:fdisk), :params => {"-l" => nil}).output
         out.each_line { |l|
           if l =~ /Disk #{path}: .*B, (\d+) bytes/
-            size = $1.to_f
+            size = $1.to_i
             break
           end
         }
