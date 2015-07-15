@@ -68,12 +68,12 @@ module LinuxAdmin
       @size ||= begin
         size = nil
         out = run!(cmd(:fdisk), :params => {"-l" => nil}).output
-        out.each_line { |l|
-          if l =~ /Disk #{path}: .*B, (\d+) bytes/
-            size = $1.to_i
+        out.each_line do |l|
+          /Disk #{path}: .*B, (\d+) bytes/.match(l) do |m|
+            size = m[1].to_i
             break
           end
-        }
+        end
         size
       end
     end
