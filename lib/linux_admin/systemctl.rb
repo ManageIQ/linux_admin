@@ -3,7 +3,6 @@ module LinuxAdmin
     include Common
 
     attr_accessor :id
-    private
 
     public
 
@@ -13,42 +12,42 @@ module LinuxAdmin
 
     def running?
       run(cmd(:systemctl),
-          :params => { nil => ["status", id] }).exit_status == 0
+          :params => {nil => ["status", id]}).exit_status == 0
     end
 
     def enable
       run!(cmd(:systemctl),
-          :params => { nil => ["enable", id] })
+           :params => {nil => ["enable", id]})
       self
     end
 
     def disable
       run!(cmd(:systemctl),
-          :params => { nil => ["disable", id] })
+           :params => {nil => ["disable", id]})
       self
     end
 
     def start
       run!(cmd(:systemctl),
-          :params => { nil => ["start", id] })
+           :params => {nil => ["start", id]})
       self
     end
 
     def stop
       run!(cmd(:systemctl),
-          :params => { nil => ["stop", id] })
+           :params => {nil => ["stop", id]})
       self
     end
 
     def restart
       status =
         run(cmd(:systemctl),
-          :params => { nil => ["restart", id] }).exit_status
+            :params => {nil => ["restart", id]}).exit_status
 
       # attempt to manually stop/start if restart fails
       if status != 0
-        self.stop
-        self.start
+        stop
+        start
       end
 
       self
