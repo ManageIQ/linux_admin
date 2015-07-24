@@ -14,8 +14,10 @@ require 'linux_admin/deb'
 require 'linux_admin/version'
 require 'linux_admin/yum'
 
+require 'linux_admin/service'
 require 'linux_admin/sysv_service'
 require 'linux_admin/systemctl'
+
 require 'linux_admin/mountable'
 require 'linux_admin/disk'
 require 'linux_admin/hosts'

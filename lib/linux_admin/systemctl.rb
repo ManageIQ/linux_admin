@@ -1,15 +1,5 @@
 module LinuxAdmin
-  class Systemctl
-    include Common
-
-    attr_accessor :name
-
-    public
-
-    def initialize(name)
-      @name = name
-    end
-
+  class Systemctl < Service
     def running?
       run(cmd(:systemctl),
           :params => {nil => ["status", name]}).exit_status == 0

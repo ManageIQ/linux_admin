@@ -4,51 +4,40 @@
 # Licensed under the MIT License
 
 module LinuxAdmin
-  class SysvService
-    include Common
-
-    attr_accessor :id
-    private
-
-    public
-
-    def initialize(id)
-      @id = id
-    end
-
+  class SysvService < Service
     def running?
       run(cmd(:service),
-          :params => { nil => [id, "status"] }).exit_status == 0
+          :params => { nil => [name, "status"] }).exit_status == 0
     end
 
     def enable
       run!(cmd(:chkconfig),
-          :params => { nil => [id, "on"] })
+          :params => { nil => [name, "on"] })
       self
     end
 
     def disable
       run!(cmd(:chkconfig),
-          :params => { nil => [id, "off"] })
+          :params => { nil => [name, "off"] })
       self
     end
 
     def start
       run!(cmd(:service),
-          :params => { nil => [id, "start"] })
+          :params => { nil => [name, "start"] })
       self
     end
 
     def stop
       run!(cmd(:service),
-          :params => { nil => [id, "stop"] })
+          :params => { nil => [name, "stop"] })
       self
     end
 
     def restart
       status =
         run(cmd(:service),
-          :params => { nil => [id, "restart"] }).exit_status
+          :params => { nil => [name, "restart"] }).exit_status
 
       # attempt to manually stop/start if restart fails
       if status != 0
