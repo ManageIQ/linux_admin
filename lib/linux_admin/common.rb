@@ -6,6 +6,10 @@ module LinuxAdmin
       Distros.local.command(cmd)
     end
 
+    def cmd?(cmd)
+      Distros.local.command?(cmd)
+    end
+
     def run(cmd, options = {})
       AwesomeSpawn.logger ||= logger
       AwesomeSpawn.run(cmd, options)
