@@ -1,6 +1,6 @@
-describe LinuxAdmin::Service do
+describe LinuxAdmin::SysvService do
   before(:each) do
-    @service = LinuxAdmin::Service.new 'foo'
+    @service = described_class.new 'foo'
   end
 
   describe "#running?" do
@@ -13,7 +13,7 @@ describe LinuxAdmin::Service do
 
     context "service is running" do
       it "returns true" do
-        @service = LinuxAdmin::Service.new :id => :foo
+        @service = described_class.new :id => :foo
         expect(@service).to receive(:run).and_return(double(:exit_status => 0))
         expect(@service).to be_running
      end
@@ -21,7 +21,7 @@ describe LinuxAdmin::Service do
 
     context "service is not running" do
       it "returns false" do
-        @service = LinuxAdmin::Service.new :id => :foo
+        @service = described_class.new :id => :foo
         expect(@service).to receive(:run).and_return(double(:exit_status => 1))
         expect(@service).not_to be_running
       end
