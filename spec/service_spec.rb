@@ -35,6 +35,19 @@ describe LinuxAdmin::Service do
     end
   end
 
+  it "#id / #id=" do
+    s = described_class.new("xxx")
+    expect(s.id).to eq("xxx")
+
+    s.id = "yyy"
+    expect(s.id).to eq("yyy")
+    expect(s.name).to eq("yyy")
+
+    s.name = "zzz"
+    expect(s.id).to eq("zzz")
+    expect(s.name).to eq("zzz")
+  end
+
   def stub_to_service_type(system)
     allow(LinuxAdmin::Service).to receive(:cmd?).with(:systemctl).and_return(system == :systemctl)
   end

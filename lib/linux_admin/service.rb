@@ -28,6 +28,9 @@ module LinuxAdmin
       @name = name
     end
 
+    alias_method :id, :name
+    alias_method :id=, :name=
+
     private
 
     def self.service_type_uncached
