@@ -1,13 +1,13 @@
 describe LinuxAdmin::Service do
   context ".service_type" do
     it "on systemctl systems" do
-      stub_to_service_type(:systemctl)
-      expect(described_class.service_type).to eq(LinuxAdmin::Systemctl)
+      stub_to_service_type(:systemd_service)
+      expect(described_class.service_type).to eq(LinuxAdmin::SystemdService)
     end
 
     it "on sysv systems" do
-      stub_to_service_type(:sysv_service)
-      expect(described_class.service_type).to eq(LinuxAdmin::SysvService)
+      stub_to_service_type(:sys_v_init_service)
+      expect(described_class.service_type).to eq(LinuxAdmin::SysVInitService)
     end
 
     it "should memoize results" do
@@ -25,13 +25,13 @@ describe LinuxAdmin::Service do
 
   context ".new" do
     it "on systemctl systems" do
-      stub_to_service_type(:systemctl)
-      expect(described_class.new("xxx")).to be_kind_of(LinuxAdmin::Systemctl)
+      stub_to_service_type(:systemd_service)
+      expect(described_class.new("xxx")).to be_kind_of(LinuxAdmin::SystemdService)
     end
 
     it "on sysv systems" do
-      stub_to_service_type(:sysv_service)
-      expect(described_class.new("xxx")).to be_kind_of(LinuxAdmin::SysvService)
+      stub_to_service_type(:sys_v_init_service)
+      expect(described_class.new("xxx")).to be_kind_of(LinuxAdmin::SysVInitService)
     end
   end
 
@@ -49,6 +49,6 @@ describe LinuxAdmin::Service do
   end
 
   def stub_to_service_type(system)
-    allow(LinuxAdmin::Service).to receive(:cmd?).with(:systemctl).and_return(system == :systemctl)
+    allow(LinuxAdmin::Service).to receive(:cmd?).with(:systemctl).and_return(system == :systemd_service)
   end
 end

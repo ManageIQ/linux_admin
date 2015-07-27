@@ -1,6 +1,6 @@
-describe LinuxAdmin::Systemctl do
-  before(:each) do
-    @service = LinuxAdmin::Systemctl.new 'foo'
+describe LinuxAdmin::SystemdService do
+  before do
+    @service = described_class.new 'foo'
   end
 
   describe "#running?" do

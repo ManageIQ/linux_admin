@@ -34,8 +34,10 @@ module LinuxAdmin
     private
 
     def self.service_type_uncached
-      cmd?(:systemctl) ? Systemctl : SysvService
+      cmd?(:systemctl) ? SystemdService : SysVInitService
     end
     private_class_method :service_type_uncached
   end
 end
+
+Dir.glob(File.join(File.dirname(__FILE__), "service", "*.rb")).each { |f| require f }
