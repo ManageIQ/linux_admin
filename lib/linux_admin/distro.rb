@@ -60,6 +60,10 @@ module LinuxAdmin
         @path.collect { |dir| "#{dir}/#{name}" }.detect { |cmd| File.exist?(cmd) }
       end
 
+      def command?(name)
+        !!command(name)
+      end
+
       def info(pkg)
         info_class ? info_class.info(pkg) : nil
       end

@@ -1,62 +1,41 @@
-# LinuxAdmin Service Representation
-#
-# Copyright (C) 2013 Red Hat Inc.
-# Licensed under the MIT License
-
 module LinuxAdmin
   class Service
+    extend Common
     include Common
+    include Logging
 
-    attr_accessor :id
+    def self.service_type(reload = false)
+      return @service_type if @service_type && !reload
+      @service_type = service_type_uncached
+    end
+
+    class << self
+      private
+      alias_method :orig_new, :new
+    end
+
+    def self.new(*args)
+      if self == LinuxAdmin::Service
+        service_type.new(*args)
+      else
+        orig_new(*args)
+      end
+    end
+
+    attr_accessor :name
+
+    def initialize(name)
+      @name = name
+    end
+
+    alias_method :id, :name
+    alias_method :id=, :name=
+
     private
 
-    public
-
-    def initialize(id)
-      @id = id
+    def self.service_type_uncached
+      cmd?(:systemctl) ? Systemctl : SysvService
     end
-
-    def running?
-      run(cmd(:service),
-          :params => { nil => [id, "status"] }).exit_status == 0
-    end
-
-    def enable
-      run!(cmd(:chkconfig),
-          :params => { nil => [id, "on"] })
-      self
-    end
-
-    def disable
-      run!(cmd(:chkconfig),
-          :params => { nil => [id, "off"] })
-      self
-    end
-
-    def start
-      run!(cmd(:service),
-          :params => { nil => [id, "start"] })
-      self
-    end
-
-    def stop
-      run!(cmd(:service),
-          :params => { nil => [id, "stop"] })
-      self
-    end
-
-    def restart
-      status =
-        run(cmd(:service),
-          :params => { nil => [id, "restart"] }).exit_status
-
-      # attempt to manually stop/start if restart fails
-      if status != 0
-        self.stop
-        self.start
-      end
-
-      self
-    end
+    private_class_method :service_type_uncached
   end
 end

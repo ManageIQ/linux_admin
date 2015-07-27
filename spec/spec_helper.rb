@@ -109,6 +109,7 @@ end
 
 def clear_caches
   LinuxAdmin::RegistrationSystem.instance_variable_set(:@registration_type, nil)
+  LinuxAdmin::Service.instance_variable_set(:@service_type, nil)
 
   # reset the distro, tested in various placed & used extensively
   LinuxAdmin::Distros.instance_variable_set(:@local, nil)

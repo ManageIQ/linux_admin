@@ -1,110 +1,54 @@
 describe LinuxAdmin::Service do
-  before(:each) do
-    @service = LinuxAdmin::Service.new 'foo'
-  end
-
-  describe "#running?" do
-    it "checks service" do
-      expect(@service).to receive(:run).
-         with(@service.cmd(:service),
-              :params => { nil => ['foo', 'status']}).and_return(double(:exit_status => 0))
-      @service.running?
+  context ".service_type" do
+    it "on systemctl systems" do
+      stub_to_service_type(:systemctl)
+      expect(described_class.service_type).to eq(LinuxAdmin::Systemctl)
     end
 
-    context "service is running" do
-      it "returns true" do
-        @service = LinuxAdmin::Service.new :id => :foo
-        expect(@service).to receive(:run).and_return(double(:exit_status => 0))
-        expect(@service).to be_running
-     end
+    it "on sysv systems" do
+      stub_to_service_type(:sysv_service)
+      expect(described_class.service_type).to eq(LinuxAdmin::SysvService)
     end
 
-    context "service is not running" do
-      it "returns false" do
-        @service = LinuxAdmin::Service.new :id => :foo
-        expect(@service).to receive(:run).and_return(double(:exit_status => 1))
-        expect(@service).not_to be_running
-      end
+    it "should memoize results" do
+      expect(described_class).to receive(:service_type_uncached).once.and_return("anything_non_nil")
+      described_class.service_type
+      described_class.service_type
+    end
+
+    it "with reload should refresh results" do
+      expect(described_class).to receive(:service_type_uncached).twice.and_return("anything_non_nil")
+      described_class.service_type
+      described_class.service_type(true)
     end
   end
 
-  describe "#enable" do
-    it "enables service" do
-      expect(@service).to receive(:run!).
-         with(@service.cmd(:chkconfig),
-              :params => { nil => [ 'foo', 'on']})
-      @service.enable
+  context ".new" do
+    it "on systemctl systems" do
+      stub_to_service_type(:systemctl)
+      expect(described_class.new("xxx")).to be_kind_of(LinuxAdmin::Systemctl)
     end
 
-    it "returns self" do
-      expect(@service).to receive(:run!) # stub out cmd invocation
-      expect(@service.enable).to eq(@service)
+    it "on sysv systems" do
+      stub_to_service_type(:sysv_service)
+      expect(described_class.new("xxx")).to be_kind_of(LinuxAdmin::SysvService)
     end
   end
 
-  describe "#disable" do
-    it "disable service" do
-      expect(@service).to receive(:run!).
-         with(@service.cmd(:chkconfig),
-              :params => { nil => [ 'foo', 'off']})
-      @service.disable
-    end
+  it "#id / #id=" do
+    s = described_class.new("xxx")
+    expect(s.id).to eq("xxx")
 
-    it "returns self" do
-      expect(@service).to receive(:run!)
-      expect(@service.disable).to eq(@service)
-    end
+    s.id = "yyy"
+    expect(s.id).to eq("yyy")
+    expect(s.name).to eq("yyy")
+
+    s.name = "zzz"
+    expect(s.id).to eq("zzz")
+    expect(s.name).to eq("zzz")
   end
 
-  describe "#start" do
-    it "starts service" do
-      expect(@service).to receive(:run!).
-         with(@service.cmd(:service),
-              :params => { nil => [ 'foo', 'start']})
-      @service.start
-    end
-
-    it "returns self" do
-      expect(@service).to receive(:run!)
-      expect(@service.start).to eq(@service)
-    end
+  def stub_to_service_type(system)
+    allow(LinuxAdmin::Service).to receive(:cmd?).with(:systemctl).and_return(system == :systemctl)
   end
-
-  describe "#stop" do
-    it "stops service" do
-      expect(@service).to receive(:run!).
-         with(@service.cmd(:service),
-              :params => { nil => [ 'foo', 'stop']})
-      @service.stop
-    end
-
-    it "returns self" do
-      expect(@service).to receive(:run!)
-      expect(@service.stop).to eq(@service)
-    end
-  end
-
-  describe "#restart" do
-    it "stops service" do
-      expect(@service).to receive(:run).
-         with(@service.cmd(:service),
-              :params => { nil => [ 'foo', 'restart']}).and_return(double(:exit_status => 0))
-      @service.restart
-    end
-
-    context "service restart fails" do
-      it "manually stops/starts service" do
-        expect(@service).to receive(:run).and_return(double(:exit_status => 1))
-        expect(@service).to receive(:stop)
-        expect(@service).to receive(:start)
-        @service.restart
-      end
-    end
-
-    it "returns self" do
-      expect(@service).to receive(:run).and_return(double(:exit_status => 0))
-      expect(@service.restart).to eq(@service)
-    end
-  end
-
 end
