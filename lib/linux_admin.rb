@@ -27,6 +27,7 @@ require 'linux_admin/volume'
 require 'linux_admin/logical_volume'
 require 'linux_admin/physical_volume'
 require 'linux_admin/volume_group'
+require 'linux_admin/security'
 
 module LinuxAdmin
   extend Common
