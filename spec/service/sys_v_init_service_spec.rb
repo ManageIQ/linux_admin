@@ -1,5 +1,5 @@
-describe LinuxAdmin::SysvService do
-  before(:each) do
+describe LinuxAdmin::SysVInitService do
+  before do
     @service = described_class.new 'foo'
   end
 

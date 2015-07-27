@@ -1,5 +1,5 @@
 module LinuxAdmin
-  class Systemctl < Service
+  class SystemdService < Service
     def running?
       run(cmd(:systemctl),
           :params => {nil => ["status", name]}).exit_status == 0

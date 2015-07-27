@@ -1,10 +1,5 @@
-# LinuxAdmin SysvService Representation
-#
-# Copyright (C) 2013 Red Hat Inc.
-# Licensed under the MIT License
-
 module LinuxAdmin
-  class SysvService < Service
+  class SysVInitService < Service
     def running?
       run(cmd(:service),
           :params => { nil => [name, "status"] }).exit_status == 0
