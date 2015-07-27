@@ -2,6 +2,7 @@ module LinuxAdmin
   class Security
     def self.scap_lockdown
       SshdConfig.apply_scap_settings
+      Service.apply_scap_settings
     end
   end
 end
