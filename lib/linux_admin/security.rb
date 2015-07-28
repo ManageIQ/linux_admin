@@ -4,6 +4,7 @@ module LinuxAdmin
       SshdConfig.apply_scap_settings
       Service.apply_scap_settings
       SysctlConf.apply_scap_settings
+      LimitsConf.apply_scap_settings
     end
   end
 end
