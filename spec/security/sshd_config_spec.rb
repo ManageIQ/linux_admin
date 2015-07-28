@@ -1,6 +1,6 @@
 describe LinuxAdmin::Security::SshdConfig do
   def test_file_name
-    File.join(data_file_path("sshd_config"), "sshd_config")
+    File.join(data_file_path("security"), "sshd_config")
   end
 
   def test_file_contents
