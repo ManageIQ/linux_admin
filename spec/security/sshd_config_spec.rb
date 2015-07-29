@@ -15,47 +15,37 @@ describe LinuxAdmin::Security::SshdConfig do
     end
   end
 
-  describe ".set_value" do
-    it "replaces an existing value" do
-      matches = /^NoOption no/.match(test_file_contents)
-      expect(matches.size).to eq(1)
-
-      matches = /^NoOption yes/.match(test_file_contents)
-      expect(matches).to be_nil
-
-      described_class.set_value("NoOption", "yes", test_file_name)
-
-      matches = /^NoOption yes/.match(test_file_contents)
-      expect(matches.size).to eq(1)
-
-      matches = /^NoOption no/.match(test_file_contents)
-      expect(matches).to be_nil
+  describe ".apply_scap_settings" do
+    it "sets PermitUserEnvironment to no" do
+      described_class.apply_scap_settings(test_file_name)
+      expect(test_file_contents).to match(/^PermitUserEnvironment *no\n/)
     end
 
-    it "replaces a commented value" do
-      matches = /^#CommentedNoOption no/.match(test_file_contents)
-      expect(matches.size).to eq(1)
-
-      matches = /^CommentedNoOption yes/.match(test_file_contents)
-      expect(matches).to be_nil
-
-      described_class.set_value("CommentedNoOption", "yes", test_file_name)
-
-      matches = /^#CommentedNoOption no/.match(test_file_contents)
-      expect(matches).to be_nil
-
-      matches = /^CommentedNoOption yes/.match(test_file_contents)
-      expect(matches.size).to eq(1)
+    it "sets PermitEmptyPasswords to no" do
+      described_class.apply_scap_settings(test_file_name)
+      expect(test_file_contents).to match(/^PermitEmptyPasswords *no\n/)
     end
 
-    it "adds a new line if the key is not present at all" do
-      matches = /^#*NotHereYet.*/.match(test_file_contents)
-      expect(matches).to be_nil
+    it "sets Ciphers to strong ciphers" do
+      described_class.apply_scap_settings(test_file_name)
+      strong_ciphers = ["aes128-ctr", "aes192-ctr", "aes256-ctr", "aes128-cbc",
+                        "3des-cbc", "aes192-cbc", "aes256-cbc"]
+      /Ciphers *([\w,]*)\n/.match(test_file_contents) do |m|
+        actual_ciphers = m[1].split(",")
+        actual_ciphers.each do |c|
+          expect(strong_ciphers).to include(c)
+        end
+      end
+    end
 
-      described_class.set_value("NotHereYet", "yes", test_file_name)
+    it "sets ClientAliveInterval to 900" do
+      described_class.apply_scap_settings(test_file_name)
+      expect(test_file_contents).to match(/^ClientAliveInterval *900\n/)
+    end
 
-      matches = /^NotHereYet yes/.match(test_file_contents)
-      expect(matches.size).to eq(1)
+    it "sets ClientAliveCountMax to 0" do
+      described_class.apply_scap_settings(test_file_name)
+      expect(test_file_contents).to match(/^ClientAliveCountMax *0\n/)
     end
   end
 end
