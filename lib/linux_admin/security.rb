@@ -6,6 +6,7 @@ module LinuxAdmin
       SysctlConf.apply_scap_settings
       LimitsConf.apply_scap_settings
       Securetty.remove_vcs
+      LoginDefs.apply_scap_settings
     end
   end
 end
