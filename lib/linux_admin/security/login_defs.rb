@@ -1,7 +1,7 @@
 module LinuxAdmin
   class Security
     class LoginDefs
-      extend Common
+      extend Security::Common
       CONF_FILE = "/etc/login.defs"
 
       SCAP_SETTINGS = {

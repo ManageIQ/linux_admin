@@ -1,7 +1,7 @@
 module LinuxAdmin
   class Security
     class SshdConfig
-      extend Common
+      extend Security::Common
       CONF_FILE = "/etc/ssh/sshd_config"
 
       SCAP_SETTINGS = {
