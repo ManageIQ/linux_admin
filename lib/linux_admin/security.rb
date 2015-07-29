@@ -11,4 +11,5 @@ module LinuxAdmin
     end
   end
 end
+require 'linux_admin/security/common'
 Dir.glob(File.join(File.dirname(__FILE__), "security", "*.rb")).each { |f| require f }
