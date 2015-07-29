@@ -15,20 +15,32 @@ describe LinuxAdmin::Security::LimitsConf do
     end
   end
 
+  describe ".apply_scap_settings" do
+    it "prevents process core dumps" do
+      described_class.apply_scap_settings(test_file_name)
+      expect(test_file_contents).to match(/^\* +hard +core +0\n/)
+    end
+
+    it "sets max logins to 10" do
+      described_class.apply_scap_settings(test_file_name)
+      expect(test_file_contents).to match(/^\* +hard +maxlogins +10\n/)
+    end
+  end
+
   describe ".set_value" do
     it "replaces an existing value" do
-      matches = /^\* soft core 100/.match(test_file_contents)
+      matches = /^\* +soft +core +100/.match(test_file_contents)
       expect(matches.size).to eq(1)
 
-      matches = /^\* *hard *core *0/.match(test_file_contents)
+      matches = /^\* +hard +core +0/.match(test_file_contents)
       expect(matches).to be_nil
 
       described_class.set_value("*", "hard", "core", 0, test_file_name)
 
-      matches = /^\* soft core 100/.match(test_file_contents)
+      matches = /^\* +soft +core +100/.match(test_file_contents)
       expect(matches).to be_nil
 
-      matches = /^\* *hard *core *0/.match(test_file_contents)
+      matches = /^\* +hard +core +0/.match(test_file_contents)
       expect(matches.size).to eq(1)
     end
 
@@ -38,7 +50,7 @@ describe LinuxAdmin::Security::LimitsConf do
 
       described_class.set_value("*", "hard", "maxlogins", 10, test_file_name)
 
-      matches = /^\* *hard *maxlogins *10/.match(test_file_contents)
+      matches = /^\* +hard +maxlogins +10/.match(test_file_contents)
       expect(matches.size).to eq(1)
     end
   end
