@@ -7,6 +7,7 @@ module LinuxAdmin
       LimitsConf.apply_scap_settings
       Securetty.remove_vcs
       LoginDefs.apply_scap_settings
+      Useradd.apply_scap_settings
     end
   end
 end
