@@ -11,9 +11,13 @@ module LinuxAdmin
       end
 
       def self.disable_module(mod_name, filename)
-        config_text = File.read(filename)
         new_line = "install #{mod_name} /bin/true"
-        new_text = config_text.gsub!(/^install #{mod_name}.*/, new_line)
+        begin
+          config_text = File.read(filename)
+          new_text = config_text.gsub!(/^install #{mod_name}.*/, new_line)
+        rescue Errno::ENOENT
+          # Okay if file doesn't exist we will create it
+        end
 
         if new_text
           File.open(filename, "w") do |file|
@@ -27,8 +31,12 @@ module LinuxAdmin
       end
 
       def self.enable_module(mod_name, filename)
-        config_text = File.read(filename)
-        new_text = config_text.gsub!(/^install #{mod_name}.*/, "")
+        begin
+          config_text = File.read(filename)
+          new_text = config_text.gsub!(/^install #{mod_name}.*/, "")
+        rescue Errno::ENOENT
+          return
+        end
 
         if new_text
           File.open(filename, "w") do |file|

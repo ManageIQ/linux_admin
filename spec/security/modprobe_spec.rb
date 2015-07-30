@@ -3,8 +3,16 @@ describe LinuxAdmin::Security::Modprobe do
     File.join(data_file_path("security"), "modprobe_lockdown")
   end
 
+  def new_file_name
+    File.join(data_file_path("security"), "modprobe_new")
+  end
+
   def test_file_contents
     File.read(test_file_name)
+  end
+
+  def new_file_contents
+    File.read(new_file_name)
   end
 
   around(:each) do |example|
@@ -42,6 +50,18 @@ describe LinuxAdmin::Security::Modprobe do
       described_class.disable_module("test_module", test_file_name)
       expect(test_file_contents).to match(%r{^install test_module /bin/true\n})
     end
+
+    context "creates a file" do
+      after do
+        File.exist?(new_file_name) && File.delete(new_file_name)
+      end
+      it "if the given one doesn't exist" do
+        expect(File.exist?(new_file_name)).to be false
+        described_class.disable_module("test_module", new_file_name)
+        expect(File.exist?(new_file_name)).to be true
+        expect(new_file_contents).to match(%r{^install test_module /bin/true\n})
+      end
+    end
   end
 
   describe ".enable_module" do
@@ -50,6 +70,12 @@ describe LinuxAdmin::Security::Modprobe do
       expect(test_file_contents).to match(pat)
       described_class.enable_module("good_module", test_file_name)
       expect(test_file_contents).not_to match(pat)
+    end
+
+    it "succeeds if the given file doesn't exist" do
+      expect(File.exist?(new_file_name)).to be false
+      described_class.enable_module("test_module", new_file_name)
+      expect(File.exist?(new_file_name)).to be false
     end
   end
 end
