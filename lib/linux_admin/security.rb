@@ -10,6 +10,7 @@ module LinuxAdmin
       Useradd.apply_scap_settings
       AuditRules.apply_scap_settings
       AuditRules.reload_rules
+      Modprobe.apply_scap_settings
     end
   end
 end
