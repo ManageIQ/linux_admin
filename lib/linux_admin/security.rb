@@ -8,6 +8,8 @@ module LinuxAdmin
       Securetty.remove_vcs
       LoginDefs.apply_scap_settings
       Useradd.apply_scap_settings
+      AuditRules.apply_scap_settings
+      AuditRules.reload_rules
     end
   end
 end
