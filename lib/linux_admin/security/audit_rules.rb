@@ -77,15 +77,13 @@ module LinuxAdmin
         end
       end
 
-      def self.add_filesystem_rule(path, permissions, key_name,
-                                   filename = CONF_FILE)
+      def self.add_filesystem_rule(path, permissions, key_name, filename = CONF_FILE)
         rule = "-w #{path} -p #{permissions}"
         rule << " -k #{key_name}" if key_name
         write_rule_to_file(rule, filename)
       end
 
-      def self.add_system_call_rule(action, filter, calls, fields, key_name,
-                                    filename = CONF_FILE)
+      def self.add_system_call_rule(action, filter, calls, fields, key_name, filename = CONF_FILE)
         rule = "-a #{action},#{filter}"
         fields.each { |f, v| rule << " -F #{f}=#{v}" }
         calls.each { |c| rule << " -S #{c}" }
