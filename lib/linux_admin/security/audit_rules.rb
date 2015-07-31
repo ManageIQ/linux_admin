@@ -69,12 +69,8 @@ module LinuxAdmin
 
       def self.apply_scap_settings(filename = CONF_FILE)
         set_buffer_size(16_384, filename)
-        SCAP_FILESYSTEM_RULES.each do |r|
-          add_filesystem_rule(*r, filename)
-        end
-        SCAP_SYSTEM_CALL_RULES.each do |r|
-          add_system_call_rule(*r, filename)
-        end
+        SCAP_FILESYSTEM_RULES.each { |r| add_filesystem_rule(*r, filename) }
+        SCAP_SYSTEM_CALL_RULES.each { |r| add_system_call_rule(*r, filename) }
       end
 
       def self.add_filesystem_rule(path, permissions, key_name, filename = CONF_FILE)

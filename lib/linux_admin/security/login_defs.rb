@@ -9,9 +9,7 @@ module LinuxAdmin
       }
 
       def self.apply_scap_settings(filename = CONF_FILE)
-        SCAP_SETTINGS.each do |k, v|
-          set_value(k, v, filename)
-        end
+        SCAP_SETTINGS.each { |k, v| set_value(k, v, filename) }
       end
     end
   end

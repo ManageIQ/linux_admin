@@ -5,9 +5,7 @@ module LinuxAdmin
       SCAP_MODULES = %w(dccp sctp rds tipc)
 
       def self.apply_scap_settings(filename = CONF_FILE)
-        SCAP_MODULES.each do |m|
-          disable_module(m, filename)
-        end
+        SCAP_MODULES.each { |m| disable_module(m, filename) }
       end
 
       def self.disable_module(mod_name, filename)
