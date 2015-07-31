@@ -1,4 +1,3 @@
-
 describe LinuxAdmin::Security::SysctlConf do
   def test_file_name
     File.join(data_file_path("security"), "sysctl.conf")
