@@ -2,7 +2,7 @@ module LinuxAdmin
   class Security
     class Modprobe
       extend Security::Common
-      CONF_FILE = "/etc/modprobe.d/scap_lockdown"
+      CONF_FILE = "/etc/modprobe.d/scap.conf"
       SCAP_MODULES = %w(dccp sctp rds tipc)
 
       def self.apply_scap_settings(filename = CONF_FILE)
