@@ -13,7 +13,12 @@ module LinuxAdmin
       }
 
       def self.apply_scap_settings(filename = CONF_FILE)
-        SCAP_SETTINGS.each { |k, v| set_value(k, v, filename) }
+        config_text = File.read(filename)
+        SCAP_SETTINGS.each do |k, v|
+          new_line = "#{k} #{v}\n"
+          config_text = replace_config_line(new_line, /^#*#{k}.*/, config_text)
+        end
+        File.write(filename, config_text)
       end
     end
   end

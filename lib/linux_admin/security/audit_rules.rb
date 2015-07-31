@@ -2,6 +2,7 @@ module LinuxAdmin
   class Security
     class AuditRules
       extend LinuxAdmin::Common
+      extend Security::Common
       CONF_FILE = "/etc/audit/rules.d/audit.rules"
 
       SCAP_FILESYSTEM_RULES = [
@@ -94,13 +95,9 @@ module LinuxAdmin
       def self.set_buffer_size(size, filename = CONF_FILE)
         config_text = File.read(filename)
         new_line = "-b #{size}\n"
-        new_text = config_text.gsub!(/^-b \d+/, new_line)
+        new_text = replace_config_line(new_line, /^-b \d+/, config_text)
 
-        if new_text
-          File.write(filename, new_text)
-        else
-          File.write(filename, new_line, :mode => "a")
-        end
+        File.write(filename, new_text)
       end
 
       def self.reload_rules(filename = CONF_FILE)

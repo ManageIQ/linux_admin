@@ -1,6 +1,7 @@
 module LinuxAdmin
   class Security
     class SysctlConf
+      extend Security::Common
       CONF_FILE = "/etc/sysctl.conf"
 
       SCAP_SETTINGS = {
@@ -18,19 +19,12 @@ module LinuxAdmin
       }
 
       def self.apply_scap_settings(filename = CONF_FILE)
-        SCAP_SETTINGS.each { |k, v| set_value(k, v, filename) }
-      end
-
-      def self.set_value(key, val, filename = CONF_FILE)
         config_text = File.read(filename)
-        new_line = "#{key} = #{val}\n"
-        new_text = config_text.gsub!(/^[#;]*#{key}.*/, new_line)
-
-        if new_text
-          File.write(filename, new_text)
-        else
-          File.write(filename, new_line, :mode => "a")
+        SCAP_SETTINGS.each do |k, v|
+          new_line = "#{k} = #{v}\n"
+          config_text = replace_config_line(new_line, /^[#;]*#{k}.*/, config_text)
         end
+        File.write(filename, config_text)
       end
     end
   end

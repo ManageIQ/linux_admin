@@ -13,63 +13,60 @@ describe LinuxAdmin::Security::SysctlConf do
     File.write(test_file_name, text)
   end
 
-  describe ".set_value" do
-    it "replaces an existing value" do
-      matches = /^data\.security\.one = 1/.match(test_file_contents)
-      expect(matches.size).to eq(1)
-
-      matches = /^data\.security\.one = 0/.match(test_file_contents)
-      expect(matches).to be_nil
-
-      described_class.set_value("data.security.one", 0, test_file_name)
-
-      matches = /^data\.security\.one = 0/.match(test_file_contents)
-      expect(matches.size).to eq(1)
-
-      matches = /^data\.security\.one = 1/.match(test_file_contents)
-      expect(matches).to be_nil
+  describe ".apply_scap_settings" do
+    it "unsets net.ipv4.conf.all.accept_redirects" do
+      described_class.apply_scap_settings(test_file_name)
+      expect(test_file_contents).to match(/^net.ipv4.conf.all.accept_redirects = 0\n/)
     end
 
-    it "replaces a # commented value" do
-      matches = /^#data\.security\.commented\.zero = 0/.match(test_file_contents)
-      expect(matches.size).to eq(1)
-
-      matches = /^data\.security\.commented\.zero = 1/.match(test_file_contents)
-      expect(matches).to be_nil
-
-      described_class.set_value("data.security.commented.zero", 1, test_file_name)
-
-      matches = /^#data\.security\.commented\.zero = 0/.match(test_file_contents)
-      expect(matches).to be_nil
-
-      matches = /^data\.security\.commented\.zero = 1/.match(test_file_contents)
-      expect(matches.size).to eq(1)
+    it "unsets net.ipv4.conf.all.secure_redirects" do
+      described_class.apply_scap_settings(test_file_name)
+      expect(test_file_contents).to match(/^net.ipv4.conf.all.secure_redirects = 0\n/)
     end
 
-    it "replaces a ; commented value" do
-      matches = /^;data\.security\.commented\.semi.one = 1/.match(test_file_contents)
-      expect(matches.size).to eq(1)
-
-      matches = /^data\.security\.commented\.semi\.one = 0/.match(test_file_contents)
-      expect(matches).to be_nil
-
-      described_class.set_value("data.security.commented.semi.one", 0, test_file_name)
-
-      matches = /^;data\.security\.commented\.semi\.one = 1/.match(test_file_contents)
-      expect(matches).to be_nil
-
-      matches = /^data\.security\.commented\.semi\.one = 0/.match(test_file_contents)
-      expect(matches.size).to eq(1)
+    it "sets net.ipv4.conf.all.log_martians" do
+      described_class.apply_scap_settings(test_file_name)
+      expect(test_file_contents).to match(/^net.ipv4.conf.all.log_martians = 1\n/)
     end
 
-    it "adds a new line if the key is not present at all" do
-      matches = /^[#;]*not\.here\.yet.*/.match(test_file_contents)
-      expect(matches).to be_nil
+    it "unsets net.ipv4.conf.default.secure_redirects" do
+      described_class.apply_scap_settings(test_file_name)
+      expect(test_file_contents).to match(/^net.ipv4.conf.default.secure_redirects = 0\n/)
+    end
 
-      described_class.set_value("not.here.yet", 1, test_file_name)
+    it "unsets net.ipv4.conf.default.accept_redirects" do
+      described_class.apply_scap_settings(test_file_name)
+      expect(test_file_contents).to match(/^net.ipv4.conf.default.accept_redirects = 0\n/)
+    end
 
-      matches = /^not\.here\.yet = 1/.match(test_file_contents)
-      expect(matches.size).to eq(1)
+    it "sets net.ipv4.icmp_echo_ignore_broadcasts" do
+      described_class.apply_scap_settings(test_file_name)
+      expect(test_file_contents).to match(/^net.ipv4.icmp_echo_ignore_broadcasts = 1\n/)
+    end
+
+    it "sets net.ipv4.icmp_ignore_bogus_error_responses" do
+      described_class.apply_scap_settings(test_file_name)
+      expect(test_file_contents).to match(/^net.ipv4.icmp_ignore_bogus_error_responses = 1\n/)
+    end
+
+    it "sets net.ipv4.conf.all.rp_filter" do
+      described_class.apply_scap_settings(test_file_name)
+      expect(test_file_contents).to match(/^net.ipv4.conf.all.rp_filter = 1\n/)
+    end
+
+    it "unsets net.ipv6.conf.default.accept_redirects" do
+      described_class.apply_scap_settings(test_file_name)
+      expect(test_file_contents).to match(/^net.ipv6.conf.default.accept_redirects = 0\n/)
+    end
+
+    it "unsets net.ipv4.conf.default.send_redirects" do
+      described_class.apply_scap_settings(test_file_name)
+      expect(test_file_contents).to match(/^net.ipv4.conf.default.send_redirects = 0\n/)
+    end
+
+    it "unsets net.ipv4.conf.all.send_redirects" do
+      described_class.apply_scap_settings(test_file_name)
+      expect(test_file_contents).to match(/^net.ipv4.conf.all.send_redirects = 0\n/)
     end
   end
 end
