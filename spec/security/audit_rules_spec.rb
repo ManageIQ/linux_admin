@@ -116,23 +116,23 @@ describe LinuxAdmin::Security::AuditRules do
     end
   end
 
-  describe ".add_filesystem_rule" do
-    it "adds a correctly formated rule" do
+  describe ".filesystem_rule" do
+    it "creates a correctly formated rule" do
       args = ["/etc/localtime", "wa", "audit_time_rules"]
-      described_class.add_filesystem_rule(*args, test_file_name)
-      pat = %r{^-w /etc/localtime -p wa -k audit_time_rules\n}
-      expect(test_file_contents).to match(pat)
+      rule_text = "-w /etc/localtime -p wa -k audit_time_rules\n"
+      rule = described_class.filesystem_rule(*args)
+      expect(rule).to eq(rule_text)
     end
 
-    it "adds a rule without a key" do
+    it "creates a rule without a key" do
       args = ["/etc/localtime", "wa", nil]
-      described_class.add_filesystem_rule(*args, test_file_name)
-      expect(test_file_contents).to match(%r{^-w /etc/localtime -p wa\n})
+      rule = described_class.filesystem_rule(*args)
+      expect(rule).to eq("-w /etc/localtime -p wa\n")
     end
   end
 
-  describe ".add_system_call_rule" do
-    it "adds a correctly formated rule" do
+  describe ".system_call_rule" do
+    it "creates a correctly formated rule" do
       args = [
         "always",
         "exit",
@@ -140,12 +140,12 @@ describe LinuxAdmin::Security::AuditRules do
         {"arch" => "b64"},
         "audit_time_rules"
       ]
-      described_class.add_system_call_rule(*args, test_file_name)
-      pat = /^-a always,exit -F arch=b64 -S adjtimex -k audit_time_rules\n/
-      expect(test_file_contents).to match(pat)
+      rule_text = "-a always,exit -F arch=b64 -S adjtimex -k audit_time_rules\n"
+      rule = described_class.system_call_rule(*args)
+      expect(rule).to eq(rule_text)
     end
 
-    it "adds a rule without a key" do
+    it "creates a rule without a key" do
       args = [
         "always",
         "exit",
@@ -153,9 +153,9 @@ describe LinuxAdmin::Security::AuditRules do
         {"arch" => "b64"},
         nil
       ]
-      described_class.add_system_call_rule(*args, test_file_name)
-      pat = /^-a always,exit -F arch=b64 -S adjtimex\n/
-      expect(test_file_contents).to match(pat)
+      rule_text = "-a always,exit -F arch=b64 -S adjtimex\n"
+      rule = described_class.system_call_rule(*args)
+      expect(rule).to eq(rule_text)
     end
   end
 

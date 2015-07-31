@@ -70,26 +70,30 @@ module LinuxAdmin
 
       def self.apply_scap_settings(filename = CONF_FILE)
         set_buffer_size(16_384, filename)
-        SCAP_FILESYSTEM_RULES.each { |r| add_filesystem_rule(*r, filename) }
-        SCAP_SYSTEM_CALL_RULES.each { |r| add_system_call_rule(*r, filename) }
+        config_text = File.read(filename)
+
+        SCAP_FILESYSTEM_RULES.each do |r|
+          rule_text = filesystem_rule(*r)
+          config_text = replace_config_line(rule_text, rule_text, config_text)
+        end
+
+        SCAP_SYSTEM_CALL_RULES.each do |r|
+          rule_text = system_call_rule(*r)
+          config_text = replace_config_line(rule_text, rule_text, config_text)
+        end
+        File.write(filename, config_text)
       end
 
-      def self.add_filesystem_rule(path, permissions, key_name, filename = CONF_FILE)
+      def self.filesystem_rule(path, permissions, key_name)
         rule = "-w #{path} -p #{permissions}"
-        rule << " -k #{key_name}" if key_name
-        write_rule_to_file(rule, filename)
+        key_name ? rule << " -k #{key_name}\n" : rule << "\n"
       end
 
-      def self.add_system_call_rule(action, filter, calls, fields, key_name, filename = CONF_FILE)
+      def self.system_call_rule(action, filter, calls, fields, key_name)
         rule = "-a #{action},#{filter}"
         fields.each { |f, v| rule << " -F #{f}=#{v}" }
         calls.each { |c| rule << " -S #{c}" }
-        rule << " -k #{key_name}" if key_name
-        write_rule_to_file(rule, filename)
-      end
-
-      def self.write_rule_to_file(rule, filename = CONF_FILE)
-        File.open(filename, "a") { |file| file.puts(rule) }
+        key_name ? rule << " -k #{key_name}\n" : rule << "\n"
       end
 
       def self.set_buffer_size(size, filename = CONF_FILE)
