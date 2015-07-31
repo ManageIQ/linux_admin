@@ -11,7 +11,7 @@ module LinuxAdmin
       end
 
       def self.disable_module(mod_name, filename)
-        new_line = "install #{mod_name} /bin/true"
+        new_line = "install #{mod_name} /bin/true\n"
         begin
           config_text = File.read(filename)
           new_text = config_text.gsub!(/^install #{mod_name}.*/, new_line)
@@ -20,13 +20,9 @@ module LinuxAdmin
         end
 
         if new_text
-          File.open(filename, "w") do |file|
-            file.puts(new_text)
-          end
+          File.write(filename, new_text)
         else
-          File.open(filename, "a") do |file|
-            file.puts(new_line)
-          end
+          File.write(filename, new_line, :mode => "a")
         end
       end
 
@@ -39,13 +35,9 @@ module LinuxAdmin
         end
 
         if new_text
-          File.open(filename, "w") do |file|
-            file.puts(new_text)
-          end
+          File.write(filename, new_text)
         else
-          File.open(filename, "a") do |file|
-            file.puts(new_line)
-          end
+          File.write(filename, new_line, :mode => "a")
         end
       end
     end

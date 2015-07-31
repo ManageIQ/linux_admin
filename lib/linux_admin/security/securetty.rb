@@ -7,11 +7,7 @@ module LinuxAdmin
         config_text = File.read(filename)
         new_text = config_text.gsub!(%r{^vc/\d+\n}, "")
 
-        if new_text
-          File.open(filename, "w") do |file|
-            file.puts(new_text)
-          end
-        end
+        File.write(filename, new_text) if new_text
       end
     end
   end

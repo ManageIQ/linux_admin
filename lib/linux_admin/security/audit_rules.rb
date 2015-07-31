@@ -99,13 +99,13 @@ module LinuxAdmin
 
       def self.set_buffer_size(size, filename = CONF_FILE)
         config_text = File.read(filename)
-        new_line = "-b #{size}"
+        new_line = "-b #{size}\n"
         new_text = config_text.gsub!(/^-b \d+/, new_line)
 
         if new_text
-          File.open(filename, "w") { |f| f.puts(new_text) }
+          File.write(filename, new_text)
         else
-          File.open(filename, "a") { |f| f.puts(new_line) }
+          File.write(filename, new_line, :mode => "a")
         end
       end
 

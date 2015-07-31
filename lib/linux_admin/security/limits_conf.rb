@@ -10,17 +10,13 @@ module LinuxAdmin
 
       def self.set_value(domain, type, item, value, filename = CONF_FILE)
         config_text = File.read(filename)
-        new_line = "#{domain} #{type} #{item} #{value}"
+        new_line = "#{domain} #{type} #{item} #{value}\n"
         new_text = config_text.gsub!(/^[^#\n]* #{item} .*/, new_line)
 
         if new_text
-          File.open(filename, "w") do |file|
-            file.puts(new_text)
-          end
+          File.write(filename, new_text)
         else
-          File.open(filename, "a") do |file|
-            file.puts(new_line)
-          end
+          File.write(filename, new_line, :mode => "a")
         end
       end
     end

@@ -15,17 +15,13 @@ module LinuxAdmin
 
       def self.set_value(key, val, filename)
         config_text = File.read(filename)
-        new_line = "#{key}=#{val}"
+        new_line = "#{key}=#{val}\n"
         new_text = config_text.gsub!(/^#*#{key}.*/, new_line)
 
         if new_text
-          File.open(filename, "w") do |file|
-            file.puts(new_text)
-          end
+          File.write(filename, new_text)
         else
-          File.open(filename, "a") do |file|
-            file.puts(new_line)
-          end
+          File.write(filename, new_line, :mode => "a")
         end
       end
     end
