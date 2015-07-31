@@ -99,7 +99,7 @@ module LinuxAdmin
       def self.set_buffer_size(size, filename = CONF_FILE)
         config_text = File.read(filename)
         new_line = "-b #{size}\n"
-        new_text = replace_config_line(new_line, /^-b \d+/, config_text)
+        new_text = replace_config_line(new_line, /^-b \d+\n/, config_text)
 
         File.write(filename, new_text)
       end

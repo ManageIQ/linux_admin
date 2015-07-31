@@ -18,7 +18,7 @@ module LinuxAdmin
         end
 
         new_line = "install #{mod_name} /bin/true\n"
-        new_text = replace_config_line(new_line, /^install #{mod_name}.*/, config_text)
+        new_text = replace_config_line(new_line, /^install #{mod_name}.*\n/, config_text)
         File.write(filename, new_text)
       end
 
@@ -29,7 +29,7 @@ module LinuxAdmin
           return
         end
 
-        new_text = replace_config_line("", /^install #{mod_name}.*/, config_text)
+        new_text = replace_config_line("", /^install #{mod_name}.*\n/, config_text)
         File.write(filename, new_text)
       end
     end

@@ -8,10 +8,10 @@ module LinuxAdmin
         config_text = File.read(filename)
 
         new_line = "* hard core 0\n"
-        config_text = replace_config_line(new_line, /^[^#\n]* core .*/, config_text)
+        config_text = replace_config_line(new_line, /^[^#\n]* core .*\n/, config_text)
 
         new_line = "* hard maxlogins 10\n"
-        config_text = replace_config_line(new_line, /^[^#\n]* maxlogins .*/, config_text)
+        config_text = replace_config_line(new_line, /^[^#\n]* maxlogins .*\n/, config_text)
 
         File.write(filename, config_text)
       end
