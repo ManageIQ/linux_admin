@@ -10,9 +10,7 @@ describe LinuxAdmin::Security::SshdConfig do
   around(:each) do |example|
     text = test_file_contents
     example.run
-    File.open(test_file_name, "w") do |file|
-      file.puts(text)
-    end
+    File.write(test_file_name, text)
   end
 
   describe ".apply_scap_settings" do
