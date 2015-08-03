@@ -13,6 +13,7 @@ module LinuxAdmin
         serv.stop if serv.running?
         serv.disable
       end
+      private_class_method :disable_service
     end
   end
 end
