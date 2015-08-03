@@ -51,7 +51,7 @@ describe LinuxAdmin::Security::Modprobe do
 
     context "creates a file" do
       after do
-        File.exist?(new_file_name) && File.delete(new_file_name)
+        FileUtils.rm_f(new_file_name)
       end
       it "if the given one doesn't exist" do
         expect(File.exist?(new_file_name)).to be false
