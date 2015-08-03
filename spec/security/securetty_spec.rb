@@ -13,7 +13,7 @@ describe LinuxAdmin::Security::Securetty do
     File.write(test_file_name, text)
   end
 
-  describe ".apply_scap_settings" do
+  describe "#apply_scap_settings" do
     it "removes all vc entries" do
       expect(test_file_contents).to match(%r{^vc/\d+})
 

@@ -13,7 +13,7 @@ describe LinuxAdmin::Security::AuditRules do
     File.write(test_file_name, text)
   end
 
-  describe ".apply_scap_settings" do
+  describe "#apply_scap_settings" do
     it "sets the buffer size" do
       described_class.new.apply_scap_settings(test_file_name)
       expect(test_file_contents).to match(/^-b 16384\n/)
@@ -116,7 +116,7 @@ describe LinuxAdmin::Security::AuditRules do
     end
   end
 
-  describe ".filesystem_rule" do
+  describe "#filesystem_rule" do
     it "creates a correctly formated rule" do
       args = ["/etc/localtime", "wa", "audit_time_rules"]
       rule_text = "-w /etc/localtime -p wa -k audit_time_rules\n"
@@ -131,7 +131,7 @@ describe LinuxAdmin::Security::AuditRules do
     end
   end
 
-  describe ".system_call_rule" do
+  describe "#system_call_rule" do
     it "creates a correctly formated rule" do
       args = [
         "always",
@@ -159,7 +159,7 @@ describe LinuxAdmin::Security::AuditRules do
     end
   end
 
-  describe ".set_buffer_size" do
+  describe "#set_buffer_size" do
     it "replaces an existing value" do
       expect(test_file_contents).to match(/^-b \d+\n/)
       described_class.new.set_buffer_size(16_384, test_file_name)

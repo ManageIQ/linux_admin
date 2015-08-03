@@ -13,7 +13,7 @@ describe LinuxAdmin::Security::SysctlConf do
     File.write(test_file_name, text)
   end
 
-  describe ".apply_scap_settings" do
+  describe "#apply_scap_settings" do
     it "unsets net.ipv4.conf.all.accept_redirects" do
       described_class.new.apply_scap_settings(test_file_name)
       expect(test_file_contents).to match(/^net.ipv4.conf.all.accept_redirects = 0\n/)

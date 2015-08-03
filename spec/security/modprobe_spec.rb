@@ -21,7 +21,7 @@ describe LinuxAdmin::Security::Modprobe do
     File.write(test_file_name, text)
   end
 
-  describe ".apply_scap_settings" do
+  describe "#apply_scap_settings" do
     it "disables the dccp protocol" do
       described_class.new.apply_scap_settings(test_file_name)
       expect(test_file_contents).to match(%r{^install dccp /bin/true\n})
@@ -43,7 +43,7 @@ describe LinuxAdmin::Security::Modprobe do
     end
   end
 
-  describe ".disable_module" do
+  describe "#disable_module" do
     it "adds a module to the file" do
       described_class.new.disable_module("test_module", test_file_name)
       expect(test_file_contents).to match(%r{^install test_module /bin/true\n})
@@ -62,7 +62,7 @@ describe LinuxAdmin::Security::Modprobe do
     end
   end
 
-  describe ".enable_module" do
+  describe "#enable_module" do
     it "removes a module from the file" do
       pat = %r{^install good_module /bin/true\n}
       expect(test_file_contents).to match(pat)
