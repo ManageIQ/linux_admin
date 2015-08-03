@@ -6,20 +6,20 @@ module LinuxAdmin
       CONF_FILE = "/etc/audit/rules.d/audit.rules"
 
       SCAP_FILESYSTEM_RULES = [
-        ["/etc/localtime", "wa", "audit_time_rules"],
-        ["/etc/group", "wa", "audit_account_changes"],
-        ["/etc/passwd", "wa", "audit_account_changes"],
-        ["/etc/gshadow", "wa", "audit_account_changes"],
-        ["/etc/shadow", "wa", "audit_account_changes"],
-        ["/etc/security/opasswd", "wa", "audit_account_changes"],
-        ["/etc/selinux/", "wa", "MAC-policy"],
-        ["/etc/sudoers", "wa", "actions"],
-        ["/sbin/insmod", "x", "modules"],
-        ["/sbin/rmmod", "x", "modules"],
-        ["/sbin/modprobe", "x", "modules"],
-        ["/etc/issue", "wa", "audit_network_modifications"],
-        ["/etc/issue.net", "wa", "audit_network_modifications"],
-        ["/etc/hosts", "wa", "audit_network_modifications"],
+        ["/etc/localtime",         "wa", "audit_time_rules"],
+        ["/etc/group",             "wa", "audit_account_changes"],
+        ["/etc/passwd",            "wa", "audit_account_changes"],
+        ["/etc/gshadow",           "wa", "audit_account_changes"],
+        ["/etc/shadow",            "wa", "audit_account_changes"],
+        ["/etc/security/opasswd",  "wa", "audit_account_changes"],
+        ["/etc/selinux/",          "wa", "MAC-policy"],
+        ["/etc/sudoers",           "wa", "actions"],
+        ["/sbin/insmod",           "x",  "modules"],
+        ["/sbin/rmmod",            "x",  "modules"],
+        ["/sbin/modprobe",         "x",  "modules"],
+        ["/etc/issue",             "wa", "audit_network_modifications"],
+        ["/etc/issue.net",         "wa", "audit_network_modifications"],
+        ["/etc/hosts",             "wa", "audit_network_modifications"],
         ["/etc/sysconfig/network", "wa", "audit_network_modifications"]
       ]
 
