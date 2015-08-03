@@ -15,7 +15,7 @@ describe LinuxAdmin::Security::Useradd do
 
   describe ".apply_scap_settings" do
     it "sets INACTIVE to 35 days" do
-      described_class.apply_scap_settings(test_file_name)
+      described_class.new.apply_scap_settings(test_file_name)
       expect(test_file_contents).to match(/^INACTIVE=35\n/)
     end
   end

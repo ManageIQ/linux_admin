@@ -3,8 +3,8 @@ module LinuxAdmin
     def self.scap_lockdown
       class_list = [SshdConfig, Service, SysctlConf, LimitsConf, Securetty, LoginDefs,
                     Useradd, AuditRules, Modprobe]
-      class_list.each { |c| c.public_send(:apply_scap_settings) }
-      AuditRules.reload_rules
+      class_list.each { |c| c.new.public_send(:apply_scap_settings) }
+      AuditRules.new.reload_rules
     end
   end
 end

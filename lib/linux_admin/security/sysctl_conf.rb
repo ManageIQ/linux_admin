@@ -1,7 +1,7 @@
 module LinuxAdmin
   class Security
     class SysctlConf
-      extend Security::Common
+      include Security::Common
       CONF_FILE = "/etc/sysctl.conf"
 
       SCAP_SETTINGS = {
@@ -18,7 +18,7 @@ module LinuxAdmin
         "net.ipv4.conf.all.send_redirects"           => 0
       }
 
-      def self.apply_scap_settings(filename = CONF_FILE)
+      def apply_scap_settings(filename = CONF_FILE)
         config_text = File.read(filename)
         SCAP_SETTINGS.each do |k, v|
           new_line = "#{k} = #{v}\n"

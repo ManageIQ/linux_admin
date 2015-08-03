@@ -15,7 +15,7 @@ describe LinuxAdmin::Security::LoginDefs do
 
   describe ".apply_scap_settings" do
     it "sets PASS_MIN_DAYS to 1" do
-      described_class.apply_scap_settings(test_file_name)
+      described_class.new.apply_scap_settings(test_file_name)
       expect(test_file_contents).to match(/^PASS_MIN_DAYS +1\n/)
     end
   end

@@ -15,12 +15,12 @@ describe LinuxAdmin::Security::LimitsConf do
 
   describe ".apply_scap_settings" do
     it "prevents process core dumps" do
-      described_class.apply_scap_settings(test_file_name)
+      described_class.new.apply_scap_settings(test_file_name)
       expect(test_file_contents).to match(/^\* +hard +core +0\n/)
     end
 
     it "sets max logins to 10" do
-      described_class.apply_scap_settings(test_file_name)
+      described_class.new.apply_scap_settings(test_file_name)
       expect(test_file_contents).to match(/^\* +hard +maxlogins +10\n/)
     end
   end

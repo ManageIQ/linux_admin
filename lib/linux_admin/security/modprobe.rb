@@ -1,15 +1,15 @@
 module LinuxAdmin
   class Security
     class Modprobe
-      extend Security::Common
+      include Security::Common
       CONF_FILE = "/etc/modprobe.d/scap.conf"
       SCAP_MODULES = %w(dccp sctp rds tipc)
 
-      def self.apply_scap_settings(filename = CONF_FILE)
+      def apply_scap_settings(filename = CONF_FILE)
         SCAP_MODULES.each { |m| disable_module(m, filename) }
       end
 
-      def self.disable_module(mod_name, filename)
+      def disable_module(mod_name, filename)
         begin
           config_text = File.read(filename)
         rescue Errno::ENOENT
@@ -22,7 +22,7 @@ module LinuxAdmin
         File.write(filename, new_text)
       end
 
-      def self.enable_module(mod_name, filename)
+      def enable_module(mod_name, filename)
         begin
           config_text = File.read(filename)
         rescue Errno::ENOENT

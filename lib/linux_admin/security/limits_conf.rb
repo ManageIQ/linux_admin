@@ -1,10 +1,10 @@
 module LinuxAdmin
   class Security
     class LimitsConf
-      extend Security::Common
+      include Security::Common
       CONF_FILE = "/etc/security/limits.conf"
 
-      def self.apply_scap_settings(filename = CONF_FILE)
+      def apply_scap_settings(filename = CONF_FILE)
         config_text = File.read(filename)
 
         new_line = "* hard core 0\n"
