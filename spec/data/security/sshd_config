@@ -1,0 +1,4 @@
+#PermitUserEnvironment no
+#PermitEmptyPasswords yes
+ClientAliveInterval 100000
+ClientAliveCountMax 0
