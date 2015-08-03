@@ -21,11 +21,6 @@ module LinuxAdmin
         end
         File.write(filename, config_text)
       end
-
-      def restart_service
-        serv = LinuxAdmin::Service.new("sshd")
-        serv.running? ? serv.restart : serv.start
-      end
     end
   end
 end
