@@ -1,6 +1,7 @@
 module LinuxAdmin
   class Security
     class SshdConfig
+      require 'linux_admin/service'
       include Security::Common
       CONF_FILE = "/etc/ssh/sshd_config"
 
@@ -19,6 +20,11 @@ module LinuxAdmin
           config_text = replace_config_line(new_line, /^#*#{k}.*\n/, config_text)
         end
         File.write(filename, config_text)
+      end
+
+      def restart_service
+        serv = LinuxAdmin::Service.new("sshd")
+        serv.running? ? serv.restart : serv.start
       end
     end
   end
