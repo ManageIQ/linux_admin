@@ -1,16 +1,10 @@
 module LinuxAdmin
   class Security
     def self.scap_lockdown
-      SshdConfig.apply_scap_settings
-      Service.apply_scap_settings
-      SysctlConf.apply_scap_settings
-      LimitsConf.apply_scap_settings
-      Securetty.remove_vcs
-      LoginDefs.apply_scap_settings
-      Useradd.apply_scap_settings
-      AuditRules.apply_scap_settings
+      class_list = [SshdConfig, Service, SysctlConf, LimitsConf, Securetty, LoginDefs,
+                    Useradd, AuditRules, Modprobe]
+      class_list.each { |c| c.public_send(:apply_scap_settings) }
       AuditRules.reload_rules
-      Modprobe.apply_scap_settings
     end
   end
 end

@@ -13,11 +13,11 @@ describe LinuxAdmin::Security::Securetty do
     File.write(test_file_name, text)
   end
 
-  describe ".remove_vcs" do
+  describe ".apply_scap_settings" do
     it "removes all vc entries" do
       expect(test_file_contents).to match(%r{^vc/\d+})
 
-      described_class.remove_vcs(test_file_name)
+      described_class.apply_scap_settings(test_file_name)
 
       expect(test_file_contents).not_to match(%r{^vc/\d+})
     end
@@ -26,7 +26,7 @@ describe LinuxAdmin::Security::Securetty do
       expect(test_file_contents).to match(/^tty\d+/)
       expect(test_file_contents).to match(/^hvc\d+/)
 
-      described_class.remove_vcs(test_file_name)
+      described_class.apply_scap_settings(test_file_name)
 
       expect(test_file_contents).to match(/^tty\d+/)
       expect(test_file_contents).to match(/^hvc\d+/)
