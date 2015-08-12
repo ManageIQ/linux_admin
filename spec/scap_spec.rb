@@ -1,4 +1,15 @@
 describe LinuxAdmin::Scap do
+  describe "#lockdown" do
+    it "raises if given no rules" do
+      stub_const("LinuxAdmin::Scap::SSG_XML_PATH", Pathname.new(data_file_path("scap")))
+      scap = described_class.new
+      allow(described_class).to receive(:openscap_available?).and_return(true)
+      allow(described_class).to receive(:ssg_available?).and_return(true)
+      allow(scap).to receive(:lockdown_profile)
+      expect { scap.lockdown("value1" => true) }.to raise_error
+    end
+  end
+
   describe "#profile_xml (private)" do
     it "creates a Profile tag" do
       profile_xml = described_class.new.send(:profile_xml, "test-profile", [], {})

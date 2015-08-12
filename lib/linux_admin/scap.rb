@@ -23,6 +23,8 @@ module LinuxAdmin
       values = args.last.kind_of?(Hash) ? args.pop : {}
       rules = args
 
+      raise "No SCAP rules provided" if rules.empty?
+
       with_xml_files(rules, values) do |xccdf_file_path|
         lockdown_profile(xccdf_file_path, PROFILE_ID)
       end
