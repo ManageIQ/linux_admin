@@ -50,4 +50,16 @@ describe LinuxAdmin::Hosts do
       expect(@instance.raw_lines).to eq(expected_array)
     end
   end
+
+  describe "#hostname=" do
+    it "sets the hostname" do
+      new_hostname = "test-hostname"
+      spawn_args = [
+        @instance.cmd('hostnamectl'),
+        :params => ['set-hostname', new_hostname]
+      ]
+      expect(AwesomeSpawn).to receive(:run!).with(*spawn_args)
+      @instance.hostname = new_hostname
+    end
+  end
 end
