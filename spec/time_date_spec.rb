@@ -28,9 +28,18 @@ describe LinuxAdmin::TimeDate do
       expect(AwesomeSpawn).to receive(:run!).with(*awesome_spawn_args)
       described_class.system_time = time
     end
+
+    it "raises when the command fails" do
+      time = Time.new(2015, 1, 1, 1, 1, 1)
+      err = AwesomeSpawn::CommandResultError.new("message", nil)
+      allow(AwesomeSpawn).to receive(:run!).and_raise(err)
+      expect do
+        described_class.send(:system_time=, time)
+      end.to raise_error(described_class::TimeCommandError, "message")
+    end
   end
 
-  describe ".system_timezone" do
+  describe ".system_timezone=" do
     it "sets the timezone" do
       zone = "Location/City"
       awesome_spawn_args = [
@@ -39,6 +48,15 @@ describe LinuxAdmin::TimeDate do
       ]
       expect(AwesomeSpawn).to receive(:run!).with(*awesome_spawn_args)
       described_class.system_timezone = zone
+    end
+
+    it "raises when the command fails" do
+      zone = "Location/City"
+      err = AwesomeSpawn::CommandResultError.new("message", nil)
+      allow(AwesomeSpawn).to receive(:run!).and_raise(err)
+      expect do
+        described_class.send(:system_timezone=, zone)
+      end.to raise_error(described_class::TimeCommandError, "message")
     end
   end
 end
