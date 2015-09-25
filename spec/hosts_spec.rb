@@ -62,4 +62,27 @@ describe LinuxAdmin::Hosts do
       @instance.hostname = new_hostname
     end
   end
+
+  describe "#hostname" do
+    it "returns the hostname" do
+      hostname = "test-host"
+      spawn_args = [
+        @instance.cmd('hostname'),
+        {}
+      ]
+      result = AwesomeSpawn::CommandResult.new("", hostname, nil, 0)
+      expect(AwesomeSpawn).to receive(:run).with(*spawn_args).and_return(result)
+      expect(@instance.hostname).to eq(hostname)
+    end
+
+    it "returns nil when the command fails" do
+      spawn_args = [
+        @instance.cmd('hostname'),
+        {}
+      ]
+      result = AwesomeSpawn::CommandResult.new("", "", "An error has happened", 1)
+      expect(AwesomeSpawn).to receive(:run).with(*spawn_args).and_return(result)
+      expect(@instance.hostname).to be_nil
+    end
+  end
 end

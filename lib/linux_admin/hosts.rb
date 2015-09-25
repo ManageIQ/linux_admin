@@ -42,6 +42,11 @@ module LinuxAdmin
       run!(cmd('hostnamectl'), :params => ['set-hostname', name])
     end
 
+    def hostname
+      result = run(cmd("hostname"))
+      result.success? ? result.output : nil
+    end
+
   private
     def parse_file
       @parsed_file = []
