@@ -6,19 +6,19 @@ describe LinuxAdmin::TimeDate do
     AwesomeSpawn::CommandResult.new("", output, "", 0)
   end
 
-  describe ".timezone" do
+  describe ".system_timezone" do
     it "returns the correct timezone" do
       awesome_spawn_args = [
         RUN_COMMAND,
         :params => ["status"]
       ]
       expect(AwesomeSpawn).to receive(:run).with(*awesome_spawn_args).and_return(timedatectl_result)
-      tz = described_class.timezone
+      tz = described_class.system_timezone
       expect(tz).to eq("America/New_York (EDT, -0400)")
     end
   end
 
-  describe ".set_system_time" do
+  describe ".system_time=" do
     it "sets the time" do
       time = Time.new(2015, 1, 1, 1, 1, 1)
       awesome_spawn_args = [
@@ -26,20 +26,19 @@ describe LinuxAdmin::TimeDate do
         :params => ["set-time", "2015-01-01 01:01:01", :adjust_system_clock]
       ]
       expect(AwesomeSpawn).to receive(:run!).with(*awesome_spawn_args)
-      described_class.set_system_time(time)
+      described_class.system_time = time
     end
   end
 
-  describe ".set_system_timezone" do
+  describe ".system_timezone" do
     it "sets the timezone" do
-      loc  = "Location"
-      city = "City"
+      zone = "Location/City"
       awesome_spawn_args = [
         RUN_COMMAND,
-        :params => ["set-timezone", "#{loc}/#{city}"]
+        :params => ["set-timezone", zone]
       ]
       expect(AwesomeSpawn).to receive(:run!).with(*awesome_spawn_args)
-      described_class.set_system_timezone(loc, city)
+      described_class.system_timezone = zone
     end
   end
 end
