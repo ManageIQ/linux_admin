@@ -6,6 +6,18 @@ describe LinuxAdmin::TimeDate do
     AwesomeSpawn::CommandResult.new("", output, "", 0)
   end
 
+  describe ".system_timezone_detailed" do
+    it "returns the correct timezone" do
+      awesome_spawn_args = [
+        RUN_COMMAND,
+        :params => ["status"]
+      ]
+      expect(AwesomeSpawn).to receive(:run).with(*awesome_spawn_args).and_return(timedatectl_result)
+      tz = described_class.system_timezone_detailed
+      expect(tz).to eq("America/New_York (EDT, -0400)")
+    end
+  end
+
   describe ".system_timezone" do
     it "returns the correct timezone" do
       awesome_spawn_args = [
@@ -14,7 +26,7 @@ describe LinuxAdmin::TimeDate do
       ]
       expect(AwesomeSpawn).to receive(:run).with(*awesome_spawn_args).and_return(timedatectl_result)
       tz = described_class.system_timezone
-      expect(tz).to eq("America/New_York (EDT, -0400)")
+      expect(tz).to eq("America/New_York")
     end
   end
 
