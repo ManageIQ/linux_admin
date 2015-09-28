@@ -52,12 +52,25 @@ describe LinuxAdmin::Hosts do
   end
 
   describe "#hostname=" do
-    it "sets the hostname" do
+    it "sets the hostname using hostnamectl when the command exists" do
       new_hostname = "test-hostname"
       spawn_args = [
         @instance.cmd('hostnamectl'),
         :params => ['set-hostname', new_hostname]
       ]
+      expect(@instance).to receive(:cmd?).with("hostnamectl").and_return(true)
+      expect(AwesomeSpawn).to receive(:run!).with(*spawn_args)
+      @instance.hostname = new_hostname
+    end
+
+    it "sets the hostname with hostname when hostnamectl does not exist" do
+      new_hostname = "test-hostname"
+      spawn_args = [
+        @instance.cmd('hostname'),
+        :params => {:file => "/etc/hostname"}
+      ]
+      expect(@instance).to receive(:cmd?).with("hostnamectl").and_return(false)
+      expect(File).to receive(:write).with("/etc/hostname", new_hostname)
       expect(AwesomeSpawn).to receive(:run!).with(*spawn_args)
       @instance.hostname = new_hostname
     end

@@ -39,7 +39,12 @@ module LinuxAdmin
     end
 
     def hostname=(name)
-      run!(cmd('hostnamectl'), :params => ['set-hostname', name])
+      if cmd?("hostnamectl")
+        run!(cmd('hostnamectl'), :params => ['set-hostname', name])
+      else
+        File.write("/etc/hostname", name)
+        run!(cmd('hostname'), :params => {:file => "/etc/hostname"})
+      end
     end
 
     def hostname
