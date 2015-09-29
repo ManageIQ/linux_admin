@@ -1,5 +1,7 @@
 module LinuxAdmin
   class Hosts
+    include Common
+
     attr_accessor :filename
     attr_accessor :raw_lines
     attr_accessor :parsed_file
@@ -34,6 +36,20 @@ module LinuxAdmin
         @parsed_file.store_path(line_number, :hosts, new_hosts)
         @parsed_file.store_path(line_number, :comment, comment) if comment
       end
+    end
+
+    def hostname=(name)
+      if cmd?("hostnamectl")
+        run!(cmd('hostnamectl'), :params => ['set-hostname', name])
+      else
+        File.write("/etc/hostname", name)
+        run!(cmd('hostname'), :params => {:file => "/etc/hostname"})
+      end
+    end
+
+    def hostname
+      result = run(cmd("hostname"))
+      result.success? ? result.output : nil
     end
 
   private
