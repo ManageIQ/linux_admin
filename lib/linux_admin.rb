@@ -29,6 +29,7 @@ require 'linux_admin/physical_volume'
 require 'linux_admin/volume_group'
 require 'linux_admin/scap'
 require 'linux_admin/time_date'
+require 'linux_admin/ip_address'
 
 module LinuxAdmin
   extend Common
