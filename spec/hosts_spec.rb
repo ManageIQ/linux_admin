@@ -1,4 +1,5 @@
 describe LinuxAdmin::Hosts do
+  TEST_HOSTNAME = "test-hostname"
   etc_hosts = "\n #Some Comment\n127.0.0.1\tlocalhost localhost.localdomain # with a comment\n127.0.1.1  my.domain.local"
   before do
     allow(File).to receive(:read).and_return(etc_hosts)
@@ -53,46 +54,39 @@ describe LinuxAdmin::Hosts do
 
   describe "#hostname=" do
     it "sets the hostname using hostnamectl when the command exists" do
-      new_hostname = "test-hostname"
       spawn_args = [
         @instance.cmd('hostnamectl'),
-        :params => ['set-hostname', new_hostname]
+        :params => ['set-hostname', TEST_HOSTNAME]
       ]
       expect(@instance).to receive(:cmd?).with("hostnamectl").and_return(true)
       expect(AwesomeSpawn).to receive(:run!).with(*spawn_args)
-      @instance.hostname = new_hostname
+      @instance.hostname = TEST_HOSTNAME
     end
 
     it "sets the hostname with hostname when hostnamectl does not exist" do
-      new_hostname = "test-hostname"
       spawn_args = [
         @instance.cmd('hostname'),
         :params => {:file => "/etc/hostname"}
       ]
       expect(@instance).to receive(:cmd?).with("hostnamectl").and_return(false)
-      expect(File).to receive(:write).with("/etc/hostname", new_hostname)
+      expect(File).to receive(:write).with("/etc/hostname", TEST_HOSTNAME)
       expect(AwesomeSpawn).to receive(:run!).with(*spawn_args)
-      @instance.hostname = new_hostname
+      @instance.hostname = TEST_HOSTNAME
     end
   end
 
   describe "#hostname" do
+    let(:spawn_args) do
+      [@instance.cmd('hostname'), {}]
+    end
+
     it "returns the hostname" do
-      hostname = "test-host"
-      spawn_args = [
-        @instance.cmd('hostname'),
-        {}
-      ]
-      result = AwesomeSpawn::CommandResult.new("", hostname, nil, 0)
+      result = AwesomeSpawn::CommandResult.new("", TEST_HOSTNAME, nil, 0)
       expect(AwesomeSpawn).to receive(:run).with(*spawn_args).and_return(result)
-      expect(@instance.hostname).to eq(hostname)
+      expect(@instance.hostname).to eq(TEST_HOSTNAME)
     end
 
     it "returns nil when the command fails" do
-      spawn_args = [
-        @instance.cmd('hostname'),
-        {}
-      ]
       result = AwesomeSpawn::CommandResult.new("", "", "An error has happened", 1)
       expect(AwesomeSpawn).to receive(:run).with(*spawn_args).and_return(result)
       expect(@instance.hostname).to be_nil
