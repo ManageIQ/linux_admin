@@ -1,3 +1,5 @@
+require 'ipaddr'
+
 module LinuxAdmin
   class IpAddress
     include Common
