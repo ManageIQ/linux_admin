@@ -16,6 +16,11 @@ describe LinuxAdmin::IpAddress do
     :params => %w(eth0)
   ]
 
+  GW_SPAWN_ARGS = [
+    described_class.new.cmd("ip"),
+    :params => %w(route)
+  ]
+
   IP_ADDR_SHOW_ETH0 = <<-IP_OUT
 2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP qlen 1000
     link/ether 00:0c:29:ed:0e:8b brd ff:ff:ff:ff:ff:ff
@@ -36,6 +41,11 @@ eth0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
         TX packets 2871  bytes 321915 (314.3 KiB)
         TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
 
+IP_OUT
+
+  IP_ROUTE = <<-IP_OUT
+default via 192.168.1.1 dev eth0  proto static  metric 100
+192.168.1.0/24 dev eth0  proto kernel  scope link  src 192.168.1.9  metric 100
 IP_OUT
 
   def result(output, exit_status)
@@ -115,6 +125,24 @@ IP_OUT
       bad_output = IFCFG.gsub(/netmask/, "")
       expect(AwesomeSpawn).to receive(:run).with(*MASK_SPAWN_ARGS).and_return(result(bad_output, 0))
       expect(ip.netmask("eth0")).to be_nil
+    end
+  end
+
+  describe "#gateway" do
+    it "returns the correct gateway address" do
+      expect(AwesomeSpawn).to receive(:run).with(*GW_SPAWN_ARGS).and_return(result(IP_ROUTE, 0))
+      expect(ip.gateway).to eq("192.168.1.1")
+    end
+
+    it "returns nil when the command fails" do
+      expect(AwesomeSpawn).to receive(:run).with(*GW_SPAWN_ARGS).and_return(result("", 1))
+      expect(ip.gateway).to be_nil
+    end
+
+    it "returns nil if the default line is not present" do
+      bad_output = IP_ROUTE.gsub(/default/, "")
+      expect(AwesomeSpawn).to receive(:run).with(*GW_SPAWN_ARGS).and_return(result(bad_output, 0))
+      expect(ip.gateway).to be_nil
     end
   end
 end

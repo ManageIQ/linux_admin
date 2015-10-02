@@ -24,6 +24,13 @@ module LinuxAdmin
       parse_output(result.output, /netmask/, 3)
     end
 
+    def gateway
+      result = run(cmd("ip"), :params => ["route"])
+      return nil if result.failure?
+
+      parse_output(result.output, /^default/, 2)
+    end
+
     private
 
     def parse_output(output, regex, col)
