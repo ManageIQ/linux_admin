@@ -10,6 +10,15 @@ module LinuxAdmin
       address_list.detect { |ip| IPAddr.new(ip).ipv6? }
     end
 
+    def mac_address(interface)
+      result = run(cmd("ip"), :params => ["addr", "show", interface])
+      return nil if result.failure?
+
+      lines = result.output.split("\n")
+      link_line = lines.detect { |l| l =~ %r{link/ether} }
+      link_line.nil? ? nil : link_line.strip.split(' ')[1]
+    end
+
     private
 
     def address_list
