@@ -30,6 +30,7 @@ require 'linux_admin/volume_group'
 require 'linux_admin/scap'
 require 'linux_admin/time_date'
 require 'linux_admin/ip_address'
+require 'linux_admin/dns'
 
 module LinuxAdmin
   extend Common
