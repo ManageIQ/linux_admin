@@ -1,8 +1,3 @@
-# LinuxAdmin System Representation
-#
-# Copyright (C) 2013 Red Hat Inc.
-# Licensed under the MIT License
-
 module LinuxAdmin
   class System
     extend Common

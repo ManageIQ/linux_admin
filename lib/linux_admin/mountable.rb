@@ -1,8 +1,3 @@
-# LinuxAdmin Mountable Disk Mixin
-#
-# Copyright (C) 2013 Red Hat Inc.
-# Licensed under the MIT License
-
 module LinuxAdmin
   module Mountable
     attr_accessor :fs_type
