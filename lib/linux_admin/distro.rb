@@ -38,7 +38,6 @@ module LinuxAdmin
 
       def initialize(id, release_file = nil, etc_issue_keywords = [], info_class = nil)
         @id                 = id
-        @path               = %w(/sbin /bin /usr/bin /usr/sbin)
         @release_file       = release_file
         @etc_issue_keywords = etc_issue_keywords
         @info_class         = info_class
@@ -54,14 +53,6 @@ module LinuxAdmin
 
       def detected_by_etc_release?
         release_file && File.exist?(release_file)
-      end
-
-      def command(name)
-        @path.collect { |dir| "#{dir}/#{name}" }.detect { |cmd| File.exist?(cmd) }
-      end
-
-      def command?(name)
-        !!command(name)
       end
 
       def info(pkg)

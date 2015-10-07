@@ -3,7 +3,7 @@ module LinuxAdmin
     extend Logging
 
     def self.rpm_cmd
-      Distros.local.command(:rpm)
+      cmd(:rpm)
     end
 
     def self.list_installed
