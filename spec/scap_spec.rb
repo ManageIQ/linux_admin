@@ -6,7 +6,7 @@ describe LinuxAdmin::Scap do
       allow(described_class).to receive(:openscap_available?).and_return(true)
       allow(described_class).to receive(:ssg_available?).and_return(true)
       allow(scap).to receive(:lockdown_profile)
-      expect { scap.lockdown("value1" => true) }.to raise_error
+      expect { scap.lockdown("value1" => true) }.to raise_error(RuntimeError)
     end
   end
 
