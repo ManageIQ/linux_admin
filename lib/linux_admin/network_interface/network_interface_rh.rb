@@ -12,15 +12,13 @@ module LinuxAdmin
     def initialize(interface)
       super
       @iface_file = Pathname.new(IFACE_DIR).join("ifcfg-#{@interface}")
-      reload
+      parse_conf
     end
 
     # Parses the interface configuration file into the @interface_conf hash
-    def reload
+    def parse_conf
       @interface_conf = {"NM_CONTROLLED" => "no"}
-      contents = File.read(@iface_file)
-
-      contents.each_line do |line|
+      File.foreach(@interface_file) do |line|
         next if line =~ /^\s*#/
 
         pair = line.split('=').collect(&:strip)

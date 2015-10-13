@@ -4,7 +4,7 @@ describe LinuxAdmin::NetworkInterface do
       allow_any_instance_of(described_class).to receive(:ip_show).and_return(nil)
       allow(LinuxAdmin::Distros).to receive(:local).and_return(LinuxAdmin::Distros.rhel)
       described_class.dist_class(true)
-      allow(File).to receive(:read).and_return("")
+      allow(File).to receive(:foreach).and_return("")
       described_class.new("eth0")
     end
 

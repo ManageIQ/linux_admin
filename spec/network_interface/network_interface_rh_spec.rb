@@ -23,13 +23,19 @@ NETMASK=255.255.255.0
 GATEWAY=192.168.1.1
 EOF
 
+  def stub_foreach_to_string(string)
+    allow(File).to receive(:foreach) do |&block|
+      string.each_line { |l| block.call(l) }
+    end
+  end
+
   subject(:dhcp_interface) do
-    allow(File).to receive(:read).and_return(IFCFG_FILE_DHCP)
+    stub_foreach_to_string(IFCFG_FILE_DHCP)
     described_class.new(DEVICE_NAME)
   end
 
   subject(:static_interface) do
-    allow(File).to receive(:read).and_return(IFCFG_FILE_STATIC)
+    stub_foreach_to_string(IFCFG_FILE_STATIC)
     described_class.new(DEVICE_NAME)
   end
 
@@ -46,11 +52,11 @@ EOF
     end
   end
 
-  describe "#reload" do
+  describe "#parse_conf" do
     it "reloads the interface configuration" do
       interface = dhcp_interface
-      allow(File).to receive(:read).and_return(IFCFG_FILE_STATIC)
-      interface.reload
+      stub_foreach_to_string(IFCFG_FILE_STATIC)
+      interface.parse_conf
 
       conf = interface.interface_conf
       expect(conf["NM_CONTROLLED"]).to eq("no")
