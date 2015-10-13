@@ -1,6 +1,7 @@
 describe LinuxAdmin::NetworkInterface do
   context "on redhat systems" do
     subject do
+      allow_any_instance_of(described_class).to receive(:ip_show).and_return(nil)
       allow(LinuxAdmin::Distros).to receive(:local).and_return(LinuxAdmin::Distros.rhel)
       described_class.dist_class(true)
       allow(File).to receive(:read).and_return("")
@@ -23,6 +24,7 @@ describe LinuxAdmin::NetworkInterface do
 
   context "on other linux systems" do
     subject do
+      allow_any_instance_of(described_class).to receive(:ip_show).and_return(nil)
       allow(LinuxAdmin::Distros).to receive(:local).and_return(LinuxAdmin::Distros.generic)
       described_class.dist_class(true)
       described_class.new("eth0")
@@ -43,12 +45,6 @@ describe LinuxAdmin::NetworkInterface do
   end
 
   context "on all systems" do
-    subject do
-      allow(LinuxAdmin::Distros).to receive(:local).and_return(LinuxAdmin::Distros.generic)
-      described_class.dist_class(true)
-      described_class.new("eth0")
-    end
-
     common_inst = Class.new { include LinuxAdmin::Common }.new
 
     IP_SHOW_ARGS = [
@@ -68,7 +64,7 @@ describe LinuxAdmin::NetworkInterface do
        valid_lft 1297sec preferred_lft 1297sec
     inet6 fe80::20c:29ff:feed:e8b/64 scope link
        valid_lft forever preferred_lft forever
-    inet6 fd12:3456:789a:1::1/64 scope global
+    inet6 fd12:3456:789a:1::1/96 scope global
        valid_lft forever preferred_lft forever
 IP_OUT
 
@@ -101,78 +97,77 @@ IP_OUT
 
     describe "#address" do
       it "returns an address" do
-        expect(AwesomeSpawn).to receive(:run).with(*IP_SHOW_ARGS).and_return(result(IP_ADDR_OUT, 0))
-        expect(subject.address).to eq("192.168.1.9")
+        expect(subj.address).to eq("192.168.1.9")
       end
 
       it "returns nil when no address is found" do
-        expect(AwesomeSpawn).to receive(:run).with(*IP_SHOW_ARGS).and_return(result("", 1))
-        expect(subject.address).to be_nil
+        expect(error_subj.address).to be_nil
       end
     end
 
     describe "#address6" do
       it "returns the global address by default" do
-        expect(AwesomeSpawn).to receive(:run).with(*IP_SHOW_ARGS).and_return(result(IP_ADDR_OUT, 0))
-        expect(subject.address6).to eq("fd12:3456:789a:1::1")
+        expect(subj.address6).to eq("fd12:3456:789a:1::1")
       end
 
       it "returns the link local address" do
-        expect(AwesomeSpawn).to receive(:run).with(*IP_SHOW_ARGS).and_return(result(IP_ADDR_OUT, 0))
-        expect(subject.address6(:link)).to eq("fe80::20c:29ff:feed:e8b")
+        expect(subj.address6(:link)).to eq("fe80::20c:29ff:feed:e8b")
       end
 
       it "returns nil when no address is found" do
-        expect(AwesomeSpawn).to receive(:run).with(*IP_SHOW_ARGS).and_return(result("", 1))
-        expect(subject.address6).to be_nil
+        expect(error_subj.address6).to be_nil
+      end
+
+      it "raises ArgumentError when given a bad scope" do
+        expect { subj.address6(:garbage) }.to raise_error(ArgumentError)
       end
     end
 
     describe "#mac_address" do
       it "returns the correct MAC address" do
-        expect(AwesomeSpawn).to receive(:run).with(*IP_SHOW_ARGS).and_return(result(IP_ADDR_OUT, 0))
-        expect(subject.mac_address).to eq("00:0c:29:ed:0e:8b")
+        expect(subj.mac_address).to eq("00:0c:29:ed:0e:8b")
       end
 
       it "returns nil when the command fails" do
-        expect(AwesomeSpawn).to receive(:run).with(*IP_SHOW_ARGS).and_return(result("", 1))
-        expect(subject.mac_address).to be_nil
-      end
-
-      it "returns nil if the link/ether line is not present" do
-        bad_output = IP_ADDR_OUT.gsub(%r{link/ether}, "")
-        expect(AwesomeSpawn).to receive(:run).with(*IP_SHOW_ARGS).and_return(result(bad_output, 0))
-        expect(subject.mac_address).to be_nil
+        expect(error_subj.mac_address).to be_nil
       end
     end
 
     describe "#netmask" do
       it "returns the correct netmask" do
-        expect(AwesomeSpawn).to receive(:run).with(*IP_SHOW_ARGS).and_return(result(IP_ADDR_OUT, 0))
-        expect(subject.netmask).to eq("255.255.255.0")
+        expect(subj.netmask).to eq("255.255.255.0")
       end
 
       it "returns nil when the command fails" do
-        expect(AwesomeSpawn).to receive(:run).with(*IP_SHOW_ARGS).and_return(result("", 1))
-        expect(subject.netmask).to be_nil
+        expect(error_subj.netmask).to be_nil
+      end
+    end
+
+    describe "#netmask6" do
+      it "returns the correct global netmask" do
+        expect(subj.netmask6).to eq("ffff:ffff:ffff:ffff:ffff:ffff::")
+      end
+
+      it "returns the correct link local netmask" do
+        expect(subj.netmask6(:link)).to eq("ffff:ffff:ffff:ffff::")
+      end
+
+      it "returns nil when the command fails" do
+        expect(error_subj.netmask6).to be_nil
+      end
+
+      it "raises ArgumentError when given a bad scope" do
+        expect { subj.netmask6(:garbage) }.to raise_error(ArgumentError)
       end
     end
 
     describe "#gateway" do
       it "returns the correct gateway address" do
-        expect(AwesomeSpawn).to receive(:run).with(*IP_ROUTE_ARGS).and_return(result(IP_ROUTE, 0))
-        expect(subject.gateway).to eq("192.168.1.1")
+        expect(subj.gateway).to eq("192.168.1.1")
       end
 
       it "returns nil when the command fails" do
-        expect(AwesomeSpawn).to receive(:run).with(*IP_ROUTE_ARGS).and_return(result("", 1))
-        expect(subject.gateway).to be_nil
-      end
-
-      it "returns nil if the default line is not present" do
-        bad_output = IP_ROUTE.gsub(/default/, "")
-        expect(AwesomeSpawn).to receive(:run).with(*IP_ROUTE_ARGS).and_return(result(bad_output, 0))
-        expect(subject.gateway).to be_nil
+        expect(error_subj.gateway).to be_nil
       end
     end
   end

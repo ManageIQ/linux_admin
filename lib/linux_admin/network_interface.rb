@@ -9,10 +9,10 @@ module LinuxAdmin
 
     # Gets the subclass specific to the local Linux distro
     #
-    # @param reload [Boolean] Determines if the cached value will be reloaded
+    # @param test_dist [Boolean] Determines if the cached value will be reevaluated
     # @return [Class] The proper class to be used
-    def self.dist_class(reload = false)
-      @dist_class = nil if reload
+    def self.dist_class(test_dist = false)
+      @dist_class = nil if test_dist
       @dist_class ||= begin
         if [Distros.rhel, Distros.fedora].include?(Distros.local)
           NetworkInterfaceRH
@@ -43,66 +43,80 @@ module LinuxAdmin
     # @param interface [String] Name of the network interface to manage
     def initialize(interface)
       @interface = interface
+      reload
+    end
+
+    # Gathers current network information for this interface
+    def reload
+      @network_conf = {}
+      return false unless (ip_output = ip_show)
+
+      parse_ip4(ip_output)
+      parse_ip6(ip_output, :global)
+      parse_ip6(ip_output, :link)
+
+      @network_conf[:mac] = parse_ip_output(ip_output, %r{link/ether}, 1)
+
+      ip_route_res = run(cmd("ip"), :params => ["route"])
+      @network_conf[:gateway] = parse_ip_output(ip_route_res.output, /^default/, 2) if ip_route_res.success?
+      true
     end
 
     # Retrieve the IPv4 address assigned to the interface
     #
     # @return [String] IPv4 address for the managed interface
     def address
-      return unless (ip_output = ip_show)
-
-      cidr_ip = parse_ip_output(ip_output, /inet/, 1)
-      cidr_ip.split('/')[0] if cidr_ip
+      @network_conf[:address]
     end
 
     # Retrieve the IPv6 address assigned to the interface
     #
     # @return [String] IPv6 address for the managed interface
+    # @raise [ArgumentError] if the given scope is not `:global` or `:link`
     def address6(scope = :global)
-      return unless (ip_output = ip_show)
-
-      ip_regex = /inet6 .* scope #{scope}/
-      cidr_ip = parse_ip_output(ip_output, ip_regex, 1)
-      cidr_ip.split('/')[0] if cidr_ip
+      case scope
+      when :global
+        @network_conf[:address6_global]
+      when :link
+        @network_conf[:address6_link]
+      else
+        raise ArgumentError, "Unrecognized address scope #{scope}"
+      end
     end
 
     # Retrieve the MAC address associated with the interface
     #
     # @return [String] the MAC address
     def mac_address
-      return unless (ip_output = ip_show)
-      parse_ip_output(ip_output, %r{link/ether}, 1)
+      @network_conf[:mac]
     end
 
     # Retrieve the IPv4 sub-net mask assigned to the interface
     #
     # @return [String] IPv4 netmask
     def netmask
-      return unless (ip_output = ip_show)
-
-      cidr_ip = parse_ip_output(ip_output, /inet/, 1)
-      IPAddr.new('255.255.255.255').mask(cidr_ip.split('/')[1]).to_s if cidr_ip
+      @network_conf[:mask]
     end
 
     # Retrieve the IPv6 sub-net mask assigned to the interface
     #
     # @return [String] IPv6 netmask
+    # @raise [ArgumentError] if the given scope is not `:global` or `:link`
     def netmask6(scope = :global)
-      return unless (ip_output = ip_show)
-
-      ip_regex = /inet6 .* scope #{scope}/
-      cidr_ip = parse_ip_output(ip_output, ip_regex, 1)
-      IPAddr.new('ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff').mask(cidr_ip.split('/')[1]).to_s if cidr_ip
+      if scope == :global
+        @network_conf[:mask6_global]
+      elsif scope == :link
+        @network_conf[:mask6_link]
+      else
+        raise ArgumentError, "Unrecognized address scope #{scope}"
+      end
     end
 
     # Retrieve the IPv4 default gateway associated with the interface
     #
     # @return [String] IPv4 gateway address
     def gateway
-      result = run(cmd("ip"), :params => ["route"])
-      return nil if result.failure?
-
-      parse_ip_output(result.output, /^default/, 2)
+      @network_conf[:gateway]
     end
 
     private
@@ -124,6 +138,31 @@ module LinuxAdmin
     def ip_show
       result = run(cmd("ip"), :params => ["addr", "show", @interface])
       result.success? ? result.output : nil
+    end
+
+    # Parses the IPv4 information from the output of `ip addr show <device>`
+    #
+    # @param ip_output [String] The command output
+    def parse_ip4(ip_output)
+      cidr_ip = parse_ip_output(ip_output, /inet/, 1)
+      return unless cidr_ip
+
+      @network_conf[:address] = cidr_ip.split('/')[0]
+      @network_conf[:mask] = IPAddr.new('255.255.255.255').mask(cidr_ip.split('/')[1]).to_s
+    end
+
+    # Parses the IPv6 information from the output of `ip addr show <device>`
+    #
+    # @param ip_output [String] The command output
+    # @param scope     [Symbol] The IPv6 scope (either `:global` or `:local`)
+    def parse_ip6(ip_output, scope)
+      mask_addr = IPAddr.new('ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff')
+      cidr_ip = parse_ip_output(ip_output, /inet6 .* scope #{scope}/, 1)
+      return unless cidr_ip
+
+      parts = cidr_ip.split('/')
+      @network_conf["address6_#{scope}".to_sym] = parts[0]
+      @network_conf["mask6_#{scope}".to_sym] = mask_addr.mask(parts[1]).to_s
     end
   end
 end
