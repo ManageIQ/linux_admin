@@ -23,9 +23,9 @@ module LinuxAdmin
     end
 
     def save
-      contents = "search #{@search_order.join(" ")}\n"
-      @nameservers.each { |ns| contents += "nameserver #{ns}\n" }
-      File.write(@filename, contents)
+      search  = "search #{@search_order.join(" ")}\n" unless @search_order.empty?
+      servers = @nameservers.collect { |ns| "nameserver #{ns}\n" }.join
+      File.write(@filename, "#{search}#{servers}")
     end
   end
 end
