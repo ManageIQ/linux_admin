@@ -1,8 +1,3 @@
-# LinuxAdmin Volume Group Representation
-#
-# Copyright (C) 2013 Red Hat Inc.
-# Licensed under the MIT License
-
 module LinuxAdmin
   class VolumeGroup
     include Common

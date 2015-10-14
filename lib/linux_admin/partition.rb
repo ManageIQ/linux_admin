@@ -1,8 +1,3 @@
-# LinuxAdmin Partition Representation
-#
-# Copyright (C) 2013 Red Hat Inc.
-# Licensed under the MIT License
-
 require 'fileutils'
 
 module LinuxAdmin

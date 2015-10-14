@@ -1,8 +1,3 @@
-# LinuxAdmin /etc/issue Representation
-#
-# Copyright (C) 2014 Red Hat Inc.
-# Licensed under the MIT License
-
 require 'singleton'
 
 module LinuxAdmin

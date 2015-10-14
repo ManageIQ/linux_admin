@@ -1,8 +1,3 @@
-# LinuxAdmin Disk Representation
-#
-# Copyright (C) 2013 Red Hat Inc.
-# Licensed under the MIT License
-
 require 'linux_admin/partition'
 
 module LinuxAdmin

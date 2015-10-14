@@ -1,8 +1,3 @@
-# LinuxAdmin Physical Volume Representation
-#
-# Copyright (C) 2013 Red Hat Inc.
-# Licensed under the MIT License
-
 module LinuxAdmin
   class PhysicalVolume < Volume
     include Common
