@@ -16,6 +16,16 @@ nameserver 192.168.3.4
 nameserver 10.10.11.12
 DNS_END
 
+  NO_SEARCH = <<DNS_END
+nameserver 192.168.1.2
+nameserver 10.10.1.2
+nameserver 192.168.252.3
+DNS_END
+
+  NO_NAMESERVER = <<DNS_END
+search test.example.com test.two.example.com. example.com.
+DNS_END
+
   NEW_ORDER = %w(new.test.example.com other.test.example.com)
   NEW_NS    = %w(192.168.3.4 10.10.11.12)
 
@@ -69,6 +79,26 @@ DNS_END
 
       subject.search_order = NEW_ORDER
       subject.nameservers = NEW_NS
+      subject.save
+    end
+
+    it "omits search if the list is empty" do
+      expect(File).to receive(:write) do |file, contents|
+        expect(file).to eq(subject.filename)
+        expect(contents).to eq(NO_SEARCH)
+      end
+
+      subject.search_order = []
+      subject.save
+    end
+
+    it "omits nameserver if the list is empty" do
+      expect(File).to receive(:write) do |file, contents|
+        expect(file).to eq(subject.filename)
+        expect(contents).to eq(NO_NAMESERVER)
+      end
+
+      subject.nameservers = []
       subject.save
     end
   end
