@@ -2,12 +2,14 @@ require 'awesome_spawn'
 
 module LinuxAdmin
   module Common
-    def cmd(cmd)
-      Distros.local.command(cmd)
+    BIN_DIRS = %w(/bin /sbin /usr/bin /usr/sbin /usr/local/bin /usr/local/sbin)
+
+    def cmd(name)
+      BIN_DIRS.collect { |dir| "#{dir}/#{name}" }.detect { |cmd| File.exist?(cmd) }
     end
 
-    def cmd?(cmd)
-      Distros.local.command?(cmd)
+    def cmd?(name)
+      !cmd(name).nil?
     end
 
     def run(cmd, options = {})
