@@ -9,10 +9,10 @@ module LinuxAdmin
 
     # Gets the subclass specific to the local Linux distro
     #
-    # @param test_dist [Boolean] Determines if the cached value will be reevaluated
+    # @param clear_cache [Boolean] Determines if the cached value will be reevaluated
     # @return [Class] The proper class to be used
-    def self.dist_class(test_dist = false)
-      @dist_class = nil if test_dist
+    def self.dist_class(clear_cache = false)
+      @dist_class = nil if clear_cache
       @dist_class ||= begin
         if [Distros.rhel, Distros.fedora].include?(Distros.local)
           NetworkInterfaceRH

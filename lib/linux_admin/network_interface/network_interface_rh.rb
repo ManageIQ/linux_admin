@@ -17,13 +17,15 @@ module LinuxAdmin
 
     # Parses the interface configuration file into the @interface_conf hash
     def parse_conf
-      @interface_conf = {"NM_CONTROLLED" => "no"}
+      @interface_conf = {}
+
       File.foreach(@interface_file) do |line|
         next if line =~ /^\s*#/
 
-        pair = line.split('=').collect(&:strip)
-        @interface_conf[pair[0]] = pair[1]
+        key, value = line.split('=').collect(&:strip)
+        @interface_conf[key] = value
       end
+      @interface_conf["NM_CONTROLLED"] = "no"
     end
 
     # Set the IPv4 address for this interface
@@ -78,6 +80,9 @@ module LinuxAdmin
       @interface_conf.delete("NETMASK")
       @interface_conf.delete("GATEWAY")
       @interface_conf.delete("PREFIX")
+      @interface_conf.delete("DNS1")
+      @interface_conf.delete("DNS2")
+      @interface_conf.delete("DOMAIN")
     end
 
     # Writes the contents of @interface_conf to @iface_file as `key`=`value` pairs
