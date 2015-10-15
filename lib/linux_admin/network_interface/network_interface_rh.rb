@@ -86,8 +86,24 @@ module LinuxAdmin
     end
 
     # Writes the contents of @interface_conf to @iface_file as `key`=`value` pairs
+    # and resets the interface
+    #
+    # @return [Boolean] true if the interface was successfully brought up with the
+    #   new configuration, false otherwise
     def save
+      old_contents = File.read(@iface_file)
+
+      return false unless stop
+
       File.write(@iface_file, @interface_conf.delete_blanks.collect { |k, v| "#{k}=#{v}" }.join("\n"))
+
+      unless start
+        File.write(@iface_file, old_contents)
+        start
+        return false
+      end
+
+      true
     end
 
     private

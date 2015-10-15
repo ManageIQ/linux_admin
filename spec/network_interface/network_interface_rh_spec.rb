@@ -174,9 +174,11 @@ EOF
   end
 
   describe "#save" do
-    it "writes the configuration" do
+    let(:iface_file) { Pathname.new("/etc/sysconfig/network-scripts/ifcfg-#{DEVICE_NAME}") }
+
+    def expect_old_contents
       expect(File).to receive(:write) do |file, contents|
-        expect(file).to eq(Pathname.new("/etc/sysconfig/network-scripts/ifcfg-#{DEVICE_NAME}"))
+        expect(file).to eq(iface_file)
         expect(contents).to include("DEVICE=eth0")
         expect(contents).to include("BOOTPROTO=dhcp")
         expect(contents).to include("UUID=3a48a5b5-b80b-4712-82f7-e517e4088999")
@@ -184,7 +186,32 @@ EOF
         expect(contents).to include("TYPE=Ethernet")
         expect(contents).to include('NAME="System eth0"')
       end
-      dhcp_interface.save
+    end
+
+    it "writes the configuration" do
+      expect(File).to receive(:read).with(iface_file)
+      expect(dhcp_interface).to receive(:stop).and_return(true)
+      expect(dhcp_interface).to receive(:start).and_return(true)
+      expect_old_contents
+      expect(dhcp_interface.save).to be true
+    end
+
+    it "returns false when the interface cannot be brought down" do
+      expect(File).to receive(:read).with(iface_file)
+      expect(dhcp_interface).to receive(:stop).and_return(false)
+      expect(File).not_to receive(:write)
+      expect(dhcp_interface.save).to be false
+    end
+
+    it "returns false and writes the old contents when the interface fails to come back up" do
+      dhcp_interface # evaluate the subject first so the expectations stub the right calls
+      expect(File).to receive(:read).with(iface_file).and_return("old stuff")
+      expect(dhcp_interface).to receive(:stop).and_return(true)
+      expect_old_contents
+      expect(dhcp_interface).to receive(:start).and_return(false)
+      expect(File).to receive(:write).with(iface_file, "old stuff")
+      expect(dhcp_interface).to receive(:start)
+      expect(dhcp_interface.save).to be false
     end
   end
 end

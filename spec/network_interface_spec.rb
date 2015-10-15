@@ -57,6 +57,16 @@ describe LinuxAdmin::NetworkInterface do
       :params => %w(route)
     ]
 
+    IFUP_ARGS = [
+      common_inst.cmd("ifup"),
+      :params => ["eth0"]
+    ]
+
+    IFDOWN_ARGS = [
+      common_inst.cmd("ifdown"),
+      :params => ["eth0"]
+    ]
+
     IP_ADDR_OUT = <<-IP_OUT
 2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP qlen 1000
     link/ether 00:0c:29:ed:0e:8b brd ff:ff:ff:ff:ff:ff
@@ -168,6 +178,30 @@ IP_OUT
 
       it "returns nil when the command fails" do
         expect(error_subj.gateway).to be_nil
+      end
+    end
+
+    describe "#start" do
+      it "returns true on success" do
+        expect(AwesomeSpawn).to receive(:run).with(*IFUP_ARGS).and_return(result("", 0))
+        expect(subj.start).to be true
+      end
+
+      it "returns false on failure" do
+        expect(AwesomeSpawn).to receive(:run).with(*IFUP_ARGS).and_return(result("", 1))
+        expect(subj.start).to be false
+      end
+    end
+
+    describe "#stop" do
+      it "returns true on success" do
+        expect(AwesomeSpawn).to receive(:run).with(*IFDOWN_ARGS).and_return(result("", 0))
+        expect(subj.stop).to be true
+      end
+
+      it "returns false on failure" do
+        expect(AwesomeSpawn).to receive(:run).with(*IFDOWN_ARGS).and_return(result("", 1))
+        expect(subj.stop).to be false
       end
     end
   end

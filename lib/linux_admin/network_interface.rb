@@ -119,6 +119,20 @@ module LinuxAdmin
       @network_conf[:gateway]
     end
 
+    # Brings up the network interface
+    #
+    # @return [Boolean] whether the command succeeded or not
+    def start
+      run(cmd("ifup"), :params => [@interface]).success?
+    end
+
+    # Brings down the network interface
+    #
+    # @return [Boolean] whether the command succeeded or not
+    def stop
+      run(cmd("ifdown"), :params => [@interface]).success?
+    end
+
     private
 
     # Parses the output of `ip addr show`
