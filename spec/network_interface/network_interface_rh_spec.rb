@@ -173,6 +173,22 @@ EOF
     end
   end
 
+  describe "#apply_static" do
+    it "sets the correct configuration" do
+      expect(dhcp_interface).to receive(:save)
+      dhcp_interface.apply_static("192.168.1.12", "255.255.255.0", "192.168.1.1", ["192.168.1.1", nil], ["localhost"])
+
+      conf = dhcp_interface.interface_conf
+      expect(conf["BOOTPROTO"]).to eq("static")
+      expect(conf["IPADDR"]).to eq("192.168.1.12")
+      expect(conf["NETMASK"]).to eq("255.255.255.0")
+      expect(conf["GATEWAY"]).to eq("192.168.1.1")
+      expect(conf["DNS1"]).to eq("192.168.1.1")
+      expect(conf["DNS2"]).to be_nil
+      expect(conf["DOMAIN"]).to eq("\"localhost\"")
+    end
+  end
+
   describe "#save" do
     let(:iface_file) { Pathname.new("/etc/sysconfig/network-scripts/ifcfg-#{DEVICE_NAME}") }
 

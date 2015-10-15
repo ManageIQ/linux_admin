@@ -85,6 +85,24 @@ module LinuxAdmin
       @interface_conf.delete("DOMAIN")
     end
 
+    # Applies the given static network configuration to the interface
+    #
+    # @param ip [String] IPv4 address
+    # @param mask [String] subnet mask
+    # @param gw [String] gateway address
+    # @param dns [Array<String>] list of dns servers
+    # @param search [Array<String>] list of search domains
+    # @return [Boolean] true on success, false otherwise
+    # @raise ArgumentError if an IP is not formatted properly
+    def apply_static(ip, mask, gw, dns, search = nil)
+      self.address      = ip
+      self.netmask      = mask
+      self.gateway      = gw
+      self.dns          = dns
+      self.search_order = search if search
+      save
+    end
+
     # Writes the contents of @interface_conf to @iface_file as `key`=`value` pairs
     # and resets the interface
     #
