@@ -32,6 +32,50 @@ describe LinuxAdmin::Hosts do
     end
   end
 
+  describe "#update_ip_for_hostname" do
+    it "updates an existing entry" do
+      expected_hash = [
+        {:blank => true},
+        {:comment => "Some Comment"},
+        {:address => "127.0.0.1",
+         :hosts   => [
+           "localhost",
+           "localhost.localdomain"
+         ],
+         :comment => "with a comment"
+        },
+        {:address => "192.168.1.10",
+         :hosts   => ["my.domain.local"]
+        }
+      ]
+      @instance.update_ip_for_hostname("my.domain.local", "192.168.1.10")
+      expect(@instance.parsed_file).to eq(expected_hash)
+    end
+
+    it "creates a new entry if none match" do
+      expected_hash = [
+        {:blank => true},
+        {:comment => "Some Comment"},
+        {:address => "127.0.0.1",
+         :hosts   => [
+           "localhost",
+           "localhost.localdomain"
+         ],
+         :comment => "with a comment"
+        },
+        {:address => "127.0.1.1",
+         :hosts   => ["my.domain.local"]
+        },
+        {:address => "192.168.1.10",
+         :hosts   => ["new.domain.local"],
+         :comment => nil
+        }
+      ]
+      @instance.update_ip_for_hostname("new.domain.local", "192.168.1.10")
+      expect(@instance.parsed_file).to eq(expected_hash)
+    end
+  end
+
   describe "#save" do
     before do
       allow(File).to receive(:write)
