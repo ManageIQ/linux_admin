@@ -38,6 +38,20 @@ module LinuxAdmin
       end
     end
 
+    # Updates the IP address associated with the entry specified by the hostname
+    # or inserts a new row in the file if there is no entry for that name
+    #
+    # @param hostname [String] the hostname used to find the record to update
+    # @param ip [String] the new address to use for the record
+    def update_ip_for_hostname(host, ip)
+      line_num = @parsed_file.find_path(host).first
+      if line_num
+        @parsed_file[line_num][:address] = ip
+      else
+        update_entry(ip, host)
+      end
+    end
+
     def hostname=(name)
       if cmd?("hostnamectl")
         run!(cmd('hostnamectl'), :params => ['set-hostname', name])
