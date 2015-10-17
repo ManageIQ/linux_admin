@@ -1,10 +1,7 @@
 require 'stringio'
 
 describe LinuxAdmin::FSTab do
-  before do
-    # Reset the singleton so subsequent tests get a new instance
-    Singleton.send :__init__, LinuxAdmin::FSTab
-  end
+  subject { described_class.dup }
 
   it "has newline, single spaces, tab" do
     fstab = <<eos
@@ -13,8 +10,8 @@ describe LinuxAdmin::FSTab do
 	
 eos
     expect(File).to receive(:read).with('/etc/fstab').and_return(fstab)
-    expect(LinuxAdmin::FSTab.instance.entries.size).to eq(3)
-    expect(LinuxAdmin::FSTab.instance.entries.any? { |e| e.has_content? }).to be_falsey
+    expect(subject.instance.entries.size).to eq(3)
+    expect(subject.instance.entries.any?(&:has_content?)).to be_falsey
   end
 
   it "creates FSTabEntry for each line in fstab" do
@@ -27,7 +24,7 @@ eos
 /dev/sda2 swap  swap  defaults  0 0
 eos
     expect(File).to receive(:read).with('/etc/fstab').and_return(fstab)
-    entries = LinuxAdmin::FSTab.instance.entries
+    entries = subject.instance.entries
     expect(entries.size).to eq(6)
 
     expect(entries[0].comment).to eq("# Comment, indented comment, comment with device information\n")
@@ -60,12 +57,12 @@ eos
       entry.dumpable      = 1
       entry.fsck_order    = 1
       entry.comment = "# more"
-      allow_any_instance_of(LinuxAdmin::FSTab).to receive(:refresh) # don't read /etc/fstab
-      LinuxAdmin::FSTab.instance.maximum_column_lengths = [9, 1, 4, 8, 1, 1, 1]
-      LinuxAdmin::FSTab.instance.entries  = [entry]
+      allow_any_instance_of(subject).to receive(:refresh) # in case this is the first time we reference .instance
+      subject.instance.maximum_column_lengths = [9, 1, 4, 8, 1, 1, 1]
+      subject.instance.entries = [entry]
 
       expect(File).to receive(:write).with('/etc/fstab', "/dev/sda1 / ext4 defaults 1 1 # more\n")
-      LinuxAdmin::FSTab.instance.write!
+      subject.instance.write!
     end
   end
 end
