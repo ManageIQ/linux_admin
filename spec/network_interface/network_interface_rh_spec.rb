@@ -41,14 +41,14 @@ EOF
 
   describe ".new" do
     it "loads the configuration" do
-      conf = dhcp_interface.interface_conf
+      conf = dhcp_interface.interface_config
       expect(conf["NM_CONTROLLED"]).to eq("no")
-      expect(conf["DEVICE"]).to eq("eth0")
-      expect(conf["BOOTPROTO"]).to eq("dhcp")
-      expect(conf["UUID"]).to eq("3a48a5b5-b80b-4712-82f7-e517e4088999")
-      expect(conf["ONBOOT"]).to eq("yes")
-      expect(conf["TYPE"]).to eq("Ethernet")
-      expect(conf["NAME"]).to eq('"System eth0"')
+      expect(conf["DEVICE"]).to        eq("eth0")
+      expect(conf["BOOTPROTO"]).to     eq("dhcp")
+      expect(conf["UUID"]).to          eq("3a48a5b5-b80b-4712-82f7-e517e4088999")
+      expect(conf["ONBOOT"]).to        eq("yes")
+      expect(conf["TYPE"]).to          eq("Ethernet")
+      expect(conf["NAME"]).to          eq('"System eth0"')
     end
   end
 
@@ -58,17 +58,17 @@ EOF
       stub_foreach_to_string(IFCFG_FILE_STATIC)
       interface.parse_conf
 
-      conf = interface.interface_conf
+      conf = interface.interface_config
       expect(conf["NM_CONTROLLED"]).to eq("no")
-      expect(conf["DEVICE"]).to eq("eth0")
-      expect(conf["BOOTPROTO"]).to eq("static")
-      expect(conf["UUID"]).to eq("3a48a5b5-b80b-4712-82f7-e517e4088999")
-      expect(conf["ONBOOT"]).to eq("yes")
-      expect(conf["TYPE"]).to eq("Ethernet")
-      expect(conf["NAME"]).to eq('"System eth0"')
-      expect(conf["IPADDR"]).to eq("192.168.1.100")
-      expect(conf["NETMASK"]).to eq("255.255.255.0")
-      expect(conf["GATEWAY"]).to eq("192.168.1.1")
+      expect(conf["DEVICE"]).to        eq("eth0")
+      expect(conf["BOOTPROTO"]).to     eq("static")
+      expect(conf["UUID"]).to          eq("3a48a5b5-b80b-4712-82f7-e517e4088999")
+      expect(conf["ONBOOT"]).to        eq("yes")
+      expect(conf["TYPE"]).to          eq("Ethernet")
+      expect(conf["NAME"]).to          eq('"System eth0"')
+      expect(conf["IPADDR"]).to        eq("192.168.1.100")
+      expect(conf["NETMASK"]).to       eq("255.255.255.0")
+      expect(conf["GATEWAY"]).to       eq("192.168.1.1")
     end
   end
 
@@ -78,8 +78,8 @@ EOF
 
       dhcp_interface.address = address
 
-      conf = dhcp_interface.interface_conf
-      expect(conf["IPADDR"]).to eq(address)
+      conf = dhcp_interface.interface_config
+      expect(conf["IPADDR"]).to    eq(address)
       expect(conf["BOOTPROTO"]).to eq("static")
     end
 
@@ -92,7 +92,7 @@ EOF
     it "sets the gateway address" do
       address = "192.168.1.1"
       dhcp_interface.gateway = address
-      expect(dhcp_interface.interface_conf["GATEWAY"]).to eq(address)
+      expect(dhcp_interface.interface_config["GATEWAY"]).to eq(address)
     end
 
     it "raises argument error when given a bad address" do
@@ -104,7 +104,7 @@ EOF
     it "sets the sub-net mask" do
       mask = "255.255.255.0"
       dhcp_interface.netmask = mask
-      expect(dhcp_interface.interface_conf["NETMASK"]).to eq(mask)
+      expect(dhcp_interface.interface_config["NETMASK"]).to eq(mask)
     end
 
     it "raises argument error when given a bad address" do
@@ -119,7 +119,7 @@ EOF
 
       static_interface.dns = dns1, dns2
 
-      conf = static_interface.interface_conf
+      conf = static_interface.interface_config
       expect(conf["DNS1"]).to eq(dns1)
       expect(conf["DNS2"]).to eq(dns2)
     end
@@ -129,7 +129,7 @@ EOF
 
       static_interface.dns = dns
 
-      conf = static_interface.interface_conf
+      conf = static_interface.interface_config
       expect(conf["DNS1"]).to eq(dns[0])
       expect(conf["DNS2"]).to eq(dns[1])
     end
@@ -139,7 +139,7 @@ EOF
 
       static_interface.dns = dns
 
-      conf = static_interface.interface_conf
+      conf = static_interface.interface_config
       expect(conf["DNS1"]).to eq(dns)
       expect(conf["DNS2"]).to be_nil
     end
@@ -151,25 +151,25 @@ EOF
       search2 = "test.example.com"
       search3 = "example.com"
       static_interface.search_order = search1, search2, search3
-      expect(static_interface.interface_conf["DOMAIN"]).to eq("\"#{search1} #{search2} #{search3}\"")
+      expect(static_interface.interface_config["DOMAIN"]).to eq("\"#{search1} #{search2} #{search3}\"")
     end
 
     it "sets the search domain list when given an array" do
       search_list = %w(localhost test.example.com example.com)
       static_interface.search_order = search_list
-      expect(static_interface.interface_conf["DOMAIN"]).to eq("\"#{search_list.join(' ')}\"")
+      expect(static_interface.interface_config["DOMAIN"]).to eq("\"#{search_list.join(' ')}\"")
     end
   end
 
   describe "#enable_dhcp" do
     it "sets the correct configuration" do
       static_interface.enable_dhcp
-      conf = static_interface.interface_conf
+      conf = static_interface.interface_config
       expect(conf["BOOTPROTO"]).to eq("dhcp")
-      expect(conf["IPADDR"]).to be_nil
-      expect(conf["NETMASK"]).to be_nil
-      expect(conf["GATEWAY"]).to be_nil
-      expect(conf["PREFIX"]).to be_nil
+      expect(conf["IPADDR"]).to    be_nil
+      expect(conf["NETMASK"]).to   be_nil
+      expect(conf["GATEWAY"]).to   be_nil
+      expect(conf["PREFIX"]).to    be_nil
     end
   end
 
@@ -178,14 +178,14 @@ EOF
       expect(dhcp_interface).to receive(:save)
       dhcp_interface.apply_static("192.168.1.12", "255.255.255.0", "192.168.1.1", ["192.168.1.1", nil], ["localhost"])
 
-      conf = dhcp_interface.interface_conf
+      conf = dhcp_interface.interface_config
       expect(conf["BOOTPROTO"]).to eq("static")
-      expect(conf["IPADDR"]).to eq("192.168.1.12")
-      expect(conf["NETMASK"]).to eq("255.255.255.0")
-      expect(conf["GATEWAY"]).to eq("192.168.1.1")
-      expect(conf["DNS1"]).to eq("192.168.1.1")
-      expect(conf["DNS2"]).to be_nil
-      expect(conf["DOMAIN"]).to eq("\"localhost\"")
+      expect(conf["IPADDR"]).to    eq("192.168.1.12")
+      expect(conf["NETMASK"]).to   eq("255.255.255.0")
+      expect(conf["GATEWAY"]).to   eq("192.168.1.1")
+      expect(conf["DNS1"]).to      eq("192.168.1.1")
+      expect(conf["DNS2"]).to      be_nil
+      expect(conf["DOMAIN"]).to    eq("\"localhost\"")
     end
   end
 

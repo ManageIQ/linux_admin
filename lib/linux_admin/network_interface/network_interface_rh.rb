@@ -6,26 +6,26 @@ module LinuxAdmin
     IFACE_DIR = "/etc/sysconfig/network-scripts"
 
     # @return [Hash<String, String>] Key value mappings in the interface file
-    attr_reader :interface_conf
+    attr_reader :interface_config
 
     # @param interface [String] Name of the network interface to manage
     def initialize(interface)
       super
-      @iface_file = Pathname.new(IFACE_DIR).join("ifcfg-#{@interface}")
+      @interface_file = Pathname.new(IFACE_DIR).join("ifcfg-#{@interface}")
       parse_conf
     end
 
-    # Parses the interface configuration file into the @interface_conf hash
+    # Parses the interface configuration file into the @interface_config hash
     def parse_conf
-      @interface_conf = {}
+      @interface_config = {}
 
       File.foreach(@interface_file) do |line|
         next if line =~ /^\s*#/
 
         key, value = line.split('=').collect(&:strip)
-        @interface_conf[key] = value
+        @interface_config[key] = value
       end
-      @interface_conf["NM_CONTROLLED"] = "no"
+      @interface_config["NM_CONTROLLED"] = "no"
     end
 
     # Set the IPv4 address for this interface
@@ -34,8 +34,8 @@ module LinuxAdmin
     # @raise ArgumentError if the address is not formatted properly
     def address=(address)
       validate_ip(address)
-      @interface_conf["BOOTPROTO"] = "static"
-      @interface_conf["IPADDR"]    = address
+      @interface_config["BOOTPROTO"] = "static"
+      @interface_config["IPADDR"]    = address
     end
 
     # Set the IPv4 gateway address for this interface
@@ -44,7 +44,7 @@ module LinuxAdmin
     # @raise ArgumentError if the address is not formatted properly
     def gateway=(address)
       validate_ip(address)
-      @interface_conf["GATEWAY"] = address
+      @interface_config["GATEWAY"] = address
     end
 
     # Set the IPv4 sub-net mask for this interface
@@ -53,7 +53,7 @@ module LinuxAdmin
     # @raise ArgumentError if the mask is not formatted properly
     def netmask=(mask)
       validate_ip(mask)
-      @interface_conf["NETMASK"] = mask
+      @interface_config["NETMASK"] = mask
     end
 
     # Sets one or both DNS servers for this network interface
@@ -61,28 +61,28 @@ module LinuxAdmin
     # @param servers [Array<String>] The DNS servers
     def dns=(*servers)
       server1, server2 = servers.flatten
-      @interface_conf["DNS1"] = server1
-      @interface_conf["DNS2"] = server2 if server2
+      @interface_config["DNS1"] = server1
+      @interface_config["DNS2"] = server2 if server2
     end
 
     # Sets the search domain list for this network interface
     #
     # @param domains [Array<String>] the list of search domains
     def search_order=(*domains)
-      @interface_conf["DOMAIN"] = "\"#{domains.flatten.join(' ')}\""
+      @interface_config["DOMAIN"] = "\"#{domains.flatten.join(' ')}\""
     end
 
     # Set up the interface to use DHCP
     # Removes any previously set static networking information
     def enable_dhcp
-      @interface_conf["BOOTPROTO"] = "dhcp"
-      @interface_conf.delete("IPADDR")
-      @interface_conf.delete("NETMASK")
-      @interface_conf.delete("GATEWAY")
-      @interface_conf.delete("PREFIX")
-      @interface_conf.delete("DNS1")
-      @interface_conf.delete("DNS2")
-      @interface_conf.delete("DOMAIN")
+      @interface_config["BOOTPROTO"] = "dhcp"
+      @interface_config.delete("IPADDR")
+      @interface_config.delete("NETMASK")
+      @interface_config.delete("GATEWAY")
+      @interface_config.delete("PREFIX")
+      @interface_config.delete("DNS1")
+      @interface_config.delete("DNS2")
+      @interface_config.delete("DOMAIN")
     end
 
     # Applies the given static network configuration to the interface
@@ -103,20 +103,20 @@ module LinuxAdmin
       save
     end
 
-    # Writes the contents of @interface_conf to @iface_file as `key`=`value` pairs
+    # Writes the contents of @interface_config to @interface_file as `key`=`value` pairs
     # and resets the interface
     #
     # @return [Boolean] true if the interface was successfully brought up with the
     #   new configuration, false otherwise
     def save
-      old_contents = File.read(@iface_file)
+      old_contents = File.read(@interface_file)
 
       return false unless stop
 
-      File.write(@iface_file, @interface_conf.delete_blanks.collect { |k, v| "#{k}=#{v}" }.join("\n"))
+      File.write(@interface_file, @interface_config.delete_blanks.collect { |k, v| "#{k}=#{v}" }.join("\n"))
 
       unless start
-        File.write(@iface_file, old_contents)
+        File.write(@interface_file, old_contents)
         start
         return false
       end
