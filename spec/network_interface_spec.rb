@@ -87,17 +87,8 @@ IP_OUT
       allow(LinuxAdmin::Distros).to receive(:local).and_return(LinuxAdmin::Distros.generic)
       described_class.dist_class(true)
 
-      allow(AwesomeSpawn).to receive(:run).with(*IP_SHOW_ARGS).and_return(result(IP_ADDR_OUT, 0))
-      allow(AwesomeSpawn).to receive(:run).with(*IP_ROUTE_ARGS).and_return(result(IP_ROUTE_OUT, 0))
-      described_class.new("eth0")
-    end
-
-    subject(:error_subj) do
-      allow(LinuxAdmin::Distros).to receive(:local).and_return(LinuxAdmin::Distros.generic)
-      described_class.dist_class(true)
-
-      allow(AwesomeSpawn).to receive(:run).with(*IP_SHOW_ARGS).and_return(result("", 1))
-      allow(AwesomeSpawn).to receive(:run).with(*IP_ROUTE_ARGS).and_return(result("", 1))
+      allow(AwesomeSpawn).to receive(:run!).with(*IP_SHOW_ARGS).and_return(result(IP_ADDR_OUT, 0))
+      allow(AwesomeSpawn).to receive(:run!).with(*IP_ROUTE_ARGS).and_return(result(IP_ROUTE_OUT, 0))
       described_class.new("eth0")
     end
 
@@ -105,13 +96,26 @@ IP_OUT
       AwesomeSpawn::CommandResult.new("", output, "", exit_status)
     end
 
+    describe "#reload" do
+      it "raises when ip addr show fails" do
+        subj
+        awesome_error = AwesomeSpawn::CommandResultError.new("", nil)
+        allow(AwesomeSpawn).to receive(:run!).with(*IP_SHOW_ARGS).and_raise(awesome_error)
+        expect { subj.reload }.to raise_error(described_class::NetworkInterfaceError)
+      end
+
+      it "raises when ip route fails" do
+        subj
+        awesome_error = AwesomeSpawn::CommandResultError.new("", nil)
+        allow(AwesomeSpawn).to receive(:run!).with(*IP_SHOW_ARGS).and_return(result(IP_ADDR_OUT, 0))
+        allow(AwesomeSpawn).to receive(:run!).with(*IP_ROUTE_ARGS).and_raise(awesome_error)
+        expect { subj.reload }.to raise_error(described_class::NetworkInterfaceError)
+      end
+    end
+
     describe "#address" do
       it "returns an address" do
         expect(subj.address).to eq("192.168.1.9")
-      end
-
-      it "returns nil when no address is found" do
-        expect(error_subj.address).to be_nil
       end
     end
 
@@ -124,10 +128,6 @@ IP_OUT
         expect(subj.address6(:link)).to eq("fe80::20c:29ff:feed:e8b")
       end
 
-      it "returns nil when no address is found" do
-        expect(error_subj.address6).to be_nil
-      end
-
       it "raises ArgumentError when given a bad scope" do
         expect { subj.address6(:garbage) }.to raise_error(ArgumentError)
       end
@@ -137,19 +137,11 @@ IP_OUT
       it "returns the correct MAC address" do
         expect(subj.mac_address).to eq("00:0c:29:ed:0e:8b")
       end
-
-      it "returns nil when the command fails" do
-        expect(error_subj.mac_address).to be_nil
-      end
     end
 
     describe "#netmask" do
       it "returns the correct netmask" do
         expect(subj.netmask).to eq("255.255.255.0")
-      end
-
-      it "returns nil when the command fails" do
-        expect(error_subj.netmask).to be_nil
       end
     end
 
@@ -162,10 +154,6 @@ IP_OUT
         expect(subj.netmask6(:link)).to eq("ffff:ffff:ffff:ffff::")
       end
 
-      it "returns nil when the command fails" do
-        expect(error_subj.netmask6).to be_nil
-      end
-
       it "raises ArgumentError when given a bad scope" do
         expect { subj.netmask6(:garbage) }.to raise_error(ArgumentError)
       end
@@ -174,10 +162,6 @@ IP_OUT
     describe "#gateway" do
       it "returns the correct gateway address" do
         expect(subj.gateway).to eq("192.168.1.1")
-      end
-
-      it "returns nil when the command fails" do
-        expect(error_subj.gateway).to be_nil
       end
     end
 
