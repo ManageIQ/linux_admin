@@ -93,7 +93,7 @@ module LinuxAdmin
     # @raise ArgumentError if the address is not correctly formatted
     def validate_ip(ip)
       IPAddr.new(ip)
-    rescue IPAddr::InvalidAddressError
+    rescue ArgumentError
       raise ArgumentError, "#{ip} is not a valid IPv4 or IPv6 address"
     end
   end
