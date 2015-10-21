@@ -1,7 +1,5 @@
 module LinuxAdmin
   class Rpm < Package
-    extend Logging
-
     def self.rpm_cmd
       cmd(:rpm)
     end

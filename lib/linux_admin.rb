@@ -34,11 +34,12 @@ require 'linux_admin/dns'
 
 module LinuxAdmin
   extend Common
-  extend self
 
-  attr_writer :logger
+  class << self
+    attr_writer :logger
+  end
 
-  def logger
+  def self.logger
     @logger ||= NullLogger.new
   end
 end
