@@ -1,5 +1,3 @@
-require 'stringio'
-
 describe LinuxAdmin::FSTab do
   subject { described_class.dup }
 
