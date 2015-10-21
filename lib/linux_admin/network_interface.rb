@@ -24,19 +24,9 @@ module LinuxAdmin
       end
     end
 
-    class << self
-      private
-
-      alias_method :orig_new, :new
-    end
-
     # Creates an instance of the correct NetworkInterface subclass for the local distro
     def self.new(*args)
-      if self == LinuxAdmin::NetworkInterface
-        dist_class.new(*args)
-      else
-        orig_new(*args)
-      end
+      self == LinuxAdmin::NetworkInterface ? dist_class.new(*args) : super
     end
 
     # @return [String] the interface for networking operations
