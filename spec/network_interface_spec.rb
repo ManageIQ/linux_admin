@@ -101,7 +101,7 @@ IP_OUT
         subj
         awesome_error = AwesomeSpawn::CommandResultError.new("", nil)
         allow(AwesomeSpawn).to receive(:run!).with(*IP_SHOW_ARGS).and_raise(awesome_error)
-        expect { subj.reload }.to raise_error(described_class::NetworkInterfaceError)
+        expect { subj.reload }.to raise_error(LinuxAdmin::NetworkInterfaceError)
       end
 
       it "raises when ip route fails" do
@@ -109,7 +109,7 @@ IP_OUT
         awesome_error = AwesomeSpawn::CommandResultError.new("", nil)
         allow(AwesomeSpawn).to receive(:run!).with(*IP_SHOW_ARGS).and_return(result(IP_ADDR_OUT, 0))
         allow(AwesomeSpawn).to receive(:run!).with(*IP_ROUTE_ARGS).and_raise(awesome_error)
-        expect { subj.reload }.to raise_error(described_class::NetworkInterfaceError)
+        expect { subj.reload }.to raise_error(LinuxAdmin::NetworkInterfaceError)
       end
     end
 

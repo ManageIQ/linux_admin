@@ -4,8 +4,6 @@ module LinuxAdmin
   class NetworkInterface
     include Common
 
-    NetworkInterfaceError = Class.new(StandardError)
-
     # Cached class instance variable for what distro we are running on
     @dist_class = nil
 
@@ -57,7 +55,7 @@ module LinuxAdmin
       @network_conf[:gateway] = parse_ip_output(ip_route_res.output, /^default/, 2) if ip_route_res.success?
       true
     rescue AwesomeSpawn::CommandResultError => e
-      raise NetworkInterfaceError, e.message
+      raise NetworkInterfaceError.new(e.message, e.result)
     end
 
     # Retrieve the IPv4 address assigned to the interface
@@ -151,7 +149,7 @@ module LinuxAdmin
     def ip_show
       run!(cmd("ip"), :params => ["addr", "show", @interface]).output
     rescue AwesomeSpawn::CommandResultError => e
-      raise NetworkInterfaceError, e.message
+      raise NetworkInterfaceError.new(e.message, e.result)
     end
 
     # Parses the IPv4 information from the output of `ip addr show <device>`
