@@ -1,5 +1,3 @@
-require 'stringio'
-
 describe LinuxAdmin::EtcIssue do
   subject { described_class.instance }
   before do
