@@ -2,6 +2,8 @@ require 'awesome_spawn'
 
 module LinuxAdmin
   module Common
+    include Logging
+
     BIN_DIRS = %w(/bin /sbin /usr/bin /usr/sbin /usr/local/bin /usr/local/sbin)
 
     def cmd(name)
