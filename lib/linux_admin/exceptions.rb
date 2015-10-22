@@ -4,4 +4,6 @@ module LinuxAdmin
       super("Invalid username or password", result)
     end
   end
+
+  class NetworkInterfaceError < AwesomeSpawn::CommandResultError; end
 end
