@@ -49,7 +49,7 @@ module LinuxAdmin
 
     def hostname
       result = run(cmd("hostname"))
-      result.success? ? result.output : nil
+      result.success? ? result.output.strip : nil
     end
 
   private
