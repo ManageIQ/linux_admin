@@ -25,6 +25,8 @@ module LinuxAdmin
     # Creates an instance of the correct NetworkInterface subclass for the local distro
     def self.new(*args)
       self == LinuxAdmin::NetworkInterface ? dist_class.new(*args) : super
+    rescue MissingConfigurationFileError
+      NetworkInterfaceGeneric.new(*args)
     end
 
     # @return [String] the interface for networking operations
