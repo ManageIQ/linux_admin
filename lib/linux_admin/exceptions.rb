@@ -6,4 +6,6 @@ module LinuxAdmin
   end
 
   class NetworkInterfaceError < AwesomeSpawn::CommandResultError; end
+
+  class MissingConfigurationFileError < StandardError; end
 end

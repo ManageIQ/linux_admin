@@ -1,10 +1,19 @@
 describe LinuxAdmin::NetworkInterface do
   context "on redhat systems" do
-    subject do
+    subject(:subj_success) do
       allow_any_instance_of(described_class).to receive(:ip_show).and_return(nil)
       allow(LinuxAdmin::Distros).to receive(:local).and_return(LinuxAdmin::Distros.rhel)
       described_class.dist_class(true)
+      allow(File).to receive(:exist?).and_return(true)
       allow(File).to receive(:foreach).and_return("")
+      described_class.new("eth0")
+    end
+
+    subject(:subj_failure) do
+      allow_any_instance_of(described_class).to receive(:ip_show).and_return(nil)
+      allow(LinuxAdmin::Distros).to receive(:local).and_return(LinuxAdmin::Distros.rhel)
+      described_class.dist_class(true)
+      allow(File).to receive(:exist?).and_return(false)
       described_class.new("eth0")
     end
 
@@ -17,7 +26,11 @@ describe LinuxAdmin::NetworkInterface do
 
     describe ".new" do
       it "creates a NetworkInterfaceRH instance" do
-        expect(subject).to be_an_instance_of(LinuxAdmin::NetworkInterfaceRH)
+        expect(subj_success).to be_an_instance_of(LinuxAdmin::NetworkInterfaceRH)
+      end
+
+      it "creates a NetworkInterfaceGeneric instance if the config file does not exist" do
+        expect(subj_failure).to be_an_instance_of(LinuxAdmin::NetworkInterfaceGeneric)
       end
     end
   end

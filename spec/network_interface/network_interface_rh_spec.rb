@@ -34,12 +34,14 @@ EOF
   end
 
   subject(:dhcp_interface) do
+    allow(File).to receive(:exist?).and_return(true)
     stub_foreach_to_string(IFCFG_FILE_DHCP)
     allow(AwesomeSpawn).to receive(:run!).twice.and_return(result("", 0))
     described_class.new(DEVICE_NAME)
   end
 
   subject(:static_interface) do
+    allow(File).to receive(:exist?).and_return(true)
     stub_foreach_to_string(IFCFG_FILE_STATIC)
     allow(AwesomeSpawn).to receive(:run!).twice.and_return(result("", 0))
     described_class.new(DEVICE_NAME)

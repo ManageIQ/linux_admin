@@ -10,8 +10,9 @@ module LinuxAdmin
 
     # @param interface [String] Name of the network interface to manage
     def initialize(interface)
+      @interface_file = Pathname.new(IFACE_DIR).join("ifcfg-#{interface}")
+      raise MissingConfigurationFileError unless File.exist?(@interface_file)
       super
-      @interface_file = Pathname.new(IFACE_DIR).join("ifcfg-#{@interface}")
       parse_conf
     end
 
