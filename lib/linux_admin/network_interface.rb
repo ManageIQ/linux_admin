@@ -158,7 +158,7 @@ module LinuxAdmin
     #
     # @param ip_output [String] The command output
     def parse_ip4(ip_output)
-      cidr_ip = parse_ip_output(ip_output, /inet/, 1)
+      cidr_ip = parse_ip_output(ip_output, /inet /, 1)
       return unless cidr_ip
 
       @network_conf[:address] = cidr_ip.split('/')[0]

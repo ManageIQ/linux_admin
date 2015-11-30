@@ -91,6 +91,15 @@ describe LinuxAdmin::NetworkInterface do
        valid_lft forever preferred_lft forever
 IP_OUT
 
+    IP6_ADDR_OUT = <<-IP_OUT
+2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP qlen 1000
+    link/ether 00:0c:29:ed:0e:8b brd ff:ff:ff:ff:ff:ff
+    inet6 fe80::20c:29ff:feed:e8b/64 scope link
+       valid_lft forever preferred_lft forever
+    inet6 fd12:3456:789a:1::1/96 scope global
+       valid_lft forever preferred_lft forever
+IP_OUT
+
     IP_ROUTE_OUT = <<-IP_OUT
 default via 192.168.1.1 dev eth0  proto static  metric 100
 192.168.1.0/24 dev eth0  proto kernel  scope link  src 192.168.1.9  metric 100
@@ -101,6 +110,15 @@ IP_OUT
       described_class.dist_class(true)
 
       allow(AwesomeSpawn).to receive(:run!).with(*IP_SHOW_ARGS).and_return(result(IP_ADDR_OUT, 0))
+      allow(AwesomeSpawn).to receive(:run!).with(*IP_ROUTE_ARGS).and_return(result(IP_ROUTE_OUT, 0))
+      described_class.new("eth0")
+    end
+
+    subject(:subj6) do
+      allow(LinuxAdmin::Distros).to receive(:local).and_return(LinuxAdmin::Distros.generic)
+      described_class.dist_class(true)
+
+      allow(AwesomeSpawn).to receive(:run!).with(*IP_SHOW_ARGS).and_return(result(IP6_ADDR_OUT, 0))
       allow(AwesomeSpawn).to receive(:run!).with(*IP_ROUTE_ARGS).and_return(result(IP_ROUTE_OUT, 0))
       described_class.new("eth0")
     end
@@ -123,6 +141,13 @@ IP_OUT
         allow(AwesomeSpawn).to receive(:run!).with(*IP_SHOW_ARGS).and_return(result(IP_ADDR_OUT, 0))
         allow(AwesomeSpawn).to receive(:run!).with(*IP_ROUTE_ARGS).and_raise(awesome_error)
         expect { subj.reload }.to raise_error(LinuxAdmin::NetworkInterfaceError)
+      end
+
+      it "doesn't blow up when given only ipv6 addresses" do
+        subj6
+        allow(AwesomeSpawn).to receive(:run!).with(*IP_SHOW_ARGS).and_return(result(IP6_ADDR_OUT, 0))
+        allow(AwesomeSpawn).to receive(:run!).with(*IP_ROUTE_ARGS).and_return(result(IP_ROUTE_OUT, 0))
+        expect { subj.reload }.to_not raise_error
       end
     end
 
