@@ -32,6 +32,27 @@ describe LinuxAdmin::Hosts do
     end
   end
 
+  describe "#set_canonical_hostname" do
+    it "removes an existing entry and creates a new one" do
+      expected_hash = [{:blank => true},
+                       {:comment => "Some Comment"},
+                       {:address => "127.0.0.1", :hosts => ["localhost", "localhost.localdomain"], :comment => "with a comment"},
+                       {:address => "127.0.1.1", :hosts => []},
+                       {:address => "1.2.3.4", :hosts => ["my.domain.local"], :comment => nil}]
+      @instance.set_canonical_hostname("1.2.3.4", "my.domain.local")
+      expect(@instance.parsed_file).to eq(expected_hash)
+    end
+
+    it "adds the hostname to the start of the hosts list" do
+      expected_hash = [{:blank => true},
+                       {:comment => "Some Comment"},
+                       {:address => "127.0.0.1", :hosts => ["examplehost.example.com", "localhost", "localhost.localdomain"], :comment => "with a comment"},
+                       {:address => "127.0.1.1", :hosts => ["my.domain.local"]}]
+      @instance.set_canonical_hostname("127.0.0.1", "examplehost.example.com")
+      expect(@instance.parsed_file).to eq(expected_hash)
+    end
+  end
+
   describe "#save" do
     before do
       allow(File).to receive(:write)

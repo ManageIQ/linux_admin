@@ -22,20 +22,14 @@ module LinuxAdmin
       File.write(@filename, @raw_lines.join("\n"))
     end
 
-    def update_entry(address, hostname, comment = nil)
-      # Delete entries for this hostname first
-      @parsed_file.each {|i| i[:hosts].to_a.delete(hostname)}
+    def add_alias(address, hostname, comment = nil)
+      add_name(address, hostname, false, comment)
+    end
 
-      # Add entry
-      line_number = @parsed_file.find_path(address).first
+    alias_method :update_entry, :add_alias
 
-      if line_number.blank?
-        @parsed_file.push({:address => address, :hosts => [hostname], :comment => comment})
-      else
-        new_hosts = @parsed_file.fetch_path(line_number, :hosts).to_a.push(hostname)
-        @parsed_file.store_path(line_number, :hosts, new_hosts)
-        @parsed_file.store_path(line_number, :comment, comment) if comment
-      end
+    def set_canonical_hostname(address, hostname, comment = nil)
+      add_name(address, hostname, true, comment)
     end
 
     def hostname=(name)
@@ -52,7 +46,28 @@ module LinuxAdmin
       result.success? ? result.output.strip : nil
     end
 
-  private
+    private
+
+    def add_name(address, hostname, fqdn, comment)
+      # Delete entries for this hostname first
+      @parsed_file.each { |i| i[:hosts].to_a.delete(hostname) }
+
+      # Add entry
+      line_number = @parsed_file.find_path(address).first
+
+      if line_number.blank?
+        @parsed_file.push(:address => address, :hosts => [hostname], :comment => comment)
+      else
+        if fqdn
+          new_hosts = @parsed_file.fetch_path(line_number, :hosts).to_a.unshift(hostname)
+        else
+          new_hosts = @parsed_file.fetch_path(line_number, :hosts).to_a.push(hostname)
+        end
+        @parsed_file.store_path(line_number, :hosts, new_hosts)
+        @parsed_file.store_path(line_number, :comment, comment) if comment
+      end
+    end
+
     def parse_file
       @parsed_file = []
       @raw_lines.each { |line| @parsed_file.push(parse_line(line.strip)) }
