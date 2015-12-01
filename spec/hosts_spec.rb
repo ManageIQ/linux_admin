@@ -33,11 +33,8 @@ describe LinuxAdmin::Hosts do
   end
 
   describe "#save" do
-    before do
-      allow(File).to receive(:write)
-    end
-
     it "properly generates file with new content" do
+      allow(File).to receive(:write)
       expected_array = ["", "#Some Comment", "127.0.0.1        localhost localhost.localdomain #with a comment", "127.0.1.1        my.domain.local", "1.2.3.4          test"]
       @instance.update_entry("1.2.3.4", "test")
       @instance.save
@@ -45,10 +42,18 @@ describe LinuxAdmin::Hosts do
     end
 
     it "properly generates file with removed content" do
+      allow(File).to receive(:write)
       expected_array = ["", "#Some Comment", "127.0.0.1        localhost localhost.localdomain my.domain.local #with a comment"]
       @instance.update_entry("127.0.0.1", "my.domain.local")
       @instance.save
       expect(@instance.raw_lines).to eq(expected_array)
+    end
+
+    it "ends the file with a new line" do
+      expect(File).to receive(:write) do |_file, contents|
+        expect(contents).to end_with("\n")
+      end
+      @instance.save
     end
   end
 
