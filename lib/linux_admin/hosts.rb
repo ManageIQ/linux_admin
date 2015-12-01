@@ -19,7 +19,7 @@ module LinuxAdmin
     def save
       cleanup_empty
       @raw_lines = assemble_lines
-      File.write(@filename, @raw_lines.join("\n"))
+      File.write(@filename, @raw_lines.join("\n") + "\n")
     end
 
     def update_entry(address, hostname, comment = nil)
