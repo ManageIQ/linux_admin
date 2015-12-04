@@ -32,6 +32,7 @@ require 'linux_admin/time_date'
 require 'linux_admin/ip_address'
 require 'linux_admin/dns'
 require 'linux_admin/network_interface'
+require 'linux_admin/chrony'
 
 module LinuxAdmin
   extend Common
