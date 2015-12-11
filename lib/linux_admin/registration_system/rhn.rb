@@ -37,7 +37,7 @@ module LinuxAdmin
       params["--systemorgid="]    = options[:org]               if options[:server_url] && options[:org]
       params["--sslCACert="]      = INSTALLED_SERVER_CERT_PATH  if certificate_installed
 
-      run!(cmd, :params => params)
+      Common.run!(cmd, :params => params)
     end
 
     def enable_channel(repo, options)
@@ -45,7 +45,7 @@ module LinuxAdmin
       params    = user_pwd(options).merge("--channel=" => repo)
 
       logger.info("#{self.class.name}##{__method__} Enabling channel: #{repo}")
-      run!(cmd, :params => params)
+      Common.run!(cmd, :params => params)
     end
     alias_method :subscribe,    :enable_channel
     alias_method :enable_repo,  :enable_channel
@@ -54,14 +54,14 @@ module LinuxAdmin
       cmd       = "rhn-channel -r"
       params    = user_pwd(options).merge("--channel=" => repo)
 
-      run!(cmd, :params => params)
+      Common.run!(cmd, :params => params)
     end
     alias_method :disable_repo, :disable_channel
 
     def enabled_channels
       cmd = "rhn-channel -l"
 
-      run!(cmd).output.split("\n").compact
+      Common.run!(cmd).output.split("\n").compact
     end
     alias_method :enabled_repos, :enabled_channels
     alias_method :subscribed_products, :enabled_channels
@@ -70,7 +70,7 @@ module LinuxAdmin
       cmd     = "rhn-channel -L"
       params  = user_pwd(options)
 
-      run!(cmd, :params => params).output.chomp.split("\n").compact
+      Common.run!(cmd, :params => params).output.chomp.split("\n").compact
     end
 
     def all_repos(options)

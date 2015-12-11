@@ -3,8 +3,6 @@ require 'inifile'
 
 module LinuxAdmin
   class Yum
-    extend Common
-
     def self.create_repo(path, options = {})
       raise ArgumentError, "path is required" unless path
       options = options.reverse_merge(:database => true, :unique_file_names => true)
@@ -16,7 +14,7 @@ module LinuxAdmin
       params["--database"]            = nil  if options[:database]
       params["--unique-md-filenames"] = nil  if options[:unique_file_names]
 
-      run!(cmd, :params => params)
+      Common.run!(cmd, :params => params)
     end
 
     def self.download_packages(path, packages, options = {})
@@ -34,7 +32,7 @@ module LinuxAdmin
       params["-a"]  = options[:arch] if options[:arch]
       params[nil]   = packages
 
-      run!(cmd, :params => params)
+      Common.run!(cmd, :params => params)
     end
 
     def self.repo_settings
@@ -45,7 +43,7 @@ module LinuxAdmin
       cmd    = "yum check-update"
       params = {nil => packages} unless packages.blank?
 
-      exitstatus = run(cmd, :params => params).exit_status
+      exitstatus = Common.run(cmd, :params => params).exit_status
       case exitstatus
       when 0;   false
       when 100; true
@@ -57,7 +55,7 @@ module LinuxAdmin
       cmd    = "yum -y update"
       params = {nil => packages} unless packages.blank?
 
-      out = run!(cmd, :params => params)
+      out = Common.run!(cmd, :params => params)
 
       # Handle errors that exit 0  https://bugzilla.redhat.com/show_bug.cgi?id=1141318
       raise AwesomeSpawn::CommandResultError.new(out.error, out) if out.error.include?("No Match for argument")
@@ -71,7 +69,7 @@ module LinuxAdmin
       cmd    = "repoquery --qf=\"%{name} %{version}\""
       params = {nil => packages}
 
-      out = run!(cmd, :params => params).output
+      out = Common.run!(cmd, :params => params).output
 
       out.split("\n").each_with_object({}) do |i, versions|
         name, version         = i.split(" ", 2)
@@ -84,7 +82,7 @@ module LinuxAdmin
 
       cmd     = "yum repolist"
       params  = {nil => scope}
-      output  = run!(cmd, :params => params).output
+      output  = Common.run!(cmd, :params => params).output
 
       parse_repo_list_output(output)
     end

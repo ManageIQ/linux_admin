@@ -49,7 +49,7 @@ module LinuxAdmin
     end
 
     def extend_with(vg)
-      run!(cmd(:lvextend),
+      Common.run!(Common.cmd(:lvextend),
           :params => [self.name, vg.name])
       self
     end
@@ -81,7 +81,7 @@ module LinuxAdmin
         size = value
         params.merge!({'-L' => bytes_to_string(size)})
       end
-      run!(cmd(:lvcreate), :params => params)
+      Common.run!(Common.cmd(:lvcreate), :params => params)
 
       lv = LogicalVolume.new(:name => name,
                              :volume_group => vg,
@@ -92,7 +92,7 @@ module LinuxAdmin
 
     def self.scan
       @lvs ||= begin
-        scan_volumes(cmd(:lvdisplay)) do |fields, vg|
+        scan_volumes(Common.cmd(:lvdisplay)) do |fields, vg|
           LogicalVolume.new(:name         => fields[0],
                             :volume_group => vg,
                             :sectors      => fields[6].to_i)

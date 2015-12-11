@@ -27,7 +27,7 @@ module LinuxAdmin
     end
 
     def self.info(pkg)
-      self.from_string(run!(APT_CACHE_CMD, :params => ["show", pkg]).output)
+      from_string(Common.run!(APT_CACHE_CMD, :params => ["show", pkg]).output)
     end
   end
 end

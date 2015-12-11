@@ -16,16 +16,15 @@ eos
     it "uses lvextend" do
       vg = described_class.new :name => 'vg'
       lv = LinuxAdmin::LogicalVolume.new :name => 'lv', :volume_group => vg
-      expect(vg).to receive(:run!).
-         with(vg.cmd(:lvextend),
-              :params => ['lv', 'vg'])
+      expect(LinuxAdmin::Common).to receive(:run!)
+        .with(LinuxAdmin::Common.cmd(:lvextend), :params => %w(lv vg))
       vg.attach_to(lv)
     end
 
     it "returns self" do
       vg = described_class.new :name => 'vg'
       lv = LinuxAdmin::LogicalVolume.new :name => 'lv', :volume_group => vg
-      allow(vg).to receive(:run!)
+      allow(LinuxAdmin::Common).to receive(:run!)
       expect(vg.attach_to(lv)).to eq(vg)
     end
   end
@@ -34,16 +33,15 @@ eos
     it "uses vgextend" do
       vg = described_class.new :name => 'vg'
       pv = LinuxAdmin::PhysicalVolume.new :device_name => '/dev/hda'
-      expect(vg).to receive(:run!).
-         with(vg.cmd(:vgextend),
-              :params => ['vg', '/dev/hda'])
+      expect(LinuxAdmin::Common).to receive(:run!)
+        .with(LinuxAdmin::Common.cmd(:vgextend), :params => ['vg', '/dev/hda'])
       vg.extend_with(pv)
     end
 
     it "assigns volume group to physical volume" do
       vg = described_class.new :name => 'vg'
       pv = LinuxAdmin::PhysicalVolume.new :device_name => '/dev/hda'
-      allow(vg).to receive(:run!)
+      allow(LinuxAdmin::Common).to receive(:run!)
       vg.extend_with(pv)
       expect(pv.volume_group).to eq(vg)
     end
@@ -51,7 +49,7 @@ eos
     it "returns self" do
       vg = described_class.new :name => 'vg'
       pv = LinuxAdmin::PhysicalVolume.new :device_name => '/dev/hda'
-      allow(vg).to receive(:run!)
+      allow(LinuxAdmin::Common).to receive(:run!)
       expect(vg.extend_with(pv)).to eq(vg)
     end
   end
@@ -63,21 +61,20 @@ eos
 
     it "uses vgcreate" do
       described_class.instance_variable_set(:@vgs, [])
-      expect(described_class).to receive(:run!).
-                              with(LinuxAdmin.cmd(:vgcreate),
-                                   :params => ['vg', '/dev/hda'])
+      expect(LinuxAdmin::Common).to receive(:run!)
+        .with(LinuxAdmin::Common.cmd(:vgcreate), :params => ['vg', '/dev/hda'])
       described_class.create 'vg', @pv
     end
 
     it "returns new volume group" do
-      allow(described_class).to receive_messages(:run! => double(:output => ""))
+      allow(LinuxAdmin::Common).to receive_messages(:run! => double(:output => ""))
       vg = described_class.create 'vg', @pv
       expect(vg).to be_an_instance_of(described_class)
       expect(vg.name).to eq('vg')
     end
 
     it "adds volume group to local registry" do
-      allow(described_class).to receive_messages(:run! => double(:output => ""))
+      allow(LinuxAdmin::Common).to receive_messages(:run! => double(:output => ""))
       vg = described_class.create 'vg', @pv
       expect(described_class.scan).to include(vg)
     end
@@ -85,15 +82,14 @@ eos
 
   describe "#scan" do
     it "uses vgdisplay" do
-      expect(described_class).to receive(:run!).
-                              with(LinuxAdmin.cmd(:vgdisplay),
-                                   :params => { '-c' => nil}).
-                                 and_return(double(:output => @groups))
+      expect(LinuxAdmin::Common).to receive(:run!)
+        .with(LinuxAdmin::Common.cmd(:vgdisplay), :params => {'-c' => nil})
+        .and_return(double(:output => @groups))
       described_class.scan
     end
 
     it "returns local volume groups" do
-      expect(described_class).to receive(:run!).and_return(double(:output => @groups))
+      expect(LinuxAdmin::Common).to receive(:run!).and_return(double(:output => @groups))
       vgs = described_class.scan
 
       expect(vgs[0]).to be_an_instance_of(described_class)

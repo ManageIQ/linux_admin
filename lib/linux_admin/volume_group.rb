@@ -1,8 +1,5 @@
 module LinuxAdmin
   class VolumeGroup
-    include Common
-    extend Common
-
     # volume group name
     attr_accessor :name
 
@@ -29,22 +26,22 @@ module LinuxAdmin
     end
 
     def attach_to(lv)
-      run!(cmd(:lvextend),
-          :params => [lv.name, self.name])
+      Common.run!(Common.cmd(:lvextend),
+                  :params => [lv.name, name])
       self
     end
 
     def extend_with(pv)
-      run!(cmd(:vgextend),
-          :params => [@name, pv.device_name])
+      Common.run!(Common.cmd(:vgextend),
+                  :params => [@name, pv.device_name])
       pv.volume_group = self
       self
     end
 
     def self.create(name, pv)
       self.scan # initialize local volume groups
-      run!(cmd(:vgcreate),
-          :params => [name, pv.device_name])
+      Common.run!(Common.cmd(:vgcreate),
+                  :params => [name, pv.device_name])
       vg = VolumeGroup.new :name => name
       pv.volume_group = vg
       @vgs << vg
@@ -55,7 +52,7 @@ module LinuxAdmin
       @vgs ||= begin
         vgs = []
 
-        out = run!(cmd(:vgdisplay), :params => { '-c' => nil}).output
+        out = Common.run!(Common.cmd(:vgdisplay), :params => {'-c' => nil}).output
 
         out.each_line do |line|
           fields = line.lstrip.split(':')

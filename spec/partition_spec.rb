@@ -15,7 +15,7 @@ describe LinuxAdmin::Partition do
       it "sets default mount_point" do
         expect(described_class).to receive(:mount_point_exists?).and_return(false)
         expect(File).to receive(:directory?).with('/mnt/sda2').and_return(true)
-        expect(@partition).to receive(:run!)
+        expect(LinuxAdmin::Common).to receive(:run!)
         @partition.mount
         expect(@partition.mount_point).to eq('/mnt/sda2')
       end

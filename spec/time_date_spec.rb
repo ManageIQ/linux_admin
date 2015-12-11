@@ -1,5 +1,5 @@
 describe LinuxAdmin::TimeDate do
-  RUN_COMMAND = described_class.cmd("timedatectl")
+  RUN_COMMAND = LinuxAdmin::Common.cmd("timedatectl")
 
   def timedatectl_result
     output = File.read(Pathname.new(data_file_path("time_date/timedatectl_output")))

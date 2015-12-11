@@ -2,8 +2,6 @@ require 'ipaddr'
 
 module LinuxAdmin
   class NetworkInterface
-    include Common
-
     # Cached class instance variable for what distro we are running on
     @dist_class = nil
 
@@ -53,7 +51,7 @@ module LinuxAdmin
 
       @network_conf[:mac] = parse_ip_output(ip_output, %r{link/ether}, 1)
 
-      ip_route_res = run!(cmd("ip"), :params => ["route"])
+      ip_route_res = Common.run!(Common.cmd("ip"), :params => ["route"])
       @network_conf[:gateway] = parse_ip_output(ip_route_res.output, /^default/, 2) if ip_route_res.success?
       true
     rescue AwesomeSpawn::CommandResultError => e
@@ -121,14 +119,14 @@ module LinuxAdmin
     #
     # @return [Boolean] whether the command succeeded or not
     def start
-      run(cmd("ifup"), :params => [@interface]).success?
+      Common.run(Common.cmd("ifup"), :params => [@interface]).success?
     end
 
     # Brings down the network interface
     #
     # @return [Boolean] whether the command succeeded or not
     def stop
-      run(cmd("ifdown"), :params => [@interface]).success?
+      Common.run(Common.cmd("ifdown"), :params => [@interface]).success?
     end
 
     private
@@ -149,7 +147,7 @@ module LinuxAdmin
     # @return [String] The command output
     # @raise [NetworkInterfaceError] if the command fails
     def ip_show
-      run!(cmd("ip"), :params => ["addr", "show", @interface]).output
+      Common.run!(Common.cmd("ip"), :params => ["addr", "show", @interface]).output
     rescue AwesomeSpawn::CommandResultError => e
       raise NetworkInterfaceError.new(e.message, e.result)
     end

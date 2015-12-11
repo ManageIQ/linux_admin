@@ -49,6 +49,6 @@ describe LinuxAdmin::Service do
   end
 
   def stub_to_service_type(system)
-    allow(LinuxAdmin::Service).to receive(:cmd?).with(:systemctl).and_return(system == :systemd_service)
+    allow(LinuxAdmin::Common).to receive(:cmd?).with(:systemctl).and_return(system == :systemd_service)
   end
 end

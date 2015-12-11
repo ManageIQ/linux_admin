@@ -1,7 +1,5 @@
 module LinuxAdmin
   class Service
-    extend Common
-    include Common
     include Logging
 
     def self.service_type(reload = false)
@@ -34,7 +32,7 @@ module LinuxAdmin
     private
 
     def self.service_type_uncached
-      cmd?(:systemctl) ? SystemdService : SysVInitService
+      Common.cmd?(:systemctl) ? SystemdService : SysVInitService
     end
     private_class_method :service_type_uncached
   end

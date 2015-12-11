@@ -1,11 +1,13 @@
 module LinuxAdmin
   class Rpm < Package
+    extend Logging
+
     def self.rpm_cmd
-      cmd(:rpm)
+      Common.cmd(:rpm)
     end
 
     def self.list_installed
-      out = run!("#{rpm_cmd} -qa --qf \"%{NAME} %{VERSION}-%{RELEASE}\n\"").output
+      out = Common.run!("#{rpm_cmd} -qa --qf \"%{NAME} %{VERSION}-%{RELEASE}\n\"").output
       out.split("\n").each_with_object({}) do |line, pkg_hash|
         name, ver = line.split(" ")
         pkg_hash[name] = ver
@@ -17,13 +19,13 @@ module LinuxAdmin
     #   Rpm.import_key("/etc/pki/my-gpg-key")
     def self.import_key(file)
       logger.info("#{self.class.name}##{__method__} Importing RPM-GPG-KEY: #{file}")
-      run!("rpm", :params => {"--import" => file})
+      Common.run!("rpm", :params => {"--import" => file})
     end
 
     def self.info(pkg)
       params = { "-qi" => pkg}
       in_description = false
-      out = run!(rpm_cmd, :params => params).output
+      out = Common.run!(rpm_cmd, :params => params).output
       # older versions of rpm may have multiple fields per line,
       # split up lines with multiple tags/values:
       out.gsub!(/(^.*:.*)\s\s+(.*:.*)$/, "\\1\n\\2")
@@ -47,7 +49,7 @@ module LinuxAdmin
       cmd     = "rpm -U"
       params  = { nil => pkg }
 
-      run(cmd, :params => params).exit_status == 0
+      Common.run(cmd, :params => params).exit_status == 0
     end
   end
 end
