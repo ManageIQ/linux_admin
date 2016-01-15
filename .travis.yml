@@ -6,6 +6,8 @@ rvm:
 - "2.2"
 - ruby-head
 - jruby-head
+sudo: false
+cache: bundler
 matrix:
   allow_failures:
   - rvm: ruby-head
