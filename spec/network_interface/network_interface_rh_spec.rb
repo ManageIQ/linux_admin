@@ -1,6 +1,7 @@
 describe LinuxAdmin::NetworkInterfaceRH do
-  DEVICE_NAME = "eth0"
-  IFCFG_FILE_DHCP = <<-EOF
+  let(:device_name) { "eth0" }
+  let(:ifcfg_file_dhcp) do
+    <<-EOF
 #A comment is here
 DEVICE=eth0
 BOOTPROTO=dhcp
@@ -9,8 +10,10 @@ ONBOOT=yes
 TYPE=Ethernet
 NAME="System eth0"
 EOF
+  end
 
-  IFCFG_FILE_STATIC = <<-EOF
+  let(:ifcfg_file_static) do
+    <<-EOF
 #A comment is here
 DEVICE=eth0
 BOOTPROTO=static
@@ -22,6 +25,7 @@ IPADDR=192.168.1.100
 NETMASK=255.255.255.0
 GATEWAY=192.168.1.1
 EOF
+  end
 
   def stub_foreach_to_string(string)
     allow(File).to receive(:foreach) do |&block|
@@ -35,16 +39,16 @@ EOF
 
   subject(:dhcp_interface) do
     allow(File).to receive(:exist?).and_return(true)
-    stub_foreach_to_string(IFCFG_FILE_DHCP)
+    stub_foreach_to_string(ifcfg_file_dhcp)
     allow(AwesomeSpawn).to receive(:run!).twice.and_return(result("", 0))
-    described_class.new(DEVICE_NAME)
+    described_class.new(device_name)
   end
 
   subject(:static_interface) do
     allow(File).to receive(:exist?).and_return(true)
-    stub_foreach_to_string(IFCFG_FILE_STATIC)
+    stub_foreach_to_string(ifcfg_file_static)
     allow(AwesomeSpawn).to receive(:run!).twice.and_return(result("", 0))
-    described_class.new(DEVICE_NAME)
+    described_class.new(device_name)
   end
 
   describe ".new" do
@@ -63,7 +67,7 @@ EOF
   describe "#parse_conf" do
     it "reloads the interface configuration" do
       interface = dhcp_interface
-      stub_foreach_to_string(IFCFG_FILE_STATIC)
+      stub_foreach_to_string(ifcfg_file_static)
       interface.parse_conf
 
       conf = interface.interface_config
@@ -198,7 +202,7 @@ EOF
   end
 
   describe "#save" do
-    let(:iface_file) { Pathname.new("/etc/sysconfig/network-scripts/ifcfg-#{DEVICE_NAME}") }
+    let(:iface_file) { Pathname.new("/etc/sysconfig/network-scripts/ifcfg-#{device_name}") }
 
     def expect_old_contents
       expect(File).to receive(:write) do |file, contents|
