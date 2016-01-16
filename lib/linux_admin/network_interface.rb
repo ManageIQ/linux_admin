@@ -16,6 +16,8 @@ module LinuxAdmin
       @dist_class ||= begin
         if [Distros.rhel, Distros.fedora].include?(Distros.local)
           NetworkInterfaceRH
+        elsif Distros.mac == Distros.local
+          NetworkInterfaceMac
         else
           NetworkInterfaceGeneric
         end
@@ -45,7 +47,7 @@ module LinuxAdmin
     # @raise [NetworkInterfaceError] if network information cannot be retrieved
     def reload
       @network_conf = {}
-      return false unless (ip_output = ip_show)
+      return unless (ip_output = ip_show)
 
       parse_ip4(ip_output)
       parse_ip6(ip_output, :global)
@@ -53,11 +55,8 @@ module LinuxAdmin
 
       @network_conf[:mac] = parse_ip_output(ip_output, %r{link/ether}, 1)
 
-      ip_route_res = run!(cmd("ip"), :params => ["route"])
-      @network_conf[:gateway] = parse_ip_output(ip_route_res.output, /^default/, 2) if ip_route_res.success?
-      true
-    rescue AwesomeSpawn::CommandResultError => e
-      raise NetworkInterfaceError.new(e.message, e.result)
+      @network_conf[:gateway] = parse_ip_output(ip_route, /^default/, 2)
+      self
     end
 
     # Retrieve the IPv4 address assigned to the interface
@@ -150,6 +149,16 @@ module LinuxAdmin
     # @raise [NetworkInterfaceError] if the command fails
     def ip_show
       run!(cmd("ip"), :params => ["addr", "show", @interface]).output
+    rescue AwesomeSpawn::CommandResultError => e
+      raise NetworkInterfaceError.new(e.message, e.result)
+    end
+
+    # Runs the command `ip route`
+    #
+    # @return [String] The command output
+    # @raise [NetworkInterfaceError] if the command fails
+    def ip_route
+      run!(cmd("ip"), :params => ["route"]).output
     rescue AwesomeSpawn::CommandResultError => e
       raise NetworkInterfaceError.new(e.message, e.result)
     end

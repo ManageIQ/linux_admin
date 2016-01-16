@@ -35,6 +35,28 @@ describe LinuxAdmin::NetworkInterface do
     end
   end
 
+  context "on mac" do
+    subject do
+      allow_any_instance_of(LinuxAdmin::NetworkInterfaceMac).to receive(:ip_show).and_return(nil)
+      allow(LinuxAdmin::Distros).to receive(:local).and_return(LinuxAdmin::Distros.mac)
+      described_class.dist_class(true)
+      described_class.new("eth0")
+    end
+
+    describe ".dist_class" do
+      it "returns NetworkInterfaceMac" do
+        allow(LinuxAdmin::Distros).to receive(:local).and_return(LinuxAdmin::Distros.mac)
+        expect(described_class.dist_class(true)).to eq(LinuxAdmin::NetworkInterfaceMac)
+      end
+    end
+
+    describe ".new" do
+      it "creates a NetworkInterfaceMac instance" do
+        expect(subject).to be_an_instance_of(LinuxAdmin::NetworkInterfaceMac)
+      end
+    end
+  end
+
   context "on other linux systems" do
     subject do
       allow_any_instance_of(described_class).to receive(:ip_show).and_return(nil)
