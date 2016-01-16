@@ -18,8 +18,12 @@ module LinuxAdmin
       @ubuntu ||= Distro.new(:ubuntu, nil, ['ubuntu'], LinuxAdmin::Deb)
     end
 
+    def self.mac
+      @mac ||= Distro.new(:mac, "/etc/mach_init.d")
+    end
+
     def self.all
-      @distros ||= [rhel, fedora, ubuntu, generic]
+      @distros ||= [rhel, fedora, ubuntu, mac, generic]
     end
 
     def self.local
