@@ -1,45 +1,45 @@
 module LinuxAdmin
   class SysVInitService < Service
     def running?
-      Common.run(Common.cmd(:service),
-                 :params => {nil => [name, "status"]}).exit_status == 0
+      run_cmd(name, "status")
     end
 
     def enable
-      Common.run!(Common.cmd(:chkconfig),
-                  :params => {nil => [name, "on"]})
+      Common.run!(Common.cmd(:chkconfig), :params => [name, "on"])
       self
     end
 
     def disable
-      Common.run!(Common.cmd(:chkconfig),
-                  :params => {nil => [name, "off"]})
+      Common.run!(Common.cmd(:chkconfig), :params => [name, "off"])
       self
     end
 
     def start
-      Common.run!(Common.cmd(:service),
-                  :params => {nil => [name, "start"]})
-      self
+      run_cmd!(name, "start")
     end
 
     def stop
-      Common.run!(Common.cmd(:service),
-                  :params => {nil => [name, "stop"]})
-      self
+      run_cmd!(name, "stop")
     end
 
     def restart
-      status =
-        Common.run(Common.cmd(:service),
-                   :params => {nil => [name, "restart"]}).exit_status
-
       # attempt to manually stop/start if restart fails
-      if status != 0
+      unless run_cmd(name, "restart")
         self.stop
         self.start
       end
 
+      self
+    end
+
+    private
+
+    def run_cmd(*actions)
+      Common.run(Common.cmd(:service), :params => actions).success?
+    end
+
+    def run_cmd!(*actions)
+      Common.run!(Common.cmd(:service), :params => actions)
       self
     end
   end
