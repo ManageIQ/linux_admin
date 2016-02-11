@@ -39,7 +39,7 @@ describe LinuxAdmin::Rhn do
         run_params.store_path(:params, "--sslCACert=", "/usr/share/rhn/RHN-ORG-TRUSTED-SSL-CERT")
         base_options.store_path(:server_url, "https://server.url")
 
-        expect_any_instance_of(described_class).to receive(:run!).once.with("rhnreg_ks", run_params)
+        expect(LinuxAdmin::Common).to receive(:run!).once.with("rhnreg_ks", run_params)
         expect(LinuxAdmin::Rpm).to receive(:upgrade).with("http://server.url/pub/rhn-org-trusted-ssl-cert-1.0-1.noarch.rpm")
         expect(LinuxAdmin::Rpm).to receive(:list_installed).and_return({"rhn-org-trusted-ssl-cert" => "1.0"})
 
@@ -47,7 +47,7 @@ describe LinuxAdmin::Rhn do
       end
 
       it "without server_url" do
-        expect_any_instance_of(described_class).to receive(:run!).once.with("rhnreg_ks", run_params)
+        expect(LinuxAdmin::Common).to receive(:run!).once.with("rhnreg_ks", run_params)
         expect_any_instance_of(described_class).not_to receive(:install_server_certificate)
         expect(LinuxAdmin::Rpm).to receive(:list_installed).and_return({"rhn-org-trusted-ssl-cert" => nil})
 
@@ -56,7 +56,11 @@ describe LinuxAdmin::Rhn do
     end
 
     it "with activation key" do
-      expect_any_instance_of(described_class).to receive(:run!).once.with("rhnreg_ks", {:params=>{"--activationkey="=>"123abc", "--proxy="=>"1.2.3.4", "--proxyUser="=>"ProxyUser", "--proxyPassword="=>"ProxyPass"}})
+      expect(LinuxAdmin::Common).to receive(:run!).once.with("rhnreg_ks",
+                                                             :params => {"--activationkey=" => "123abc",
+                                                                         "--proxy="         => "1.2.3.4",
+                                                                         "--proxyUser="     => "ProxyUser",
+                                                                         "--proxyPassword=" => "ProxyPass"})
       expect(LinuxAdmin::Rpm).to receive(:list_installed).and_return({"rhn-org-trusted-ssl-cert" => nil})
 
       described_class.new.register(
@@ -69,19 +73,25 @@ describe LinuxAdmin::Rhn do
   end
 
   it "#enable_channel" do
-    expect_any_instance_of(described_class).to receive(:run!).once.with("rhn-channel -a", {:params=>{"--user="=>"SomeUser", "--password="=>"SomePass", "--channel="=>123}})
+    expect(LinuxAdmin::Common).to receive(:run!).once.with("rhn-channel -a",
+                                                           :params => {"--user="     => "SomeUser",
+                                                                       "--password=" => "SomePass",
+                                                                       "--channel="  => 123})
 
     described_class.new.enable_channel(123, :username => "SomeUser", :password => "SomePass")
   end
 
   it "#enabled_channels" do
-    expect_any_instance_of(described_class).to receive(:run!).once.with("rhn-channel -l").and_return(double(:output => sample_output("rhn/output_rhn-channel_list")))
+    expect(LinuxAdmin::Common).to receive(:run!).once.with("rhn-channel -l")
+      .and_return(double(:output => sample_output("rhn/output_rhn-channel_list")))
 
     expect(described_class.new.enabled_channels).to eq(["rhel-x86_64-server-6", "rhel-x86_64-server-6-cf-me-2"])
   end
 
   it "#disable_channel" do
-    expect_any_instance_of(described_class).to receive(:run!).once.with("rhn-channel -r", {:params=>{"--user="=>"SomeUser", "--password="=>"SomePass", "--channel="=>123}})
+    expect(LinuxAdmin::Common).to receive(:run!).once.with("rhn-channel -r", :params => {"--user="     => "SomeUser",
+                                                                                         "--password=" => "SomePass",
+                                                                                         "--channel="  => 123})
 
     described_class.new.disable_channel(123, :username => "SomeUser", :password => "SomePass")
   end
@@ -105,7 +115,8 @@ describe LinuxAdmin::Rhn do
       }
     }
 
-    expect_any_instance_of(described_class).to receive(:run!).once.with(cmd, params).and_return(double(:output => sample_output("rhn/output_rhn-channel_list_available")))
+    expect(LinuxAdmin::Common).to receive(:run!).once.with(cmd, params)
+      .and_return(double(:output => sample_output("rhn/output_rhn-channel_list_available")))
 
     expect(described_class.new.available_channels(credentials)).to eq(expected)
   end
@@ -123,8 +134,10 @@ describe LinuxAdmin::Rhn do
       {:repo_id => "rhel-x86_64-server-6",              :enabled => true}
     ]
 
-    expect_any_instance_of(described_class).to receive(:run!).once.and_return(double(:output => sample_output("rhn/output_rhn-channel_list_available")))
-    expect_any_instance_of(described_class).to receive(:run!).once.with("rhn-channel -l").and_return(double(:output => sample_output("rhn/output_rhn-channel_list")))
+    expect(LinuxAdmin::Common).to receive(:run!).once
+      .and_return(double(:output => sample_output("rhn/output_rhn-channel_list_available")))
+    expect(LinuxAdmin::Common).to receive(:run!).once.with("rhn-channel -l")
+      .and_return(double(:output => sample_output("rhn/output_rhn-channel_list")))
 
     expect(described_class.new.all_repos(credentials)).to eq(expected)
   end

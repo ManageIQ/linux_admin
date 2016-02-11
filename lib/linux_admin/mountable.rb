@@ -2,13 +2,10 @@ module LinuxAdmin
   module Mountable
     attr_accessor :fs_type
     attr_accessor :mount_point
-    include Common
 
     module ClassMethods
-      include Common
-
       def mount_point_exists?(mount_point)
-        result = run!(cmd(:mount))
+        result = Common.run!(Common.cmd(:mount))
         result.output.split("\n").any? { |line| line.split[2] == mount_point }
       end
 
@@ -22,8 +19,8 @@ module LinuxAdmin
     end
 
     def format_to(filesystem)
-      run!(cmd(:mke2fs),
-          :params => { '-t' => filesystem, nil => self.path})
+      Common.run!(Common.cmd(:mke2fs),
+                  :params => {'-t' => filesystem, nil => path})
       @fs_type = filesystem
     end
 
@@ -34,12 +31,12 @@ module LinuxAdmin
         raise ArgumentError, "disk already mounted at #{mount_point}"
       end
 
-      run!(cmd(:mount), :params => { nil => [self.path, mount_point] })
+      Common.run!(Common.cmd(:mount), :params => {nil => [path, mount_point]})
       @mount_point = mount_point
     end
 
     def umount
-      run!(cmd(:umount), :params => { nil => [@mount_point] })
+      Common.run!(Common.cmd(:umount), :params => {nil => [@mount_point]})
     end
   end
 end

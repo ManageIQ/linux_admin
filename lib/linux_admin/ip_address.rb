@@ -2,8 +2,6 @@ require 'ipaddr'
 
 module LinuxAdmin
   class IpAddress
-    include Common
-
     def address
       address_list.detect { |ip| IPAddr.new(ip).ipv4? }
     end
@@ -13,21 +11,21 @@ module LinuxAdmin
     end
 
     def mac_address(interface)
-      result = run(cmd("ip"), :params => ["addr", "show", interface])
+      result = Common.run(Common.cmd("ip"), :params => ["addr", "show", interface])
       return nil if result.failure?
 
       parse_output(result.output, %r{link/ether}, 1)
     end
 
     def netmask(interface)
-      result = run(cmd("ifconfig"), :params => [interface])
+      result = Common.run(Common.cmd("ifconfig"), :params => [interface])
       return nil if result.failure?
 
       parse_output(result.output, /netmask/, 3)
     end
 
     def gateway
-      result = run(cmd("ip"), :params => ["route"])
+      result = Common.run(Common.cmd("ip"), :params => ["route"])
       return nil if result.failure?
 
       parse_output(result.output, /^default/, 2)
@@ -45,7 +43,7 @@ module LinuxAdmin
       # Added retry to account for slow DHCP not assigning an IP quickly at boot; specifically:
       # https://github.com/ManageIQ/manageiq-appliance/commit/160d8ccbfbfd617bdb5445e56cdab66b9323b15b
       5.times do
-        result = run(cmd("hostname"), :params => ["-I"])
+        result = Common.run(Common.cmd("hostname"), :params => ["-I"])
         break if result.success?
       end
 

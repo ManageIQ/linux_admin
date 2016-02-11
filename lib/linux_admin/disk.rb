@@ -2,8 +2,6 @@ require 'linux_admin/partition'
 
 module LinuxAdmin
   class Disk
-    include Common
-
     PARTED_FIELDS =
       [:id, :start_sector, :end_sector,
        :size, :partition_type, :fs_type]
@@ -62,7 +60,7 @@ module LinuxAdmin
     def size
       @size ||= begin
         size = nil
-        out = run!(cmd(:fdisk), :params => {"-l" => nil}).output
+        out = Common.run!(Common.cmd(:fdisk), :params => {"-l" => nil}).output
         out.each_line do |l|
           /Disk #{path}: .*B, (\d+) bytes/.match(l) do |m|
             size = m[1].to_i
@@ -86,7 +84,7 @@ module LinuxAdmin
       # TODO: Should this really catch non-zero RC, set output to the default "" and silently return [] ?
       #   If so, should other calls to parted also do the same?
       # requires sudo
-      out = run(cmd(:parted),
+      out = Common.run(Common.cmd(:parted),
                 :params => { nil => parted_options_array('print') }).output
       split = []
       out.each_line do |l|
@@ -121,11 +119,11 @@ module LinuxAdmin
     public
 
     def create_partition_table(type = "msdos")
-      run!(cmd(:parted), :params => { nil => parted_options_array("mklabel", type)})
+      Common.run!(Common.cmd(:parted), :params => {nil => parted_options_array("mklabel", type)})
     end
 
     def has_partition_table?
-      result = run(cmd(:parted), :params => { nil => parted_options_array("print")})
+      result = Common.run(Common.cmd(:parted), :params => {nil => parted_options_array("print")})
 
       result_indicates_partition_table?(result)
     end
@@ -150,7 +148,7 @@ module LinuxAdmin
 
       id = partitions.empty? ? 1 : (partitions.last.id + 1)
       options = parted_options_array('mkpart', '-a', 'opt', partition_type, start, finish)
-      run!(cmd(:parted), :params => { nil => options})
+      Common.run!(Common.cmd(:parted), :params => {nil => options})
 
       partition = Partition.new(:disk           => self,
                                 :id             => id,
@@ -174,7 +172,7 @@ module LinuxAdmin
       @partitions = []
 
       # clear partition table
-      run!(cmd(:dd),
+      Common.run!(Common.cmd(:dd),
           :params => { 'if=' => '/dev/zero', 'of=' => @path,
                        'bs=' => 512, 'count=' => 1})
 

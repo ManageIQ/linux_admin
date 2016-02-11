@@ -58,25 +58,23 @@ describe LinuxAdmin::NetworkInterface do
   end
 
   context "on all systems" do
-    common_inst = Class.new { include LinuxAdmin::Common }.new
-
     IP_SHOW_ARGS = [
-      common_inst.cmd("ip"),
+      LinuxAdmin::Common.cmd("ip"),
       :params => %w(addr show eth0)
     ]
 
     IP_ROUTE_ARGS = [
-      common_inst.cmd("ip"),
+      LinuxAdmin::Common.cmd("ip"),
       :params => %w(route)
     ]
 
     IFUP_ARGS = [
-      common_inst.cmd("ifup"),
+      LinuxAdmin::Common.cmd("ifup"),
       :params => ["eth0"]
     ]
 
     IFDOWN_ARGS = [
-      common_inst.cmd("ifdown"),
+      LinuxAdmin::Common.cmd("ifdown"),
       :params => ["eth0"]
     ]
 

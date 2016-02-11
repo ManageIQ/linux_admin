@@ -1,18 +1,20 @@
 describe LinuxAdmin::SubscriptionManager do
   context "#registered?" do
     it "system with subscription-manager commands" do
-      expect_any_instance_of(described_class).to receive(:run).once.with("subscription-manager identity").and_return(double(:exit_status => 0))
+      expect(LinuxAdmin::Common).to receive(:run).once.with("subscription-manager identity")
+        .and_return(double(:exit_status => 0))
       expect(described_class.new.registered?).to be_truthy
     end
 
     it "system without subscription-manager commands" do
-      expect_any_instance_of(described_class).to receive(:run).once.with("subscription-manager identity").and_return(double(:exit_status => 255))
+      expect(LinuxAdmin::Common).to receive(:run).once.with("subscription-manager identity")
+        .and_return(double(:exit_status => 255))
       expect(described_class.new.registered?).to be_falsey
     end
   end
 
   it "#refresh" do
-    expect_any_instance_of(described_class).to receive(:run!).once.with("subscription-manager refresh")
+    expect(LinuxAdmin::Common).to receive(:run!).once.with("subscription-manager refresh", {})
     described_class.new.refresh
   end
 
@@ -37,14 +39,14 @@ describe LinuxAdmin::SubscriptionManager do
         run_params.store_path(:params, "--org=", "IT")
         base_options.store_path(:server_url, "https://server.url")
 
-        expect_any_instance_of(described_class).to receive(:run!).once.with("subscription-manager register", run_params)
+        expect(LinuxAdmin::Common).to receive(:run!).once.with("subscription-manager register", run_params)
         expect(LinuxAdmin::Rpm).to receive(:upgrade).with("http://server.url/pub/katello-ca-consumer-latest.noarch.rpm")
 
         described_class.new.register(base_options)
       end
 
       it "without server_url" do
-        expect_any_instance_of(described_class).to receive(:run!).once.with("subscription-manager register", run_params)
+        expect(LinuxAdmin::Common).to receive(:run!).once.with("subscription-manager register", run_params)
         expect_any_instance_of(described_class).not_to receive(:install_server_certificate)
 
         described_class.new.register(base_options)
@@ -54,30 +56,35 @@ describe LinuxAdmin::SubscriptionManager do
 
   context "#subscribe" do
     it "with pools" do
-      expect_any_instance_of(described_class).to receive(:run!).once.with("subscription-manager attach", {:params=>[["--pool", 123], ["--pool", 456]]})
+      expect(LinuxAdmin::Common).to receive(:run!).once
+        .with("subscription-manager attach", :params => [["--pool", 123], ["--pool", 456]])
       described_class.new.subscribe({:pools => [123, 456]})
     end
 
     it "without pools" do
-      expect_any_instance_of(described_class).to receive(:run!).once.with("subscription-manager attach", {:params=>{"--auto"=>nil}})
+      expect(LinuxAdmin::Common).to receive(:run!).once
+        .with("subscription-manager attach", :params => {"--auto" => nil})
       described_class.new.subscribe({})
     end
   end
 
   context "#subscribed_products" do
     it "subscribed" do
-      expect_any_instance_of(described_class).to receive(:run!).once.with("subscription-manager list --installed").and_return(double(:output => sample_output("subscription_manager/output_list_installed_subscribed")))
+      expect(LinuxAdmin::Common).to receive(:run!).once.with("subscription-manager list --installed", {})
+        .and_return(double(:output => sample_output("subscription_manager/output_list_installed_subscribed")))
       expect(described_class.new.subscribed_products).to eq(["69", "167"])
     end
 
     it "not subscribed" do
-      expect_any_instance_of(described_class).to receive(:run!).once.with("subscription-manager list --installed").and_return(double(:output => sample_output("subscription_manager/output_list_installed_not_subscribed")))
+      expect(LinuxAdmin::Common).to receive(:run!).once.with("subscription-manager list --installed", {})
+        .and_return(double(:output => sample_output("subscription_manager/output_list_installed_not_subscribed")))
       expect(described_class.new.subscribed_products).to eq(["167"])
     end
   end
 
   it "#available_subscriptions" do
-    expect_any_instance_of(described_class).to receive(:run!).once.with("subscription-manager list --all --available").and_return(double(:output => sample_output("subscription_manager/output_list_all_available")))
+    expect(LinuxAdmin::Common).to receive(:run!).once.with("subscription-manager list --all --available", {})
+      .and_return(double(:output => sample_output("subscription_manager/output_list_all_available")))
     expect(described_class.new.available_subscriptions).to eq({
       "82c042fca983889b10178893f29b06e3" => {
         :subscription_name => "Example Subscription",
@@ -131,7 +138,8 @@ describe LinuxAdmin::SubscriptionManager do
       run_options = ["subscription-manager orgs", {:params=>{"--username="=>"SomeUser", "--password="=>"SomePass", "--proxy="=>"1.2.3.4", "--proxyuser="=>"ProxyUser", "--proxypassword="=>"ProxyPass"}}]
 
       expect(LinuxAdmin::Rpm).to receive(:upgrade).with("http://192.168.1.1/pub/katello-ca-consumer-latest.noarch.rpm")
-      expect_any_instance_of(described_class).to receive(:run!).once.with(*run_options).and_return(double(:output => sample_output("subscription_manager/output_orgs")))
+      expect(LinuxAdmin::Common).to receive(:run!).once.with(*run_options)
+        .and_return(double(:output => sample_output("subscription_manager/output_orgs")))
 
       expect(described_class.new.organizations({:username=>"SomeUser", :password=>"SomePass", :proxy_address=>"1.2.3.4", :proxy_username=>"ProxyUser", :proxy_password=>"ProxyPass", :server_url=>"192.168.1.1"})).to eq({"SomeOrg"=>{:name=>"SomeOrg", :key=>"1234567"}})
     end
@@ -150,13 +158,15 @@ describe LinuxAdmin::SubscriptionManager do
   end
 
   it "#enable_repo" do
-    expect_any_instance_of(described_class).to receive(:run!).once.with("subscription-manager repos", {:params=>{"--enable="=>"abc"}})
+    expect(LinuxAdmin::Common).to receive(:run!).once
+      .with("subscription-manager repos", :params => {"--enable=" => "abc"})
 
     described_class.new.enable_repo("abc")
   end
 
   it "#disable_repo" do
-    expect_any_instance_of(described_class).to receive(:run!).once.with("subscription-manager repos", {:params=>{"--disable="=>"abc"}})
+    expect(LinuxAdmin::Common).to receive(:run!).once
+      .with("subscription-manager repos", :params => {"--disable=" => "abc"})
 
     described_class.new.disable_repo("abc")
   end
@@ -183,7 +193,8 @@ describe LinuxAdmin::SubscriptionManager do
       }
     ]
 
-    expect_any_instance_of(described_class).to receive(:run!).once.with("subscription-manager repos").and_return(double(:output => sample_output("subscription_manager/output_repos")))
+    expect(LinuxAdmin::Common).to receive(:run!).once.with("subscription-manager repos", {})
+      .and_return(double(:output => sample_output("subscription_manager/output_repos")))
 
     expect(described_class.new.all_repos).to eq(expected)
   end
@@ -191,7 +202,8 @@ describe LinuxAdmin::SubscriptionManager do
   it "#enabled_repos" do
     expected = ["some-repo-source-rpms", "some-repo-rpms"]
 
-    expect_any_instance_of(described_class).to receive(:run!).once.with("subscription-manager repos").and_return(double(:output => sample_output("subscription_manager/output_repos")))
+    expect(LinuxAdmin::Common).to receive(:run!).once.with("subscription-manager repos", {})
+      .and_return(double(:output => sample_output("subscription_manager/output_repos")))
 
     expect(described_class.new.enabled_repos).to eq(expected)
   end

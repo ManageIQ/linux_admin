@@ -1,7 +1,5 @@
 module LinuxAdmin
   class Hosts
-    include Common
-
     attr_accessor :filename
     attr_accessor :raw_lines
     attr_accessor :parsed_file
@@ -33,16 +31,16 @@ module LinuxAdmin
     end
 
     def hostname=(name)
-      if cmd?("hostnamectl")
-        run!(cmd('hostnamectl'), :params => ['set-hostname', name])
+      if Common.cmd?("hostnamectl")
+        Common.run!(Common.cmd('hostnamectl'), :params => ['set-hostname', name])
       else
         File.write("/etc/hostname", name)
-        run!(cmd('hostname'), :params => {:file => "/etc/hostname"})
+        Common.run!(Common.cmd('hostname'), :params => {:file => "/etc/hostname"})
       end
     end
 
     def hostname
-      result = run(cmd("hostname"))
+      result = Common.run(Common.cmd("hostname"))
       result.success? ? result.output.strip : nil
     end
 

@@ -36,8 +36,6 @@ require 'linux_admin/network_interface'
 require 'linux_admin/chrony'
 
 module LinuxAdmin
-  extend Common
-
   class << self
     attr_writer :logger
   end

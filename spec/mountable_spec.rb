@@ -12,7 +12,7 @@ describe LinuxAdmin::Mountable do
 
     # stub out calls that modify system
     allow(FileUtils).to receive(:mkdir)
-    allow(@mountable).to receive(:run!)
+    allow(LinuxAdmin::Common).to receive(:run!)
 
     @mount_out1 = <<eos
 /dev/sda on /mnt/usb type vfat (rw)
@@ -25,20 +25,21 @@ eos
 
   describe "#mount_point_exists?" do
     it "uses mount" do
-      expect(TestMountable).to receive(:run!).with(TestMountable.cmd(:mount)).and_return(double(:output => ""))
+      expect(LinuxAdmin::Common).to receive(:run!).with(LinuxAdmin::Common.cmd(:mount))
+        .and_return(double(:output => ""))
       TestMountable.mount_point_exists?('/mnt/usb')
     end
 
     context "disk mounted at specified location" do
       it "returns true" do
-        expect(TestMountable).to receive(:run!).and_return(double(:output => @mount_out1))
+        expect(LinuxAdmin::Common).to receive(:run!).and_return(double(:output => @mount_out1))
         expect(TestMountable.mount_point_exists?('/mnt/usb')).to be_truthy
       end
     end
 
     context "no disk mounted at specified location" do
       it "returns false" do
-        expect(TestMountable).to receive(:run!).and_return(double(:output => @mount_out2))
+        expect(LinuxAdmin::Common).to receive(:run!).and_return(double(:output => @mount_out2))
         expect(TestMountable.mount_point_exists?('/mnt/usb')).to be_falsey
       end
     end
@@ -46,20 +47,21 @@ eos
 
   describe "#mount_point_available?" do
     it "uses mount" do
-      expect(TestMountable).to receive(:run!).with(TestMountable.cmd(:mount)).and_return(double(:output => ""))
+      expect(LinuxAdmin::Common).to receive(:run!).with(LinuxAdmin::Common.cmd(:mount))
+        .and_return(double(:output => ""))
       TestMountable.mount_point_available?('/mnt/usb')
     end
 
     context "disk mounted at specified location" do
       it "returns false" do
-        expect(TestMountable).to receive(:run!).and_return(double(:output => @mount_out1))
+        expect(LinuxAdmin::Common).to receive(:run!).and_return(double(:output => @mount_out1))
         expect(TestMountable.mount_point_available?('/mnt/usb')).to be_falsey
       end
     end
 
     context "no disk mounted at specified location" do
       it "returns true" do
-        expect(TestMountable).to receive(:run!).and_return(double(:output => @mount_out2))
+        expect(LinuxAdmin::Common).to receive(:run!).and_return(double(:output => @mount_out2))
         expect(TestMountable.mount_point_available?('/mnt/usb')).to be_truthy
       end
     end
@@ -67,14 +69,14 @@ eos
 
   describe "#format_to" do
     it "uses mke2fs" do
-      expect(@mountable).to receive(:run!).
-         with(@mountable.cmd(:mke2fs),
-              :params => { '-t' => 'ext4', nil => '/dev/foo'})
+      expect(LinuxAdmin::Common).to receive(:run!)
+        .with(LinuxAdmin::Common.cmd(:mke2fs),
+              :params => {'-t' => 'ext4', nil => '/dev/foo'})
       @mountable.format_to('ext4')
     end
 
     it "sets fs type" do
-      expect(@mountable).to receive(:run!) # ignore actual formatting cmd
+      expect(LinuxAdmin::Common).to receive(:run!) # ignore actual formatting cmd
       @mountable.format_to('ext4')
       expect(@mountable.fs_type).to eq('ext4')
     end
@@ -83,19 +85,19 @@ eos
   describe "#mount" do
     it "sets mount point" do
       # ignore actual mount cmds
-      expect(@mountable).to receive(:run!).and_return(double(:output => ""))
-      expect(TestMountable).to receive(:run!).and_return(double(:output => ""))
+      expect(LinuxAdmin::Common).to receive(:run!).and_return(double(:output => ""))
+      expect(LinuxAdmin::Common).to receive(:run!).and_return(double(:output => ""))
 
       expect(@mountable.mount('/mnt/sda2')).to eq('/mnt/sda2')
       expect(@mountable.mount_point).to eq('/mnt/sda2')
     end
-    
+
     context "mountpoint does not exist" do
       it "creates mountpoint" do
         expect(TestMountable).to receive(:mount_point_exists?).and_return(false)
         expect(File).to receive(:directory?).with('/mnt/sda2').and_return(false)
         expect(FileUtils).to receive(:mkdir).with('/mnt/sda2')
-        expect(@mountable).to receive(:run!) # ignore actual mount cmd
+        expect(LinuxAdmin::Common).to receive(:run!) # ignore actual mount cmd
         @mountable.mount '/mnt/sda2'
       end
     end
@@ -110,9 +112,9 @@ eos
 
     it "mounts partition" do
       expect(TestMountable).to receive(:mount_point_exists?).and_return(false)
-      expect(@mountable).to receive(:run!).
-         with(@mountable.cmd(:mount),
-              :params => { nil => ['/dev/foo', '/mnt/sda2']})
+      expect(LinuxAdmin::Common).to receive(:run!)
+        .with(LinuxAdmin::Common.cmd(:mount),
+              :params => {nil => ['/dev/foo', '/mnt/sda2']})
       @mountable.mount '/mnt/sda2'
     end
   end
@@ -120,9 +122,9 @@ eos
   describe "#umount" do
     it "unmounts partition" do
       @mountable.mount_point = '/mnt/sda2'
-      expect(@mountable).to receive(:run!).with(@mountable.cmd(:umount), :params => { nil => ['/mnt/sda2']})
+      expect(LinuxAdmin::Common).to receive(:run!).with(LinuxAdmin::Common.cmd(:umount),
+                                                        :params => {nil => ['/mnt/sda2']})
       @mountable.umount
     end
   end
-
 end

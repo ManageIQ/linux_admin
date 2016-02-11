@@ -6,20 +6,20 @@ module LinuxAdmin
 
     BIN_DIRS = %w(/bin /sbin /usr/bin /usr/sbin /usr/local/bin /usr/local/sbin)
 
-    def cmd(name)
+    def self.cmd(name)
       BIN_DIRS.collect { |dir| "#{dir}/#{name}" }.detect { |cmd| File.exist?(cmd) }
     end
 
-    def cmd?(name)
+    def self.cmd?(name)
       !cmd(name).nil?
     end
 
-    def run(cmd, options = {})
+    def self.run(cmd, options = {})
       AwesomeSpawn.logger ||= logger
       AwesomeSpawn.run(cmd, options)
     end
 
-    def run!(cmd, options = {})
+    def self.run!(cmd, options = {})
       AwesomeSpawn.logger ||= logger
       AwesomeSpawn.run!(cmd, options)
     end

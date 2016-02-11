@@ -15,7 +15,7 @@ module LinuxAdmin
     def self.scan_volumes(cmd)
       volumes = []
 
-      out = run!(cmd, :params => { '-c' => nil}).output
+      out = Common.run!(cmd, :params => {'-c' => nil}).output
 
       out.each_line do |line|
         fields, vg = process_volume_display_line(line.lstrip)

@@ -1,8 +1,5 @@
 module LinuxAdmin
   class PhysicalVolume < Volume
-    include Common
-    extend Common
-
     # physical volume device name
     attr_accessor :device_name
 
@@ -29,7 +26,7 @@ module LinuxAdmin
     end
 
     def attach_to(vg)
-      run!(cmd(:vgextend),
+      Common.run!(Common.cmd(:vgextend),
           :params => [vg.name, @device_name])
       self.volume_group = vg
       self
@@ -38,7 +35,7 @@ module LinuxAdmin
     # specify disk or partition instance to create physical volume on
     def self.create(device)
       self.scan # initialize local physical volumes
-      run!(cmd(:pvcreate),
+      Common.run!(Common.cmd(:pvcreate),
           :params => { nil => device.path})
       pv  = PhysicalVolume.new(:device_name  => device.path,
                                :volume_group => nil,
@@ -49,7 +46,7 @@ module LinuxAdmin
 
     def self.scan
       @pvs ||= begin
-        scan_volumes(cmd(:pvdisplay)) do |fields, vg|
+        scan_volumes(Common.cmd(:pvdisplay)) do |fields, vg|
           PhysicalVolume.new(:device_name  => fields[0],
                              :volume_group => vg,
                              :size         => fields[2].to_i)

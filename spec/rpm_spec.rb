@@ -1,6 +1,7 @@
 describe LinuxAdmin::Rpm do
   it ".list_installed" do
-    allow(described_class).to receive_messages(:run! => double(:output => sample_output("rpm/cmd_output_for_list_installed")))
+    allow(LinuxAdmin::Common).to receive(:run!)
+      .and_return(double(:output => sample_output("rpm/cmd_output_for_list_installed")))
     expect(described_class.list_installed).to eq({
       "ruby193-rubygem-some_really_long_name" =>"1.0.7-1.el6",
       "fipscheck-lib"                         =>"1.2.0-7.el6",
@@ -26,7 +27,7 @@ describe LinuxAdmin::Rpm do
   end
 
   it ".import_key" do
-    expect(described_class).to receive(:run!).with("rpm", {:params => {"--import" => "abc"}})
+    expect(LinuxAdmin::Common).to receive(:run!).with("rpm", :params => {"--import" => "abc"})
     expect { described_class.import_key("abc") }.to_not raise_error
   end
 
@@ -59,7 +60,7 @@ straight-forward, and extensible.
 EOS
       arguments = [described_class.rpm_cmd, :params => {"-qi" => "ruby"}]
       result = AwesomeSpawn::CommandResult.new("", data, "", 0)
-      expect(described_class).to receive(:run!).with(*arguments).and_return(result)
+      expect(LinuxAdmin::Common).to receive(:run!).with(*arguments).and_return(result)
       metadata = described_class.info("ruby")
       expect(metadata['name']).to eq('ruby')
       expect(metadata['version']).to eq('2.0.0.247')
@@ -77,7 +78,8 @@ EOS
   end
 
   it ".upgrade" do
-    expect(described_class).to receive(:run).with("rpm -U", {:params=>{nil=>"abc"}}).and_return(double(:exit_status => 0))
+    expect(LinuxAdmin::Common).to receive(:run).with("rpm -U", :params => {nil => "abc"})
+      .and_return(double(:exit_status => 0))
     expect(described_class.upgrade("abc")).to be_truthy
   end
 end

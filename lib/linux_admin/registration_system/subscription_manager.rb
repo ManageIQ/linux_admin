@@ -3,7 +3,7 @@ require 'date'
 module LinuxAdmin
   class SubscriptionManager < RegistrationSystem
     def run!(cmd, options = {})
-      super(cmd, options)
+      Common.run!(cmd, options)
     rescue AwesomeSpawn::CommandResultError => err
       raise CredentialError.new(err.result) if err.result.error.downcase.include?("invalid username or password")
       raise
@@ -16,7 +16,7 @@ module LinuxAdmin
     end
 
     def registered?
-      run("subscription-manager identity").exit_status == 0
+      Common.run("subscription-manager identity").exit_status == 0
     end
 
     def refresh

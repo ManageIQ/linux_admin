@@ -2,22 +2,22 @@ describe LinuxAdmin::IpAddress do
   let(:ip) { described_class.new }
 
   ADDR_SPAWN_ARGS = [
-    described_class.new.cmd("hostname"),
+    LinuxAdmin::Common.cmd("hostname"),
     :params => ["-I"]
   ]
 
   MAC_SPAWN_ARGS = [
-    described_class.new.cmd("ip"),
+    LinuxAdmin::Common.cmd("ip"),
     :params => %w(addr show eth0)
   ]
 
   MASK_SPAWN_ARGS = [
-    described_class.new.cmd("ifconfig"),
+    LinuxAdmin::Common.cmd("ifconfig"),
     :params => %w(eth0)
   ]
 
   GW_SPAWN_ARGS = [
-    described_class.new.cmd("ip"),
+    LinuxAdmin::Common.cmd("ip"),
     :params => %w(route)
   ]
 
