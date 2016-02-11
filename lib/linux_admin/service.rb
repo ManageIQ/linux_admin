@@ -32,7 +32,14 @@ module LinuxAdmin
     private
 
     def self.service_type_uncached
-      Common.cmd?(:systemctl) ? SystemdService : SysVInitService
+      {
+        :systemctl => SystemdService,
+        :service   => SysVInitService,
+        :brew      => BrewService,
+      }.each do |key, service|
+        return service if Common.cmd?(key)
+      end
+      nil
     end
     private_class_method :service_type_uncached
   end

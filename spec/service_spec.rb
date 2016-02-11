@@ -10,6 +10,11 @@ describe LinuxAdmin::Service do
       expect(described_class.service_type).to eq(LinuxAdmin::SysVInitService)
     end
 
+    it "on sysv systems" do
+      stub_to_service_type(:brew_service)
+      expect(described_class.service_type).to eq(LinuxAdmin::BrewService)
+    end
+
     it "should memoize results" do
       expect(described_class).to receive(:service_type_uncached).once.and_return("anything_non_nil")
       described_class.service_type
@@ -33,6 +38,11 @@ describe LinuxAdmin::Service do
       stub_to_service_type(:sys_v_init_service)
       expect(described_class.new("xxx")).to be_kind_of(LinuxAdmin::SysVInitService)
     end
+
+    it "on mac systems" do
+      stub_to_service_type(:brew_service)
+      expect(described_class.new("xxx")).to be_kind_of(LinuxAdmin::BrewService)
+    end
   end
 
   it "#id / #id=" do
@@ -50,5 +60,7 @@ describe LinuxAdmin::Service do
 
   def stub_to_service_type(system)
     allow(LinuxAdmin::Common).to receive(:cmd?).with(:systemctl).and_return(system == :systemd_service)
+    allow(LinuxAdmin::Common).to receive(:cmd?).with(:service).and_return(system == :sys_v_init_service)
+    allow(LinuxAdmin::Common).to receive(:cmd?).with(:brew).and_return(system == :brew_service)
   end
 end

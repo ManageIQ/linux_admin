@@ -1,31 +1,38 @@
-describe LinuxAdmin::SystemdService do
+describe LinuxAdmin::BrewService do
   before do
     @service = described_class.new 'foo'
-    allow(LinuxAdmin::Common).to receive(:cmd).with(:systemctl).and_return("systemctl")
+    allow(LinuxAdmin::Common).to receive(:cmd).with(:brew).and_return("brew")
   end
 
   describe "#running?" do
     it "checks service" do
       expect(LinuxAdmin::Common).to receive(:run)
-        .with("systemctl",
-              :params => %w(status foo)).and_return(double(:success? => true))
+        .with("brew",
+              :params => %w(services list)).and_return(double(:output => "foo params running\nother param running\n"))
       @service.running?
     end
 
     it "returns true when service is running" do
-      expect(LinuxAdmin::Common).to receive(:run).and_return(double(:success? => true))
+      expect(LinuxAdmin::Common).to receive(:run)
+        .and_return(double(:output => "foo  param file\nother params running\n"))
       expect(@service).to be_running
     end
 
     it "returns false when service is not running" do
-      expect(LinuxAdmin::Common).to receive(:run).and_return(double(:success? => false))
+      expect(LinuxAdmin::Common).to receive(:run).and_return(double(:output => "other\n"))
+      expect(@service).not_to be_running
+    end
+
+    it "returns false when service is not running (even though name is close" do
+      expect(LinuxAdmin::Common).to receive(:run)
+        .and_return(double(:output => "foo2 param running\nother param running\n"))
       expect(@service).not_to be_running
     end
   end
 
   describe "#enable" do
     it "enables service" do
-      expect(LinuxAdmin::Common).to receive(:run!).with("systemctl", :params => %w(enable foo))
+      expect(LinuxAdmin::Common).to receive(:run!).with("brew", :params => %w(services start foo))
       @service.enable
     end
 
@@ -36,8 +43,8 @@ describe LinuxAdmin::SystemdService do
   end
 
   describe "#disable" do
-    it "disables service" do
-      expect(LinuxAdmin::Common).to receive(:run!).with("systemctl", :params => %w(disable foo))
+    it "stops the service" do
+      expect(LinuxAdmin::Common).to receive(:run!).with("brew", :params => %w(services stop foo))
       @service.disable
     end
 
@@ -49,7 +56,7 @@ describe LinuxAdmin::SystemdService do
 
   describe "#start" do
     it "starts service" do
-      expect(LinuxAdmin::Common).to receive(:run!).with("systemctl", :params => %w(start foo))
+      expect(LinuxAdmin::Common).to receive(:run!).with("brew", :params => %w(services start foo))
       @service.start
     end
 
@@ -61,7 +68,7 @@ describe LinuxAdmin::SystemdService do
 
   describe "#stop" do
     it "stops service" do
-      expect(LinuxAdmin::Common).to receive(:run!).with("systemctl", :params => %w(stop foo))
+      expect(LinuxAdmin::Common).to receive(:run!).with("brew", :params => %w(services stop foo))
       @service.stop
     end
 
@@ -74,8 +81,7 @@ describe LinuxAdmin::SystemdService do
   describe "#restart" do
     it "restarts service" do
       expect(LinuxAdmin::Common).to receive(:run)
-        .with("systemctl",
-              :params => %w(restart foo)).and_return(double(:success? => true))
+        .with("brew", :params => %w(services restart foo)).and_return(double(:success? => true))
       @service.restart
     end
 

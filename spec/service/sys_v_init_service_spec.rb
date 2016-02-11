@@ -1,20 +1,21 @@
 describe LinuxAdmin::SysVInitService do
   before do
     @service = described_class.new 'foo'
+    allow(LinuxAdmin::Common).to receive(:cmd).with(:service).and_return("service")
+    allow(LinuxAdmin::Common).to receive(:cmd).with(:chkconfig).and_return("chkconfig")
   end
 
   describe "#running?" do
     it "checks service" do
       expect(LinuxAdmin::Common).to receive(:run)
-        .with(LinuxAdmin::Common.cmd(:service),
-              :params => {nil => %w(foo status)}).and_return(double(:exit_status => 0))
+        .with("service", :params => %w(foo status)).and_return(double(:success? => true))
       @service.running?
     end
 
     context "service is running" do
       it "returns true" do
         @service = described_class.new :id => :foo
-        expect(LinuxAdmin::Common).to receive(:run).and_return(double(:exit_status => 0))
+        expect(LinuxAdmin::Common).to receive(:run).and_return(double(:success? => true))
         expect(@service).to be_running
       end
     end
@@ -22,7 +23,7 @@ describe LinuxAdmin::SysVInitService do
     context "service is not running" do
       it "returns false" do
         @service = described_class.new :id => :foo
-        expect(LinuxAdmin::Common).to receive(:run).and_return(double(:exit_status => 1))
+        expect(LinuxAdmin::Common).to receive(:run).and_return(double(:success? => false))
         expect(@service).not_to be_running
       end
     end
@@ -30,9 +31,7 @@ describe LinuxAdmin::SysVInitService do
 
   describe "#enable" do
     it "enables service" do
-      expect(LinuxAdmin::Common).to receive(:run!)
-        .with(LinuxAdmin::Common.cmd(:chkconfig),
-              :params => {nil => %w(foo on)})
+      expect(LinuxAdmin::Common).to receive(:run!).with("chkconfig", :params => %w(foo on))
       @service.enable
     end
 
@@ -44,9 +43,7 @@ describe LinuxAdmin::SysVInitService do
 
   describe "#disable" do
     it "disable service" do
-      expect(LinuxAdmin::Common).to receive(:run!)
-        .with(LinuxAdmin::Common.cmd(:chkconfig),
-              :params => {nil => %w(foo off)})
+      expect(LinuxAdmin::Common).to receive(:run!).with("chkconfig", :params => %w(foo off))
       @service.disable
     end
 
@@ -58,9 +55,7 @@ describe LinuxAdmin::SysVInitService do
 
   describe "#start" do
     it "starts service" do
-      expect(LinuxAdmin::Common).to receive(:run!)
-        .with(LinuxAdmin::Common.cmd(:service),
-              :params => {nil => %w(foo start)})
+      expect(LinuxAdmin::Common).to receive(:run!).with("service", :params => %w(foo start))
       @service.start
     end
 
@@ -72,9 +67,7 @@ describe LinuxAdmin::SysVInitService do
 
   describe "#stop" do
     it "stops service" do
-      expect(LinuxAdmin::Common).to receive(:run!)
-        .with(LinuxAdmin::Common.cmd(:service),
-              :params => {nil => %w(foo stop)})
+      expect(LinuxAdmin::Common).to receive(:run!).with("service", :params => %w(foo stop))
       @service.stop
     end
 
@@ -87,14 +80,13 @@ describe LinuxAdmin::SysVInitService do
   describe "#restart" do
     it "stops service" do
       expect(LinuxAdmin::Common).to receive(:run)
-        .with(LinuxAdmin::Common.cmd(:service),
-              :params => {nil => %w(foo restart)}).and_return(double(:exit_status => 0))
+        .with("service", :params => %w(foo restart)).and_return(double(:success? => true))
       @service.restart
     end
 
     context "service restart fails" do
       it "manually stops/starts service" do
-        expect(LinuxAdmin::Common).to receive(:run).and_return(double(:exit_status => 1))
+        expect(LinuxAdmin::Common).to receive(:run).and_return(double(:success? => false))
         expect(@service).to receive(:stop)
         expect(@service).to receive(:start)
         @service.restart
@@ -102,7 +94,7 @@ describe LinuxAdmin::SysVInitService do
     end
 
     it "returns self" do
-      expect(LinuxAdmin::Common).to receive(:run).and_return(double(:exit_status => 0))
+      expect(LinuxAdmin::Common).to receive(:run).and_return(double(:success? => true))
       expect(@service.restart).to eq(@service)
     end
   end
