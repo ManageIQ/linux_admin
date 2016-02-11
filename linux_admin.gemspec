@@ -33,6 +33,7 @@ registration, updates, etc.
   spec.add_development_dependency "rake"
   spec.add_development_dependency "rspec",    "~> 3.0"
   spec.add_development_dependency "coveralls"
+  spec.add_development_dependency "rubocop"
 
   spec.add_dependency "activesupport",        "> 3.2"
   spec.add_dependency "inifile"
