@@ -6,10 +6,12 @@ module LinuxAdmin
     TimeCommandError = Class.new(StandardError)
 
     def self.system_timezone_detailed
-      result = run(cmd(COMMAND), :params => ["status"])
+      result = run!(cmd(COMMAND), :params => ["status"])
       result.output.split("\n").each do |l|
         return l.split(':')[1].strip if l =~ /Time.*zone/
       end
+    rescue AwesomeSpawn::CommandResultError, AwesomeSpawn::NoSuchFileError
+      Time.now.zone
     end
 
     def self.system_timezone

@@ -30,23 +30,29 @@ describe LinuxAdmin::Distros::Distro do
 
       context "/etc/redhat-release exists" do
         it "returns Distros.rhel" do
-          exists("/etc/fedora-release" => false, "/etc/redhat-release" => true)
+          exists("/etc/fedora-release" => false, "/etc/redhat-release" => true, "/etc/mach_init.d" => false)
           expect(subject).to eq(LinuxAdmin::Distros.rhel)
         end
       end
 
       context "/etc/fedora-release exists" do
         it "returns Distros.fedora" do
-          exists("/etc/fedora-release" => true, "/etc/redhat-release" => false)
+          exists("/etc/fedora-release" => true, "/etc/redhat-release" => false, "/etc/mach_init.d" => false)
           expect(subject).to eq(LinuxAdmin::Distros.fedora)
         end
       end
-    end
 
-    it "returns Distros.generic" do
-      etc_issue_contains('')
-      exists("/etc/fedora-release" => false, "/etc/redhat-release" => false)
-      expect(subject).to eq(LinuxAdmin::Distros.generic)
+      context "/etc/mach_init.d exists" do
+        it "returns Distros.mac" do
+          exists("/etc/fedora-release" => false, "/etc/redhat-release" => false, "/etc/mach_init.d" => true)
+          expect(subject).to eq(LinuxAdmin::Distros.mac)
+        end
+      end
+
+      it "returns Distros.generic" do
+        exists("/etc/fedora-release" => false, "/etc/redhat-release" => false, "/etc/mach_init.d" => false)
+        expect(subject).to eq(LinuxAdmin::Distros.generic)
+      end
     end
   end
 
@@ -63,7 +69,7 @@ describe LinuxAdmin::Distros::Distro do
       LinuxAdmin::Distros.local.info 'ruby'
     end
 
-    it "dispatches to ubuntu lookup mechanism" do
+    it "dispatches to generic lookup mechanism" do
       stub_distro(LinuxAdmin::Distros.generic)
       expect { LinuxAdmin::Distros.local.info 'ruby' }.not_to raise_error
     end
