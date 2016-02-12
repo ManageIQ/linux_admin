@@ -42,5 +42,14 @@ module LinuxAdmin
 
       self
     end
+
+    def reload
+      Common.run!(Common.cmd(:service), :params => [name, "reload"])
+      self
+    end
+
+    def status
+      Common.run(Common.cmd(:service), :params => [name, "status"]).output
+    end
   end
 end
