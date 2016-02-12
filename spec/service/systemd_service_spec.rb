@@ -98,4 +98,22 @@ describe LinuxAdmin::SystemdService do
       expect(@service.restart).to eq(@service)
     end
   end
+
+  describe "#reload" do
+    it "reloads service" do
+      expect(LinuxAdmin::Common).to receive(:run!)
+        .with(LinuxAdmin::Common.cmd(:systemctl), :params => %w(reload foo))
+      expect(@service.reload).to eq(@service)
+    end
+  end
+
+  describe "#status" do
+    it "returns the service status" do
+      status = "service status here"
+      expect(LinuxAdmin::Common).to receive(:run)
+        .with(LinuxAdmin::Common.cmd(:systemctl),
+              :params => %w(status foo)).and_return(double(:output => status))
+      expect(@service.status).to eq(status)
+    end
+  end
 end

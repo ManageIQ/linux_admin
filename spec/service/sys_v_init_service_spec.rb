@@ -106,4 +106,22 @@ describe LinuxAdmin::SysVInitService do
       expect(@service.restart).to eq(@service)
     end
   end
+
+  describe "#reload" do
+    it "reloads service" do
+      expect(LinuxAdmin::Common).to receive(:run!)
+        .with(LinuxAdmin::Common.cmd(:service), :params => %w(foo reload))
+      expect(@service.reload).to eq(@service)
+    end
+  end
+
+  describe "#status" do
+    it "returns the service status" do
+      status = "service status here"
+      expect(LinuxAdmin::Common).to receive(:run)
+        .with(LinuxAdmin::Common.cmd(:service),
+              :params => %w(foo status)).and_return(double(:output => status))
+      expect(@service.status).to eq(status)
+    end
+  end
 end
