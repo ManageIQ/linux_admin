@@ -33,7 +33,7 @@ EOF
     it "adds server lines to the conf file" do
       allow(File).to receive(:read).and_return(CHRONY_CONF.dup)
       expect(File).to receive(:write) do |_file, contents|
-        expect(contents).to eq(CHRONY_CONF + "server baz.example.net\nserver foo.bar.example.com\n")
+        expect(contents).to eq(CHRONY_CONF + "server baz.example.net iburst\nserver foo.bar.example.com iburst\n")
       end
       subject.add_servers("baz.example.net", "foo.bar.example.com")
     end

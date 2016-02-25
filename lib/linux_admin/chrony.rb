@@ -14,7 +14,7 @@ module LinuxAdmin
     def add_servers(*servers)
       data = File.read(@conf)
       data << "\n" unless data.end_with?("\n")
-      servers.each { |s| data << "server #{s}\n" }
+      servers.each { |s| data << "server #{s} iburst\n" }
       File.write(@conf, data)
     end
   end
