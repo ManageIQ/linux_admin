@@ -13,21 +13,25 @@ module LinuxAdmin
     def str_to_bytes(val, unit)
       case unit
       when 'K' then
-        val.to_f.kilobytes
+        val.to_f * 1_024 # 1.kilobytes
       when 'M' then
-        val.to_f.megabytes
+        val.to_f * 1_048_576 # 1.megabyte
       when 'G' then
-        val.to_f.gigabytes
+        val.to_f * 1_073_741_824 # 1.gigabytes
       end
     end
-    
+
     def overlapping_ranges?(ranges)
       ranges.find do |range1|
         ranges.any? do |range2|
           range1 != range2 &&
-          range1.overlaps?(range2)
+            ranges_overlap?(range1, range2)
         end
       end
+    end
+
+    def ranges_overlap?(range1, range2) # copied from activesupport Range#overlaps?
+      range1.cover?(range2.first) || range2.cover?(range1.first)
     end
 
     def check_if_partitions_overlap(partitions)

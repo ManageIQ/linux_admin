@@ -74,23 +74,23 @@ eos
 
       expect(disk.partitions[0].id).to eq(1)
       expect(disk.partitions[0].disk).to eq(disk)
-      expect(disk.partitions[0].size).to eq(80.5.gigabytes)
-      expect(disk.partitions[0].start_sector).to eq(1259.megabytes)
-      expect(disk.partitions[0].end_sector).to eq(81.8.gigabytes)
+      expect(disk.partitions[0].size).to eq(86_436_216_832.0) # 80.5.gigabytes
+      expect(disk.partitions[0].start_sector).to eq(1_320_157_184) # 1259.megabytes
+      expect(disk.partitions[0].end_sector).to eq(87_832_081_203.2) # 81.8.gigabytes
       expect(disk.partitions[0].partition_type).to eq('primary')
       expect(disk.partitions[0].fs_type).to eq('ntfs')
       expect(disk.partitions[1].id).to eq(2)
       expect(disk.partitions[1].disk).to eq(disk)
-      expect(disk.partitions[1].size).to eq(80.5.gigabytes)
-      expect(disk.partitions[1].start_sector).to eq(81.8.gigabytes)
-      expect(disk.partitions[1].end_sector).to eq(162.gigabytes)
+      expect(disk.partitions[1].size).to eq(86_436_216_832.0) # 80.5.gigabytes
+      expect(disk.partitions[1].start_sector).to eq(87_832_081_203.2) # 81.8.gigabytes
+      expect(disk.partitions[1].end_sector).to eq(173_946_175_488) # 162.gigabytes
       expect(disk.partitions[1].partition_type).to eq('primary')
       expect(disk.partitions[1].fs_type).to eq('ext4')
       expect(disk.partitions[2].id).to eq(3)
       expect(disk.partitions[2].disk).to eq(disk)
-      expect(disk.partitions[2].size).to eq(1074.megabytes)
-      expect(disk.partitions[2].start_sector).to eq(162.gigabytes)
-      expect(disk.partitions[2].end_sector).to eq(163.gigabytes)
+      expect(disk.partitions[2].size).to eq(1_126_170_624) # 1074.megabytes
+      expect(disk.partitions[2].start_sector).to eq(173_946_175_488) # 162.gigabytes
+      expect(disk.partitions[2].end_sector).to eq(175_019_917_312) # 163.gigabytes
       expect(disk.partitions[2].partition_type).to eq('logical')
       expect(disk.partitions[2].fs_type).to eq('linux-swap(v1)')
     end
