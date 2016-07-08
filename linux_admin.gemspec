@@ -27,7 +27,7 @@ registration, updates, etc.
   spec.test_files    = `git ls-files -- spec/*`.split("\n")
   spec.require_paths = ["lib"]
 
-  spec.required_ruby_version = ">= 1.9.3"
+  spec.required_ruby_version = ">= 2.0.0"
 
   spec.add_development_dependency "bundler",  "~> 1.3"
   spec.add_development_dependency "rake"
@@ -35,10 +35,9 @@ registration, updates, etc.
   spec.add_development_dependency "coveralls"
   spec.add_development_dependency "rubocop"
 
-  spec.add_dependency "activesupport",        "> 3.2"
-  spec.add_dependency "inifile"
-  spec.add_dependency "more_core_extensions", "~> 2.0"
   spec.add_dependency "awesome_spawn",        "~> 1.3"
+  spec.add_dependency "inifile"
+  spec.add_dependency "more_core_extensions", "~> 3.0"
   spec.add_dependency "nokogiri"
   spec.add_dependency "openscap"
 end

@@ -55,7 +55,7 @@ eos
               :params => {'-n' => 'lv',
                           nil  => 'vg',
                           '-L' => '256G'})
-      described_class.create 'lv', @vg, 256.gigabytes
+      described_class.create 'lv', @vg, 274_877_906_944 # 256.gigabytes
     end
 
     context "size is specified" do
@@ -66,7 +66,7 @@ eos
                 :params => {'-n' => 'lv',
                             nil  => 'vg',
                             '-L' => '256G'})
-        described_class.create 'lv', @vg, 256.gigabytes
+        described_class.create 'lv', @vg, 274_877_906_944 # 256.gigabytes
       end
     end
 
@@ -85,7 +85,7 @@ eos
     it "returns new logical volume" do
       allow(LinuxAdmin::Common).to receive_messages(:run! => double(:output => ""))
       allow(LinuxAdmin::Common).to receive_messages(:run! => double(:output => ""))
-      lv = described_class.create 'lv', @vg, 256.gigabytes
+      lv = described_class.create 'lv', @vg, 274_877_906_944 # 256.gigabytes
       expect(lv).to be_an_instance_of(described_class)
       expect(lv.name).to eq('lv')
     end
@@ -94,7 +94,7 @@ eos
       it "sets path under volume group" do
         allow(LinuxAdmin::Common).to receive_messages(:run! => double(:output => ""))
         allow(LinuxAdmin::Common).to receive_messages(:run! => double(:output => ""))
-        lv = described_class.create 'lv', @vg, 256.gigabytes
+        lv = described_class.create 'lv', @vg, 274_877_906_944 # 256.gigabytes
         expect(lv.path.to_s).to eq("#{described_class::DEVICE_PATH}#{@vg.name}/lv")
       end
     end
@@ -103,7 +103,7 @@ eos
       it "sets name" do
         allow(LinuxAdmin::Common).to receive_messages(:run! => double(:output => ""))
         allow(LinuxAdmin::Common).to receive_messages(:run! => double(:output => ""))
-        lv = described_class.create '/dev/lv', @vg, 256.gigabytes
+        lv = described_class.create '/dev/lv', @vg, 274_877_906_944 # 256.gigabytes
         expect(lv.name).to eq("lv")
       end
     end
@@ -113,7 +113,7 @@ eos
         require 'pathname'
         allow(LinuxAdmin::Common).to receive_messages(:run! => double(:output => ""))
         allow(LinuxAdmin::Common).to receive_messages(:run! => double(:output => ""))
-        lv = described_class.create Pathname.new("/dev/#{@vg.name}/lv"), @vg, 256.gigabytes
+        lv = described_class.create Pathname.new("/dev/#{@vg.name}/lv"), @vg, 274_877_906_944 # 256.gigabytes
         expect(lv.name).to eq("lv")
         expect(lv.path).to eq("/dev/vg/lv")
       end
@@ -122,7 +122,7 @@ eos
     it "adds logical volume to local registry" do
       allow(LinuxAdmin::Common).to receive_messages(:run! => double(:output => ""))
       allow(LinuxAdmin::Common).to receive_messages(:run! => double(:output => ""))
-      lv = described_class.create 'lv', @vg, 256.gigabytes
+      lv = described_class.create 'lv', @vg, 274_877_906_944 # 256.gigabytes
       expect(described_class.scan).to include(lv)
     end
   end

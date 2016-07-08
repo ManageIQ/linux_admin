@@ -34,7 +34,7 @@ module LinuxAdmin
       params.merge!(proxy_params(options))
 
       result = run!(cmd, :params => params)
-      parse_output(result.output).index_by {|i| i[:name]}
+      parse_output(result.output).each_with_object({}) { |i, h| h[i[:name]] = i }
     end
 
     def register(options)
@@ -76,7 +76,7 @@ module LinuxAdmin
     def available_subscriptions
       cmd     = "subscription-manager list --all --available"
       output  = run!(cmd).output
-      parse_output(output).index_by {|i| i[:pool_id]}
+      parse_output(output).each_with_object({}) { |i, h| h[i[:pool_id]] = i }
     end
 
     def enable_repo(repo, options = nil)

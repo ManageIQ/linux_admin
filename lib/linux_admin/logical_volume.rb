@@ -57,12 +57,12 @@ module LinuxAdmin
     private
 
     def self.bytes_to_string(bytes)
-      if bytes > 1.gigabytes
-        (bytes / 1.gigabytes).to_s + "G"
-      elsif bytes > 1.megabytes
-        (bytes / 1.megabytes).to_s + "M"
-      elsif bytes > 1.kilobytes
-        (bytes / 1.kilobytes).to_s + "K"
+      if bytes > 1_073_741_824 # 1.gigabytes
+        (bytes / 1_073_741_824).to_s + "G"
+      elsif bytes > 1_048_576 # 1.megabytes
+        (bytes / 1_048_576).to_s + "M"
+      elsif bytes > 1_024 # 1.kilobytes
+        (bytes / 1_024).to_s + "K"
       else
         bytes.to_s
       end

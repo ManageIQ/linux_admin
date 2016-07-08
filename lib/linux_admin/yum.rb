@@ -5,7 +5,7 @@ module LinuxAdmin
   class Yum
     def self.create_repo(path, options = {})
       raise ArgumentError, "path is required" unless path
-      options = options.reverse_merge(:database => true, :unique_file_names => true)
+      options = {:database => true, :unique_file_names => true}.merge(options)
 
       FileUtils.mkdir_p(path)
 
@@ -20,7 +20,7 @@ module LinuxAdmin
     def self.download_packages(path, packages, options = {})
       raise ArgumentError, "path is required"       unless path
       raise ArgumentError, "packages are required"  unless packages
-      options = options.reverse_merge(:mirror_type => :package)
+      options = {:mirror_type => :package}.merge(options)
 
       FileUtils.mkdir_p(path)
 

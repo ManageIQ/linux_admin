@@ -1,5 +1,7 @@
 module LinuxAdmin
   module Logging
-    delegate :logger, :to => :LinuxAdmin
+    def logger
+      LinuxAdmin.logger
+    end
   end
 end
