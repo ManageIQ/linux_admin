@@ -38,7 +38,7 @@ registration, updates, etc.
   spec.add_dependency "awesome_spawn",        "~> 1.3"
   spec.add_dependency "inifile"
   spec.add_dependency "more_core_extensions", "~> 3.0"
-  spec.add_dependency "nokogiri"
+  spec.add_dependency "nokogiri",             "~> 1.6"
   spec.add_dependency "openscap"
   spec.add_dependency "net-ssh", "~> 3.2.0"
 end
