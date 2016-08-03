@@ -35,6 +35,29 @@ EOF
       expect(File).to receive(:write) do |_file, contents|
         expect(contents).to eq(CHRONY_CONF + "server baz.example.net iburst\nserver foo.bar.example.com iburst\n")
       end
+      allow(subject).to receive(:restart_service_if_running)
+      subject.add_servers("baz.example.net", "foo.bar.example.com")
+    end
+
+    it "restarts the service if it is running" do
+      allow(File).to receive(:read).and_return(CHRONY_CONF.dup)
+      allow(File).to receive(:write)
+
+      chronyd_service = double
+      expect(LinuxAdmin::Service).to receive(:new).with("chronyd").and_return(chronyd_service)
+      expect(chronyd_service).to receive(:running?).and_return true
+      expect(chronyd_service).to receive(:restart)
+      subject.add_servers("baz.example.net", "foo.bar.example.com")
+    end
+
+    it "doesn't restart the service if it is not running" do
+      allow(File).to receive(:read).and_return(CHRONY_CONF.dup)
+      allow(File).to receive(:write)
+
+      chronyd_service = double
+      expect(LinuxAdmin::Service).to receive(:new).with("chronyd").and_return(chronyd_service)
+      expect(chronyd_service).to receive(:running?).and_return false
+      expect(chronyd_service).not_to receive(:restart)
       subject.add_servers("baz.example.net", "foo.bar.example.com")
     end
   end
