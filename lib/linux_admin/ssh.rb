@@ -25,10 +25,9 @@ module LinuxAdmin
 
     def execute_commands(commands, agent_socket, stdin)
       result = nil
-      args = {:paranoid => false}
+      args = {:paranoid => false, :number_of_password_prompts => 0}
       if agent_socket
         args.merge!(:forward_agent              => true,
-                    :number_of_password_prompts => 0,
                     :agent_socket_factory       => -> { UNIXSocket.open(agent_socket) })
       elsif @private_key
         args[:key_data] = [@private_key]
