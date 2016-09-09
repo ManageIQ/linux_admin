@@ -43,11 +43,11 @@ module LinuxAdmin
       cmd    = "yum check-update"
       params = {nil => packages} unless packages.blank?
 
-      exitstatus = Common.run(cmd, :params => params).exit_status
-      case exitstatus
+      spawn = Common.run(cmd, :params => params)
+      case spawn.exit_status
       when 0;   false
       when 100; true
-      else raise "Error: Exit Code #{exitstatus}"
+      else raise "Error: #{cmd} returns '#{spawn.exit_status}', '#{spawn.error}'"
       end
     end
 

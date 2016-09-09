@@ -84,7 +84,7 @@ describe LinuxAdmin::Yum do
     end
 
     it "other exit code" do
-      allow(LinuxAdmin::Common).to receive_messages(:run => double(:exit_status => 255))
+      allow(LinuxAdmin::Common).to receive_messages(:run => double(:exit_status => 255, :error => 'test'))
       expect { described_class.updates_available? }.to raise_error(RuntimeError)
     end
 
