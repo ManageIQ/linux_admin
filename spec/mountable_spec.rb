@@ -21,6 +21,12 @@ eos
 cgroup on /sys/fs/cgroup/perf_event type cgroup (rw,nosuid,nodev,noexec,relatime,perf_event)
 systemd-1 on /proc/sys/fs/binfmt_misc type autofs (rw,relatime,fd=26,pgrp=1,timeout=300,minproto=5,maxproto=5,direct)
 eos
+
+    @mount_out3 = <<eos
+/dev/mapper/vg_data-lv_pg on /var/opt/rh/rh-postgresql95/lib/pgsql type xfs (rw,relatime,seclabel,attr2,inode64,noquota)
+/dev/foo on /tmp type xfs (rw,relatime,seclabel,attr2,inode64,noquota)
+/dev/foo on /home type xfs (rw,relatime,seclabel,attr2,inode64,noquota)
+eos
   end
 
   describe "#mount_point_exists?" do
@@ -64,6 +70,20 @@ eos
         expect(LinuxAdmin::Common).to receive(:run!).and_return(double(:output => @mount_out2))
         expect(TestMountable.mount_point_available?('/mnt/usb')).to be_truthy
       end
+    end
+  end
+
+  describe "#discover_mount_point" do
+    it "sets the correct mountpoint when the path is mounted" do
+      expect(LinuxAdmin::Common).to receive(:run!).and_return(double(:output => @mount_out3))
+      @mountable.discover_mount_point
+      expect(@mountable.mount_point).to eq("/tmp")
+    end
+
+    it "sets mount_point to nil when the path is not mounted" do
+      expect(LinuxAdmin::Common).to receive(:run!).and_return(double(:output => @mount_out1))
+      @mountable.discover_mount_point
+      expect(@mountable.mount_point).to be_nil
     end
   end
 

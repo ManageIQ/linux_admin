@@ -18,6 +18,12 @@ module LinuxAdmin
       base.extend(ClassMethods)
     end
 
+    def discover_mount_point
+      result = Common.run!(Common.cmd(:mount))
+      mount_line = result.output.split("\n").find { |line| line.split[0] == path }
+      @mount_point = mount_line.split[2] if mount_line
+    end
+
     def format_to(filesystem)
       Common.run!(Common.cmd(:mke2fs),
                   :params => {'-t' => filesystem, nil => path})
