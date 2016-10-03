@@ -30,6 +30,38 @@ describe LinuxAdmin::TimeDate do
     end
   end
 
+  describe ".timezones" do
+    let(:timezones) do
+      <<-EOS
+Africa/Bangui
+Africa/Banjul
+Africa/Bissau
+Africa/Blantyre
+Africa/Brazzaville
+Africa/Bujumbura
+Africa/Cairo
+America/Havana
+America/Hermosillo
+America/Indiana/Indianapolis
+America/Indiana/Knox
+America/Argentina/San_Juan
+America/Argentina/San_Luis
+America/Argentina/Tucuman
+America/Argentina/Ushuaia
+      EOS
+    end
+
+    it "returns the correct list" do
+      awesome_spawn_args = [
+        RUN_COMMAND,
+        :params => ["list-timezones"]
+      ]
+      result = AwesomeSpawn::CommandResult.new("", timezones, "", 0)
+      expect(AwesomeSpawn).to receive(:run!).with(*awesome_spawn_args).and_return(result)
+      expect(described_class.timezones).to eq(timezones.split("\n"))
+    end
+  end
+
   describe ".system_time=" do
     it "sets the time" do
       time = Time.new(2015, 1, 1, 1, 1, 1)
