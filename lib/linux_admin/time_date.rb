@@ -15,6 +15,13 @@ module LinuxAdmin
       system_timezone_detailed.split[0]
     end
 
+    def self.timezones
+      result = Common.run!(Common.cmd(COMMAND), :params => ["list-timezones"])
+      result.output.split("\n")
+    rescue AwesomeSpawn::CommandResultError => e
+      raise TimeCommandError, e.message
+    end
+
     def self.system_time=(time)
       Common.run!(Common.cmd(COMMAND), :params => ["set-time", "#{time.strftime("%F %T")}", :adjust_system_clock])
     rescue AwesomeSpawn::CommandResultError => e
