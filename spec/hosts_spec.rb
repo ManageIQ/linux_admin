@@ -32,6 +32,35 @@ describe LinuxAdmin::Hosts do
     end
   end
 
+  describe "#set_loopback_hostname" do
+    etc_hosts_v6_loopback = <<-EOT
+
+#Some Comment
+::1\tlocalhost localhost.localdomain # with a comment
+127.0.0.1\tlocalhost localhost.localdomain # with a comment
+127.0.1.1  my.domain.local
+EOT
+
+    before do
+      allow(File).to receive(:read).and_return(etc_hosts_v6_loopback)
+      @instance_v6_loopback = LinuxAdmin::Hosts.new
+    end
+
+    it "adds the hostname to the start of the hosts list for the loopback addresses" do
+      expected_hash = [{:blank   => true},
+                       {:comment => "Some Comment"},
+                       {:address => "::1",
+                        :hosts   => ["examplehost.example.com", "localhost", "localhost.localdomain"],
+                        :comment => "with a comment"},
+                       {:address => "127.0.0.1",
+                        :hosts   => ["examplehost.example.com", "localhost", "localhost.localdomain"],
+                        :comment => "with a comment"},
+                       {:address => "127.0.1.1", :hosts => ["my.domain.local"]}]
+      @instance_v6_loopback.set_loopback_hostname("examplehost.example.com")
+      expect(@instance_v6_loopback.parsed_file).to eq(expected_hash)
+    end
+  end
+
   describe "#set_canonical_hostname" do
     it "removes an existing entry and creates a new one" do
       expected_hash = [{:blank => true},

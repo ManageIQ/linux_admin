@@ -26,6 +26,10 @@ module LinuxAdmin
 
     alias_method :update_entry, :add_alias
 
+    def set_loopback_hostname(hostname, comment = nil)
+      ["::1", "127.0.0.1"].each { |address| add_name(address, hostname, true, comment, false) }
+    end
+
     def set_canonical_hostname(address, hostname, comment = nil)
       add_name(address, hostname, true, comment)
     end
@@ -46,9 +50,9 @@ module LinuxAdmin
 
     private
 
-    def add_name(address, hostname, fqdn, comment)
+    def add_name(address, hostname, fqdn, comment, remove_existing = true)
       # Delete entries for this hostname first
-      @parsed_file.each { |i| i[:hosts].to_a.delete(hostname) }
+      @parsed_file.each { |i| i[:hosts].to_a.delete(hostname) } if remove_existing
 
       # Add entry
       line_number = @parsed_file.find_path(address).first
