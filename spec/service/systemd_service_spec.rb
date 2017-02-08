@@ -110,6 +110,7 @@ describe LinuxAdmin::SystemdService do
     it "returns a hash of runtime information" do
       output = <<-EOS
 MainPID=29189
+ExecMainStartTimestamp=Wed 2017-02-08 13:49:57 EST
 ExecStart={ path=/bin/sh ; argv[]=/bin/sh -c /bin/evmserver.sh start ; status=0/0 }
 ExecStop={ path=/bin/sh ; argv[]=/bin/sh -c /bin/evmserver.sh stop ; status=0/0 }
 ControlGroup=/system.slice/evmserverd.service
@@ -117,11 +118,12 @@ MemoryCurrent=2865373184
 EOS
 
       hash = {
-        "MainPID"       => 29_189,
-        "ExecStart"     => {"path" => "/bin/sh", "argv[]" => "/bin/sh -c /bin/evmserver.sh start", "status" => "0/0"},
-        "ExecStop"      => {"path" => "/bin/sh", "argv[]" => "/bin/sh -c /bin/evmserver.sh stop", "status" => "0/0"},
-        "ControlGroup"  => "/system.slice/evmserverd.service",
-        "MemoryCurrent" => 2_865_373_184
+        "MainPID"                => 29_189,
+        "ExecMainStartTimestamp" => Time.new(2017, 2, 8, 13, 49, 57, "-05:00"),
+        "ExecStart"              => {"path" => "/bin/sh", "argv[]" => "/bin/sh -c /bin/evmserver.sh start", "status" => "0/0"},
+        "ExecStop"               => {"path" => "/bin/sh", "argv[]" => "/bin/sh -c /bin/evmserver.sh stop", "status" => "0/0"},
+        "ControlGroup"           => "/system.slice/evmserverd.service",
+        "MemoryCurrent"          => 2_865_373_184
       }
       expect(LinuxAdmin::Common).to receive(:run!)
         .with(command, :params => %w(show foo)).and_return(double(:output => output))

@@ -61,8 +61,15 @@ module LinuxAdmin
 
     def cast_show_value(key, value)
       return value.to_i if value =~ /^\d+$/
-      return parse_exec_value(value) if key =~ /Exec(Start|Stop)/
-      value
+
+      case key
+      when /^.*Timestamp$/
+        Time.parse(value)
+      when /Exec(Start|Stop)/
+        parse_exec_value(value)
+      else
+        value
+      end
     end
 
     def parse_exec_value(value)
