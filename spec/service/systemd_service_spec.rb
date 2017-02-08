@@ -7,7 +7,7 @@ describe LinuxAdmin::SystemdService do
     it "checks service" do
       expect(LinuxAdmin::Common).to receive(:run)
         .with(LinuxAdmin::Common.cmd(:systemctl),
-              :params => {nil => %w(status foo)}).and_return(double(:success? => true))
+              :params => %w(status foo)).and_return(double(:success? => true))
       @service.running?
     end
 
@@ -26,7 +26,7 @@ describe LinuxAdmin::SystemdService do
     it "enables service" do
       expect(LinuxAdmin::Common).to receive(:run!)
         .with(LinuxAdmin::Common.cmd(:systemctl),
-              :params => {nil => %w(enable foo)})
+              :params => %w(enable foo))
       @service.enable
     end
 
@@ -40,7 +40,7 @@ describe LinuxAdmin::SystemdService do
     it "disables service" do
       expect(LinuxAdmin::Common).to receive(:run!)
         .with(LinuxAdmin::Common.cmd(:systemctl),
-              :params => {nil => %w(disable foo)})
+              :params => %w(disable foo))
       @service.disable
     end
 
@@ -54,7 +54,7 @@ describe LinuxAdmin::SystemdService do
     it "starts service" do
       expect(LinuxAdmin::Common).to receive(:run!)
         .with(LinuxAdmin::Common.cmd(:systemctl),
-              :params => {nil => %w(start foo)})
+              :params => %w(start foo))
       @service.start
     end
 
@@ -68,7 +68,7 @@ describe LinuxAdmin::SystemdService do
     it "stops service" do
       expect(LinuxAdmin::Common).to receive(:run!)
         .with(LinuxAdmin::Common.cmd(:systemctl),
-              :params => {nil => %w(stop foo)})
+              :params => %w(stop foo))
       @service.stop
     end
 
@@ -82,7 +82,7 @@ describe LinuxAdmin::SystemdService do
     it "restarts service" do
       expect(LinuxAdmin::Common).to receive(:run)
         .with(LinuxAdmin::Common.cmd(:systemctl),
-              :params => {nil => %w(restart foo)}).and_return(double(:exit_status => 0))
+              :params => %w(restart foo)).and_return(double(:exit_status => 0))
       @service.restart
     end
 

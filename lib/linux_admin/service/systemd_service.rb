@@ -1,31 +1,31 @@
 module LinuxAdmin
   class SystemdService < Service
     def running?
-      Common.run(command_path, :params => {nil => ["status", name]}).success?
+      Common.run(command_path, :params => ["status", name]).success?
     end
 
     def enable
-      Common.run!(command_path, :params => {nil => ["enable", name]})
+      Common.run!(command_path, :params => ["enable", name])
       self
     end
 
     def disable
-      Common.run!(command_path, :params => {nil => ["disable", name]})
+      Common.run!(command_path, :params => ["disable", name])
       self
     end
 
     def start
-      Common.run!(command_path, :params => {nil => ["start", name]})
+      Common.run!(command_path, :params => ["start", name])
       self
     end
 
     def stop
-      Common.run!(command_path, :params => {nil => ["stop", name]})
+      Common.run!(command_path, :params => ["stop", name])
       self
     end
 
     def restart
-      status = Common.run(command_path, :params => {nil => ["restart", name]}).exit_status
+      status = Common.run(command_path, :params => ["restart", name]).exit_status
 
       # attempt to manually stop/start if restart fails
       if status != 0
