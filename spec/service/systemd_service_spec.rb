@@ -7,17 +7,17 @@ describe LinuxAdmin::SystemdService do
     it "checks service" do
       expect(LinuxAdmin::Common).to receive(:run)
         .with(LinuxAdmin::Common.cmd(:systemctl),
-              :params => {nil => %w(status foo)}).and_return(double(:exit_status => 0))
+              :params => {nil => %w(status foo)}).and_return(double(:success? => true))
       @service.running?
     end
 
     it "returns true when service is running" do
-      expect(LinuxAdmin::Common).to receive(:run).and_return(double(:exit_status => 0))
+      expect(LinuxAdmin::Common).to receive(:run).and_return(double(:success? => true))
       expect(@service).to be_running
     end
 
     it "returns false when service is not running" do
-      expect(LinuxAdmin::Common).to receive(:run).and_return(double(:exit_status => 1))
+      expect(LinuxAdmin::Common).to receive(:run).and_return(double(:success? => false))
       expect(@service).not_to be_running
     end
   end

@@ -1,7 +1,7 @@
 module LinuxAdmin
   class SystemdService < Service
     def running?
-      Common.run(command_path, :params => {nil => ["status", name]}).exit_status == 0
+      Common.run(command_path, :params => {nil => ["status", name]}).success?
     end
 
     def enable
