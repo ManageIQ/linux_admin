@@ -51,5 +51,9 @@ module LinuxAdmin
     def status
       Common.run(Common.cmd(:service), :params => [name, "status"]).output
     end
+
+    def show
+      raise NotImplementedError
+    end
   end
 end
