@@ -117,6 +117,13 @@ module LinuxAdmin
       @network_conf[:gateway4]
     end
 
+    # Retrieve the IPv6 default gateway associated with the interface
+    #
+    # @return [String] IPv6 gateway address
+    def gateway6
+      @network_conf[:gateway6]
+    end
+
     # Brings up the network interface
     #
     # @return [Boolean] whether the command succeeded or not

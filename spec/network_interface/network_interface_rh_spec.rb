@@ -40,14 +40,14 @@ EOF
   subject(:dhcp_interface) do
     allow(File).to receive(:exist?).and_return(true)
     stub_foreach_to_string(ifcfg_file_dhcp)
-    allow(AwesomeSpawn).to receive(:run!).twice.and_return(result("", 0))
+    allow(AwesomeSpawn).to receive(:run!).exactly(4).times.and_return(result("", 0))
     described_class.new(device_name)
   end
 
   subject(:static_interface) do
     allow(File).to receive(:exist?).and_return(true)
     stub_foreach_to_string(ifcfg_file_static)
-    allow(AwesomeSpawn).to receive(:run!).twice.and_return(result("", 0))
+    allow(AwesomeSpawn).to receive(:run!).exactly(4).times.and_return(result("", 0))
     described_class.new(device_name)
   end
 
