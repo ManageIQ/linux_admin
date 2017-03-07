@@ -51,8 +51,10 @@ module LinuxAdmin
 
       @network_conf[:mac] = parse_ip_output(ip_output, %r{link/ether}, 1)
 
-      ip_route_res = Common.run!(Common.cmd("ip"), :params => ["route"])
-      @network_conf[:gateway4] = parse_ip_output(ip_route_res.output, /^default/, 2) if ip_route_res.success?
+      [4, 6].each do |version|
+        ip_route_res = Common.run!(Common.cmd("ip"), :params => ["-#{version}", "route"])
+        @network_conf["gateway#{version}".to_sym] = parse_ip_output(ip_route_res.output, /^default/, 2) if ip_route_res.success?
+      end
       true
     rescue AwesomeSpawn::CommandResultError => e
       raise NetworkInterfaceError.new(e.message, e.result)
