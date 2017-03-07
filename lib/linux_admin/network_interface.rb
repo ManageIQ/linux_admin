@@ -80,6 +80,18 @@ module LinuxAdmin
       end
     end
 
+    # Retrieve the prefix length related to IPv6 address assigned to the interface
+    #
+    # @return [String] IPv6 prefix length
+    # @raises [ArgumentError] if the given scope is not `:global` or `:link`
+    def prefix6(scope = :global)
+      if [:global, :link].include?(scope)
+        @network_conf["prefix6_#{scope}".to_sym]
+      else
+        raise ArgumentError, "Unrecognized address scope #{scope}"
+      end
+    end
+
     # Retrieve the MAC address associated with the interface
     #
     # @return [String] the MAC address
@@ -92,20 +104,6 @@ module LinuxAdmin
     # @return [String] IPv4 netmask
     def netmask
       @network_conf[:mask]
-    end
-
-    # Retrieve the IPv6 sub-net mask assigned to the interface
-    #
-    # @return [String] IPv6 netmask
-    # @raise [ArgumentError] if the given scope is not `:global` or `:link`
-    def netmask6(scope = :global)
-      if scope == :global
-        @network_conf[:mask6_global]
-      elsif scope == :link
-        @network_conf[:mask6_link]
-      else
-        raise ArgumentError, "Unrecognized address scope #{scope}"
-      end
     end
 
     # Retrieve the IPv4 default gateway associated with the interface
@@ -168,13 +166,12 @@ module LinuxAdmin
     # @param ip_output [String] The command output
     # @param scope     [Symbol] The IPv6 scope (either `:global` or `:local`)
     def parse_ip6(ip_output, scope)
-      mask_addr = IPAddr.new('ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff')
       cidr_ip = parse_ip_output(ip_output, /inet6 .* scope #{scope}/, 1)
       return unless cidr_ip
 
       parts = cidr_ip.split('/')
       @network_conf["address6_#{scope}".to_sym] = parts[0]
-      @network_conf["mask6_#{scope}".to_sym] = mask_addr.mask(parts[1]).to_s
+      @network_conf["prefix6_#{scope}".to_sym] = parts[1]
     end
   end
 end
