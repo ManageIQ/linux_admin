@@ -65,7 +65,12 @@ describe LinuxAdmin::NetworkInterface do
 
     IP_ROUTE_ARGS = [
       LinuxAdmin::Common.cmd("ip"),
-      :params => %w(route)
+      :params => ['-4', 'route']
+    ]
+
+    IP6_ROUTE_ARGS = [
+      LinuxAdmin::Common.cmd("ip"),
+      :params => ['-6', 'route']
     ]
 
     IFUP_ARGS = [
@@ -102,6 +107,11 @@ IP_OUT
 default via 192.168.1.1 dev eth0  proto static  metric 100
 192.168.1.0/24 dev eth0  proto kernel  scope link  src 192.168.1.9  metric 100
 IP_OUT
+    IP6_ROUTE_OUT = <<-IP_OUT
+default via d:e:a:d:b:e:e:f dev eth0  proto static  metric 100
+fc00:dead:beef:a::/64 dev virbr1  proto kernel  metric 256 linkdown  pref medium
+fe80::/64 dev eth0  proto kernel  scope link metric 100
+IP_OUT
 
     subject(:subj) do
       allow(LinuxAdmin::Distros).to receive(:local).and_return(LinuxAdmin::Distros.generic)
@@ -109,6 +119,7 @@ IP_OUT
 
       allow(AwesomeSpawn).to receive(:run!).with(*IP_SHOW_ARGS).and_return(result(IP_ADDR_OUT, 0))
       allow(AwesomeSpawn).to receive(:run!).with(*IP_ROUTE_ARGS).and_return(result(IP_ROUTE_OUT, 0))
+      allow(AwesomeSpawn).to receive(:run!).with(*IP6_ROUTE_ARGS).and_return(result(IP6_ROUTE_OUT, 0))
       described_class.new("eth0")
     end
 
@@ -118,6 +129,7 @@ IP_OUT
 
       allow(AwesomeSpawn).to receive(:run!).with(*IP_SHOW_ARGS).and_return(result(IP6_ADDR_OUT, 0))
       allow(AwesomeSpawn).to receive(:run!).with(*IP_ROUTE_ARGS).and_return(result(IP_ROUTE_OUT, 0))
+      allow(AwesomeSpawn).to receive(:run!).with(*IP6_ROUTE_ARGS).and_return(result(IP6_ROUTE_OUT, 0))
       described_class.new("eth0")
     end
 
@@ -138,6 +150,7 @@ IP_OUT
         awesome_error = AwesomeSpawn::CommandResultError.new("", nil)
         allow(AwesomeSpawn).to receive(:run!).with(*IP_SHOW_ARGS).and_return(result(IP_ADDR_OUT, 0))
         allow(AwesomeSpawn).to receive(:run!).with(*IP_ROUTE_ARGS).and_raise(awesome_error)
+        allow(AwesomeSpawn).to receive(:run!).with(*IP6_ROUTE_ARGS).and_raise(awesome_error)
         expect { subj.reload }.to raise_error(LinuxAdmin::NetworkInterfaceError)
       end
 
@@ -145,6 +158,7 @@ IP_OUT
         subj6
         allow(AwesomeSpawn).to receive(:run!).with(*IP_SHOW_ARGS).and_return(result(IP6_ADDR_OUT, 0))
         allow(AwesomeSpawn).to receive(:run!).with(*IP_ROUTE_ARGS).and_return(result(IP_ROUTE_OUT, 0))
+        allow(AwesomeSpawn).to receive(:run!).with(*IP6_ROUTE_ARGS).and_return(result(IP6_ROUTE_OUT, 0))
         expect { subj.reload }.to_not raise_error
       end
     end
