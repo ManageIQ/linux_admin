@@ -100,6 +100,22 @@ EOF
     end
   end
 
+  describe '#address6=' do
+    it 'sets the ipv6 address' do
+      address = 'fe80::1/64'
+      dhcp_interface.address6 = address
+      conf = dhcp_interface.interface_config
+      expect(conf['IPV6ADDR']).to eq(address)
+      expect(conf['BOOTPROTO']).to eq('static')
+      expect(conf['IPV6INIT']).to eq('yes')
+      expect(conf['DHCPV6C']).to eq('no')
+    end
+
+    it 'raises error when given a bad address' do
+      expect { dhcp_interface.address6 = '1::1::1' }.to raise_error(ArgumentError)
+    end
+  end
+
   describe "#gateway=" do
     it "sets the gateway address" do
       address = "192.168.1.1"

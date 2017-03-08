@@ -39,6 +39,18 @@ module LinuxAdmin
       @interface_config["IPADDR"]    = address
     end
 
+    # Set the IPv6 address for this interface
+    #
+    # @param address [String] IPv6 address including the prefix length (i.e. '::1/127')
+    # @raise ArgumentError if the address is not formatted properly
+    def address6=(address)
+      validate_ip(address)
+      @interface_config['BOOTPROTO'] = 'static'
+      @interface_config['IPV6INIT']  = 'yes'
+      @interface_config['DHCPV6C']   = 'no'
+      @interface_config['IPV6ADDR']  = address
+    end
+
     # Set the IPv4 gateway address for this interface
     #
     # @param address [String]
