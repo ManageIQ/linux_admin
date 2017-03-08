@@ -60,6 +60,15 @@ module LinuxAdmin
       @interface_config["GATEWAY"] = address
     end
 
+    # Set the IPv6 gateway address for this interface
+    #
+    # @param address [String] IPv6 address optionally including the prefix length
+    # @raise ArgumentError if the address is not formatted properly
+    def gateway6=(address)
+      validate_ip(address)
+      @interface_config['IPV6_DEFAULTGW'] = address
+    end
+
     # Set the IPv4 sub-net mask for this interface
     #
     # @param mask [String]

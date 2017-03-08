@@ -128,6 +128,14 @@ EOF
     end
   end
 
+  describe '#gateway6=' do
+    it 'sets the default gateway for IPv6' do
+      address = 'fe80::1/64'
+      dhcp_interface.gateway6 = address
+      expect(dhcp_interface.interface_config['IPV6_DEFAULTGW']).to eq(address)
+    end
+  end
+
   describe "#netmask=" do
     it "sets the sub-net mask" do
       mask = "255.255.255.0"
