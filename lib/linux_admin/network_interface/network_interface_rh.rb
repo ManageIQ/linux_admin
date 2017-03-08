@@ -125,6 +125,23 @@ module LinuxAdmin
       save
     end
 
+    # Applies the given static IPv6 network configuration to the interface
+    #
+    # @param ip [String] IPv6 address
+    # @param prefix [Number] prefix length for IPv6 address
+    # @param gw [String] gateway address
+    # @param dns [Array<String>] list of dns servers
+    # @param search [Array<String>] list of search domains
+    # @return [Boolean] true on success, false otherwise
+    # @raise ArgumentError if an IP is not formatted properly or interface does not start
+    def apply_static6(ip, prefix, gw, dns, search = nil)
+      self.address6     = "#{ip}/#{prefix}"
+      self.gateway6     = gw
+      self.dns          = dns
+      self.search_order = search if search
+      save
+    end
+
     # Writes the contents of @interface_config to @interface_file as `key`=`value` pairs
     # and resets the interface
     #

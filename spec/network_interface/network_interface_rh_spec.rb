@@ -225,6 +225,16 @@ EOF
     end
   end
 
+  describe '#apply_static6' do
+    it 'sets the static IPv6 configuration' do
+      expect(dhcp_interface).to receive(:save)
+      dhcp_interface.apply_static6('d:e:a:d:b:e:e:f', 127, 'd:e:a:d::/64', ['d:e:a:d::'])
+      conf = dhcp_interface.interface_config
+      expect(conf).to include('BOOTPROTO' => 'static', 'IPV6INIT' => 'yes', 'DHCPV6C' => 'no',
+                              'IPV6ADDR' => 'd:e:a:d:b:e:e:f/127', 'IPV6_DEFAULTGW' => 'd:e:a:d::/64')
+    end
+  end
+
   describe "#save" do
     let(:iface_file) { Pathname.new("/etc/sysconfig/network-scripts/ifcfg-#{device_name}") }
 
