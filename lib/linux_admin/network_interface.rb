@@ -53,7 +53,7 @@ module LinuxAdmin
 
       [4, 6].each do |version|
         ip_route_res = Common.run!(Common.cmd("ip"), :params => ["-#{version}", "route"])
-        @network_conf["gateway#{version}".to_sym] = parse_ip_output(ip_route_res.output, /^default/, 2) if ip_route_res.success?
+        @network_conf["gateway#{version}".to_sym] = parse_ip_output(ip_route_res.output, /^default/, 2)
       end
       true
     rescue AwesomeSpawn::CommandResultError => e
