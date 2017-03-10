@@ -52,12 +52,9 @@ module LinuxAdmin
       @network_conf[:mac] = parse_ip_output(ip_output, %r{link/ether}, 1)
 
       [4, 6].each do |version|
-        ip_route_res = Common.run!(Common.cmd("ip"), :params => ["-#{version}", "route"])
-        @network_conf["gateway#{version}".to_sym] = parse_ip_output(ip_route_res.output, /^default/, 2)
+        @network_conf["gateway#{version}".to_sym] = parse_ip_output(ip_route(version), /^default/, 2)
       end
       true
-    rescue AwesomeSpawn::CommandResultError => e
-      raise NetworkInterfaceError.new(e.message, e.result)
     end
 
     # Retrieve the IPv4 address assigned to the interface
@@ -157,6 +154,17 @@ module LinuxAdmin
     # @raise [NetworkInterfaceError] if the command fails
     def ip_show
       Common.run!(Common.cmd("ip"), :params => ["addr", "show", @interface]).output
+    rescue AwesomeSpawn::CommandResultError => e
+      raise NetworkInterfaceError.new(e.message, e.result)
+    end
+
+    # Runs the command `ip -[4/6] route` and returns the output
+    #
+    # @param version [Fixnum] Version of IP protocol (4 or 6)
+    # @return [String] The command output
+    # @raise [NetworkInterfaceError] if the command fails
+    def ip_route(version)
+      Common.run!(Common.cmd("ip"), :params => ["-#{version}", 'route']).output
     rescue AwesomeSpawn::CommandResultError => e
       raise NetworkInterfaceError.new(e.message, e.result)
     end
