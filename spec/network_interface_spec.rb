@@ -215,6 +215,12 @@ IP_OUT
       end
     end
 
+    describe '#gateway6' do
+      it 'returns the correct default gateway for IPv6 routing' do
+        expect(subj.gateway6).to eq('d:e:a:d:b:e:e:f')
+      end
+    end
+
     describe "#start" do
       it "returns true on success" do
         expect(AwesomeSpawn).to receive(:run).with(*IFUP_ARGS).and_return(result("", 0))
