@@ -107,6 +107,24 @@ module LinuxAdmin
       end
     end
 
+    # Retrieve the IPv4 sub-net prefix length assigned to the interface
+    #
+    # @return [Numeric] IPv4 prefix length
+    def prefix
+      @network_conf[:prefix]
+    end
+
+    # Retrieve the IPv6 sub-net prefix length assigned to the interface
+    #
+    # @return [Numeric] IPv6 prefix length
+    def prefix6(scope = :global)
+      if [:global, :link].include?(scope)
+        @network_conf["prefix6_#{scope}".to_sym]
+      else
+        raise ArgumentError, "Unrecognized address scope #{scope}"
+      end
+    end
+
     # Retrieve the IPv4 default gateway associated with the interface
     #
     # @return [String] IPv4 gateway address
@@ -176,8 +194,10 @@ module LinuxAdmin
       cidr_ip = parse_ip_output(ip_output, /inet /, 1)
       return unless cidr_ip
 
-      @network_conf[:address] = cidr_ip.split('/')[0]
-      @network_conf[:mask] = IPAddr.new('255.255.255.255').mask(cidr_ip.split('/')[1]).to_s
+      parts = cidr_ip.split('/')
+      @network_conf[:address] = parts[0]
+      @network_conf[:mask] = IPAddr.new('255.255.255.255').mask(parts[1]).to_s
+      @network_conf[:prefix] = parts[1].to_i
     end
 
     # Parses the IPv6 information from the output of `ip addr show <device>`
@@ -192,6 +212,7 @@ module LinuxAdmin
       parts = cidr_ip.split('/')
       @network_conf["address6_#{scope}".to_sym] = parts[0]
       @network_conf["mask6_#{scope}".to_sym] = mask_addr.mask(parts[1]).to_s
+      @network_conf["prefix6_#{scope}".to_sym] = parts[1].to_i
     end
   end
 end
