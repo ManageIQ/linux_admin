@@ -39,6 +39,18 @@ module LinuxAdmin
       @interface_config["IPADDR"]    = address
     end
 
+    # Set the IPv6 address for this interface
+    #
+    # @param address [String] IPv6 address including the prefix length (i.e. '::1/127')
+    # @raise ArgumentError if the address is not formatted properly
+    def address6=(address)
+      validate_ip(address)
+      @interface_config['BOOTPROTO'] = 'static'
+      @interface_config['IPV6INIT']  = 'yes'
+      @interface_config['DHCPV6C']   = 'no'
+      @interface_config['IPV6ADDR']  = address
+    end
+
     # Set the IPv4 gateway address for this interface
     #
     # @param address [String]
@@ -46,6 +58,15 @@ module LinuxAdmin
     def gateway=(address)
       validate_ip(address)
       @interface_config["GATEWAY"] = address
+    end
+
+    # Set the IPv6 gateway address for this interface
+    #
+    # @param address [String] IPv6 address optionally including the prefix length
+    # @raise ArgumentError if the address is not formatted properly
+    def gateway6=(address)
+      validate_ip(address)
+      @interface_config['IPV6_DEFAULTGW'] = address
     end
 
     # Set the IPv4 sub-net mask for this interface
@@ -99,6 +120,23 @@ module LinuxAdmin
       self.address      = ip
       self.netmask      = mask
       self.gateway      = gw
+      self.dns          = dns
+      self.search_order = search if search
+      save
+    end
+
+    # Applies the given static IPv6 network configuration to the interface
+    #
+    # @param ip [String] IPv6 address
+    # @param prefix [Number] prefix length for IPv6 address
+    # @param gw [String] gateway address
+    # @param dns [Array<String>] list of dns servers
+    # @param search [Array<String>] list of search domains
+    # @return [Boolean] true on success, false otherwise
+    # @raise ArgumentError if an IP is not formatted properly or interface does not start
+    def apply_static6(ip, prefix, gw, dns, search = nil)
+      self.address6     = "#{ip}/#{prefix}"
+      self.gateway6     = gw
       self.dns          = dns
       self.search_order = search if search
       save

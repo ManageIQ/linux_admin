@@ -100,6 +100,22 @@ EOF
     end
   end
 
+  describe '#address6=' do
+    it 'sets the ipv6 address' do
+      address = 'fe80::1/64'
+      dhcp_interface.address6 = address
+      conf = dhcp_interface.interface_config
+      expect(conf['IPV6ADDR']).to eq(address)
+      expect(conf['BOOTPROTO']).to eq('static')
+      expect(conf['IPV6INIT']).to eq('yes')
+      expect(conf['DHCPV6C']).to eq('no')
+    end
+
+    it 'raises error when given a bad address' do
+      expect { dhcp_interface.address6 = '1::1::1' }.to raise_error(ArgumentError)
+    end
+  end
+
   describe "#gateway=" do
     it "sets the gateway address" do
       address = "192.168.1.1"
@@ -109,6 +125,14 @@ EOF
 
     it "raises argument error when given a bad address" do
       expect { dhcp_interface.gateway = "garbage" }.to raise_error(ArgumentError)
+    end
+  end
+
+  describe '#gateway6=' do
+    it 'sets the default gateway for IPv6' do
+      address = 'fe80::1/64'
+      dhcp_interface.gateway6 = address
+      expect(dhcp_interface.interface_config['IPV6_DEFAULTGW']).to eq(address)
     end
   end
 
@@ -198,6 +222,16 @@ EOF
       expect(conf["DNS1"]).to      eq("192.168.1.1")
       expect(conf["DNS2"]).to      be_nil
       expect(conf["DOMAIN"]).to    eq("\"localhost\"")
+    end
+  end
+
+  describe '#apply_static6' do
+    it 'sets the static IPv6 configuration' do
+      expect(dhcp_interface).to receive(:save)
+      dhcp_interface.apply_static6('d:e:a:d:b:e:e:f', 127, 'd:e:a:d::/64', ['d:e:a:d::'])
+      conf = dhcp_interface.interface_config
+      expect(conf).to include('BOOTPROTO' => 'static', 'IPV6INIT' => 'yes', 'DHCPV6C' => 'no',
+                              'IPV6ADDR' => 'd:e:a:d:b:e:e:f/127', 'IPV6_DEFAULTGW' => 'd:e:a:d::/64')
     end
   end
 
