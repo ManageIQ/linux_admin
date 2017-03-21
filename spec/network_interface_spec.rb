@@ -209,6 +209,26 @@ IP_OUT
       end
     end
 
+    describe '#prefix' do
+      it 'returns the correct prefix' do
+        expect(subj.prefix).to eq(24)
+      end
+    end
+
+    describe '#prefix6' do
+      it 'returns the correct global prefix length' do
+        expect(subj.prefix6).to eq(96)
+      end
+
+      it 'returns the correct link local prefix length' do
+        expect(subj.prefix6(:link)).to eq(64)
+      end
+
+      it 'raises ArgumentError when given a bad scope' do
+        expect { subj.prefix6(:garbage) }.to raise_error(ArgumentError)
+      end
+    end
+
     describe "#gateway" do
       it "returns the correct gateway address" do
         expect(subj.gateway).to eq("192.168.1.1")
