@@ -195,17 +195,17 @@ IP_OUT
       end
     end
 
-    describe "#netmask6" do
-      it "returns the correct global netmask" do
-        expect(subj.netmask6).to eq("ffff:ffff:ffff:ffff:ffff:ffff::")
+    describe '#prefix6' do
+      it 'returns the correct global prefix' do
+        expect(subj.prefix6).to eq('96')
       end
 
-      it "returns the correct link local netmask" do
-        expect(subj.netmask6(:link)).to eq("ffff:ffff:ffff:ffff::")
+      it 'returns the correct local prefix' do
+        expect(subj.prefix6(:link)).to eq('64')
       end
 
-      it "raises ArgumentError when given a bad scope" do
-        expect { subj.netmask6(:garbage) }.to raise_error(ArgumentError)
+      it 'raises ArgumentError when given a bad scope' do
+        expect { subj.prefix6(:garbage) }.to raise_error(ArgumentError)
       end
     end
 
