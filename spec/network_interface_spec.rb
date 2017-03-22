@@ -113,6 +113,11 @@ fc00:dead:beef:a::/64 dev virbr1  proto kernel  metric 256 linkdown  pref medium
 fe80::/64 dev eth0  proto kernel  scope link metric 100
 IP_OUT
 
+    IP_NONE_ADDR_OUT = <<-IP_OUT.freeze
+2: eth0: <BROADCAST,MULTICAST> mtu 1500 qdisc fq_codel master virbr1 state DOWN group default qlen 1000
+    link/ether 52:54:00:ce:b4:f4 brd ff:ff:ff:ff:ff:ff
+IP_OUT
+
     subject(:subj) do
       allow(LinuxAdmin::Distros).to receive(:local).and_return(LinuxAdmin::Distros.generic)
       described_class.dist_class(true)
@@ -128,6 +133,16 @@ IP_OUT
       described_class.dist_class(true)
 
       allow(AwesomeSpawn).to receive(:run!).with(*IP_SHOW_ARGS).and_return(result(IP6_ADDR_OUT, 0))
+      allow(AwesomeSpawn).to receive(:run!).with(*IP_ROUTE_ARGS).and_return(result(IP_ROUTE_OUT, 0))
+      allow(AwesomeSpawn).to receive(:run!).with(*IP6_ROUTE_ARGS).and_return(result(IP6_ROUTE_OUT, 0))
+      described_class.new("eth0")
+    end
+
+    subject(:subj_no_net) do
+      allow(LinuxAdmin::Distros).to receive(:local).and_return(LinuxAdmin::Distros.generic)
+      described_class.dist_class(true)
+
+      allow(AwesomeSpawn).to receive(:run!).with(*IP_SHOW_ARGS).and_return(result(IP_NONE_ADDR_OUT, 0))
       allow(AwesomeSpawn).to receive(:run!).with(*IP_ROUTE_ARGS).and_return(result(IP_ROUTE_OUT, 0))
       allow(AwesomeSpawn).to receive(:run!).with(*IP6_ROUTE_ARGS).and_return(result(IP6_ROUTE_OUT, 0))
       described_class.new("eth0")
@@ -192,6 +207,10 @@ IP_OUT
     describe "#netmask" do
       it "returns the correct netmask" do
         expect(subj.netmask).to eq("255.255.255.0")
+      end
+
+      it 'does not blow-up, when no ip assigned' do
+        expect(subj_no_net.netmask).to eq(nil)
       end
     end
 
