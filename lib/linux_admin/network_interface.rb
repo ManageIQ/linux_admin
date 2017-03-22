@@ -90,7 +90,7 @@ module LinuxAdmin
     #
     # @return [String] IPv4 netmask
     def netmask
-      @network_conf[:mask] ||= IPAddr.new('255.255.255.255').mask(prefix).to_s
+      @network_conf[:mask] ||= IPAddr.new('255.255.255.255').mask(prefix).to_s if prefix
     end
 
     # Retrieve the IPv6 sub-net mask assigned to the interface
@@ -99,7 +99,7 @@ module LinuxAdmin
     # @raise [ArgumentError] if the given scope is not `:global` or `:link`
     def netmask6(scope = :global)
       if [:global, :link].include?(scope)
-        @network_conf["mask6_#{scope}".to_sym] ||= IPAddr.new('ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff').mask(prefix6(scope)).to_s
+        @network_conf["mask6_#{scope}".to_sym] ||= IPAddr.new('ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff').mask(prefix6(scope)).to_s if prefix6(scope)
       else
         raise ArgumentError, "Unrecognized address scope #{scope}"
       end
