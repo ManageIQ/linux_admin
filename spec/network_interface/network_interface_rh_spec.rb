@@ -209,6 +209,17 @@ EOF
     end
   end
 
+  describe '#enable_dhcp6' do
+    it 'sets the correct configuration' do
+      [static_interface, dhcp_interface].each do |interface|
+        interface.enable_dhcp6
+        conf = interface.interface_config
+        expect(conf).to include('IPV6INIT' => 'yes', 'DHCPV6C' => 'yes')
+        expect(conf.keys).not_to include('IPV6ADDR', 'IPV6_DEFAULTGW')
+      end
+    end
+  end
+
   describe "#apply_static" do
     it "sets the correct configuration" do
       expect(dhcp_interface).to receive(:save)
