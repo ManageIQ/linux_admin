@@ -95,13 +95,25 @@ module LinuxAdmin
     end
 
     # Set up the interface to use DHCP
-    # Removes any previously set static networking information
+    # Removes any previously set static IPv4 networking information
     def enable_dhcp
       @interface_config["BOOTPROTO"] = "dhcp"
       @interface_config.delete("IPADDR")
       @interface_config.delete("NETMASK")
       @interface_config.delete("GATEWAY")
       @interface_config.delete("PREFIX")
+      @interface_config.delete("DNS1")
+      @interface_config.delete("DNS2")
+      @interface_config.delete("DOMAIN")
+    end
+
+    # Set up the interface to use DHCPv6
+    # Removes any previously set static IPv6 networking information
+    def enable_dhcp6
+      @interface_config['IPV6INIT'] = 'yes'
+      @interface_config['DHCPV6C'] = 'yes'
+      @interface_config.delete('IPV6ADDR')
+      @interface_config.delete('IPV6_DEFAULTGW')
       @interface_config.delete("DNS1")
       @interface_config.delete("DNS2")
       @interface_config.delete("DOMAIN")
