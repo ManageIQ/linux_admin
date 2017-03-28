@@ -33,6 +33,7 @@ require 'linux_admin/ip_address'
 require 'linux_admin/dns'
 require 'linux_admin/network_interface'
 require 'linux_admin/chrony'
+require 'linux_admin/process'
 
 module LinuxAdmin
   class << self
