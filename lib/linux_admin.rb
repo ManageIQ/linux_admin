@@ -38,10 +38,13 @@ require 'forwardable'
 module LinuxAdmin
   class << self
     extend Forwardable
+    extend Gem::Deprecate
     attr_writer :logger
 
     def_delegators Common, :run
     def_delegators Common, :run!
+    deprecate :run,  "AwesomeSpawn.run",  2017, 6
+    deprecate :run!, "AwesomeSpawn.run!", 2017, 6
   end
 
   def self.logger
