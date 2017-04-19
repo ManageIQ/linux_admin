@@ -33,10 +33,15 @@ require 'linux_admin/ip_address'
 require 'linux_admin/dns'
 require 'linux_admin/network_interface'
 require 'linux_admin/chrony'
+require 'forwardable'
 
 module LinuxAdmin
   class << self
+    extend Forwardable
     attr_writer :logger
+
+    def_delegators Common, :run
+    def_delegators Common, :run!
   end
 
   def self.logger

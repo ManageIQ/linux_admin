@@ -19,17 +19,19 @@ describe LinuxAdmin::Common do
     end
   end
 
-  describe "#run" do
-    it "runs a command with AwesomeSpawn.run" do
-      expect(AwesomeSpawn).to receive(:run).with("echo", nil => "test")
-      described_class.run("echo", nil => "test")
+  [described_class, LinuxAdmin].each do |klass|
+    describe "#{klass}.run" do
+      it "runs a command with AwesomeSpawn.run" do
+        expect(AwesomeSpawn).to receive(:run).with("echo", nil => "test")
+        klass.run("echo", nil => "test")
+      end
     end
-  end
 
-  describe "#run!" do
-    it "runs a command with AwesomeSpawn.run!" do
-      expect(AwesomeSpawn).to receive(:run!).with("echo", nil => "test")
-      described_class.run!("echo", nil => "test")
+    describe "#{klass}.run!" do
+      it "runs a command with AwesomeSpawn.run!" do
+        expect(AwesomeSpawn).to receive(:run!).with("echo", nil => "test")
+        klass.run!("echo", nil => "test")
+      end
     end
   end
 end
