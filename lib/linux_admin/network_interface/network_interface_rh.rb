@@ -161,7 +161,9 @@ module LinuxAdmin
     def save
       old_contents = File.read(@interface_file)
 
-      return false unless stop
+      stop_success = stop
+      stop_success = stop unless stop_success
+      return false unless stop_success
 
       File.write(@interface_file, @interface_config.delete_blanks.collect { |k, v| "#{k}=#{v}" }.join("\n"))
 
