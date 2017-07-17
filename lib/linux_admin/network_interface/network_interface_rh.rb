@@ -45,7 +45,6 @@ module LinuxAdmin
     # @raise ArgumentError if the address is not formatted properly
     def address6=(address)
       validate_ip(address)
-      @interface_config['BOOTPROTO'] = 'static'
       @interface_config['IPV6INIT']  = 'yes'
       @interface_config['DHCPV6C']   = 'no'
       @interface_config['IPV6ADDR']  = address

@@ -106,7 +106,6 @@ EOF
       dhcp_interface.address6 = address
       conf = dhcp_interface.interface_config
       expect(conf['IPV6ADDR']).to eq(address)
-      expect(conf['BOOTPROTO']).to eq('static')
       expect(conf['IPV6INIT']).to eq('yes')
       expect(conf['DHCPV6C']).to eq('no')
     end
@@ -241,8 +240,7 @@ EOF
       expect(dhcp_interface).to receive(:save)
       dhcp_interface.apply_static6('d:e:a:d:b:e:e:f', 127, 'd:e:a:d::/64', ['d:e:a:d::'])
       conf = dhcp_interface.interface_config
-      expect(conf).to include('BOOTPROTO' => 'static', 'IPV6INIT' => 'yes', 'DHCPV6C' => 'no',
-                              'IPV6ADDR' => 'd:e:a:d:b:e:e:f/127', 'IPV6_DEFAULTGW' => 'd:e:a:d::/64')
+      expect(conf).to include('IPV6INIT' => 'yes', 'DHCPV6C' => 'no', 'IPV6ADDR' => 'd:e:a:d:b:e:e:f/127', 'IPV6_DEFAULTGW' => 'd:e:a:d::/64')
     end
   end
 
