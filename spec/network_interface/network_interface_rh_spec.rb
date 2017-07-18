@@ -269,7 +269,7 @@ EOF
 
     it "returns false when the interface cannot be brought down" do
       expect(File).to receive(:read).with(iface_file)
-      expect(dhcp_interface).to receive(:stop).and_return(false)
+      expect(dhcp_interface).to receive(:stop).twice.and_return(false)
       expect(File).not_to receive(:write)
       expect(dhcp_interface.save).to be false
     end
