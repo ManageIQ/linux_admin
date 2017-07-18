@@ -162,6 +162,11 @@ module LinuxAdmin
       old_contents = File.read(@interface_file)
 
       stop_success = stop
+      # Stop twice because when configure both ipv4 and ipv6 as dhcp, ipv6 dhcp client will
+      # exit and leave a /var/run/dhclient6-eth0.pid file. Then stop (ifdown eth0) will try
+      # to kill this exited process so it returns 1. In the second call, this `.pid' file
+      # has been deleted and ifdown returns 0.
+      # See: https://bugzilla.redhat.com/show_bug.cgi?id=1472396
       stop_success = stop unless stop_success
       return false unless stop_success
 
