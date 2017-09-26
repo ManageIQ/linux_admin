@@ -5,6 +5,8 @@ module LinuxAdmin
     PROFILE_ID = "linux-admin-scap"
     SSG_XML_PATH = Pathname.new("/usr/share/xml/scap/ssg/content/")
 
+    attr_reader :platform
+
     def self.openscap_available?
       require 'openscap'
       true
@@ -12,13 +14,21 @@ module LinuxAdmin
       false
     end
 
-    def self.ssg_available?
-      xccdf_file && oval_file
+    def self.ssg_available?(platform = nil)
+      xccdf_file(platform) && oval_file(platform)
+    end
+
+    def initialize(platform = nil)
+      @platform = platform
+    end
+
+    def ssg_available?
+      self.class.ssg_available?(platform)
     end
 
     def lockdown(*args)
       raise "OpenSCAP not available" unless self.class.openscap_available?
-      raise "SCAP Security Guide not available" unless self.class.ssg_available?
+      raise "SCAP Security Guide not available" unless ssg_available?
 
       values = args.last.kind_of?(Hash) ? args.pop : {}
       rules = args
@@ -44,16 +54,17 @@ module LinuxAdmin
 
     private
 
-    def self.xccdf_file
-      local_ssg_file("xccdf")
+    def self.xccdf_file(platform)
+      local_ssg_file("xccdf", platform)
     end
 
-    def self.oval_file
-      local_ssg_file("oval")
+    def self.oval_file(platform)
+      local_ssg_file("oval", platform)
     end
 
-    def self.local_ssg_file(type)
-      Dir.glob(SSG_XML_PATH.join("ssg-*-#{type}.xml")).detect { |f| f =~ /ssg-\w+-#{type}.xml/ }
+    def self.local_ssg_file(type, platform)
+      platform ||= "*"
+      Dir.glob(SSG_XML_PATH.join("ssg-#{platform}-#{type}.xml")).detect { |f| f =~ /ssg-\w+-#{type}.xml/ }
     end
 
     def tempdir
@@ -61,11 +72,11 @@ module LinuxAdmin
     end
 
     def xccdf_file
-      @xccdf_file ||= self.class.xccdf_file
+      @xccdf_file ||= self.class.xccdf_file(platform)
     end
 
     def oval_file
-      @oval_file ||= self.class.oval_file
+      @oval_file ||= self.class.oval_file(platform)
     end
 
     def with_xml_files(rules, values)
