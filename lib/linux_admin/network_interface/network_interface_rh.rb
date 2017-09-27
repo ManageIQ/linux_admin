@@ -180,7 +180,7 @@ module LinuxAdmin
         return false
       end
 
-      true
+      reload
     end
 
     def self.path_to_interface_config_file(interface)
