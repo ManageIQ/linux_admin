@@ -41,44 +41,6 @@ module LinuxAdmin
         }
     end
 
-    private
-
-    def parted_output
-      # TODO: Should this really catch non-zero RC, set output to the default "" and silently return [] ?
-      #   If so, should other calls to parted also do the same?
-      # requires sudo
-      out = Common.run(Common.cmd(:parted),
-                :params => { nil => parted_options_array('print') }).output
-      split = []
-      out.each_line do |l|
-        if l =~ /^ [0-9].*/
-          split << l.split
-        end
-      end
-      split
-    end
-
-
-    def partition_from_parted(output_disk)
-      args = {:disk => self}
-      PARTED_FIELDS.each_index do |i|
-        val = output_disk[i]
-        case PARTED_FIELDS[i]
-        when :start_sector, :end_sector, :size
-          if val =~ /([0-9\.]*)([KMG])B/
-            val = str_to_bytes($1, $2)
-          end
-
-        when :id
-          val = val.to_i
-
-        end
-        args[PARTED_FIELDS[i]] = val
-      end
-
-      Partition.new(args)
-    end
-
     public
 
     def create_partition_table(type = "msdos")
@@ -181,6 +143,42 @@ module LinuxAdmin
       if overlapping_ranges?(ranges)
         raise ArgumentError, "overlapping partitions"
       end
+    end
+
+    def parted_output
+      # TODO: Should this really catch non-zero RC, set output to the default "" and silently return [] ?
+      #   If so, should other calls to parted also do the same?
+      # requires sudo
+      out = Common.run(Common.cmd(:parted),
+                :params => { nil => parted_options_array('print') }).output
+      split = []
+      out.each_line do |l|
+        if l =~ /^ [0-9].*/
+          split << l.split
+        end
+      end
+      split
+    end
+
+
+    def partition_from_parted(output_disk)
+      args = {:disk => self}
+      PARTED_FIELDS.each_index do |i|
+        val = output_disk[i]
+        case PARTED_FIELDS[i]
+        when :start_sector, :end_sector, :size
+          if val =~ /([0-9\.]*)([KMG])B/
+            val = str_to_bytes($1, $2)
+          end
+
+        when :id
+          val = val.to_i
+
+        end
+        args[PARTED_FIELDS[i]] = val
+      end
+
+      Partition.new(args)
     end
 
     def parted_options_array(*args)
