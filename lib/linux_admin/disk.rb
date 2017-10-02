@@ -8,49 +8,6 @@ module LinuxAdmin
 
     attr_accessor :path
 
-    private
-
-    def str_to_bytes(val, unit)
-      case unit
-      when 'K' then
-        val.to_f * 1_024 # 1.kilobytes
-      when 'M' then
-        val.to_f * 1_048_576 # 1.megabyte
-      when 'G' then
-        val.to_f * 1_073_741_824 # 1.gigabytes
-      end
-    end
-
-    def overlapping_ranges?(ranges)
-      ranges.find do |range1|
-        ranges.any? do |range2|
-          range1 != range2 &&
-            ranges_overlap?(range1, range2)
-        end
-      end
-    end
-
-    def ranges_overlap?(range1, range2) # copied from activesupport Range#overlaps?
-      range1.cover?(range2.first) || range2.cover?(range1.first)
-    end
-
-    def check_if_partitions_overlap(partitions)
-      ranges =
-        partitions.collect do |partition|
-          start  = partition[:start]
-          finish = partition[:end]
-          start.delete('%')
-          finish.delete('%')
-          start.to_f..finish.to_f
-        end
-
-      if overlapping_ranges?(ranges)
-        raise ArgumentError, "overlapping partitions"
-      end
-    end
-
-    public
-
     def self.local
       Dir.glob(['/dev/[vhs]d[a-z]', '/dev/xvd[a-z]']).collect do |d|
         Disk.new :path => d
@@ -81,46 +38,6 @@ module LinuxAdmin
           partition_from_parted(disk)
         }
     end
-
-    private
-
-    def parted_output
-      # TODO: Should this really catch non-zero RC, set output to the default "" and silently return [] ?
-      #   If so, should other calls to parted also do the same?
-      # requires sudo
-      out = Common.run(Common.cmd(:parted),
-                :params => { nil => parted_options_array('print') }).output
-      split = []
-      out.each_line do |l|
-        if l =~ /^ [0-9].*/
-          split << l.split
-        end
-      end
-      split
-    end
-
-
-    def partition_from_parted(output_disk)
-      args = {:disk => self}
-      PARTED_FIELDS.each_index do |i|
-        val = output_disk[i]
-        case PARTED_FIELDS[i]
-        when :start_sector, :end_sector, :size
-          if val =~ /([0-9\.]*)([KMG])B/
-            val = str_to_bytes($1, $2)
-          end
-
-        when :id
-          val = val.to_i
-
-        end
-        args[PARTED_FIELDS[i]] = val
-      end
-
-      Partition.new(args)
-    end
-
-    public
 
     def create_partition_table(type = "msdos")
       Common.run!(Common.cmd(:parted), :params => {nil => parted_options_array("mklabel", type)})
@@ -184,6 +101,81 @@ module LinuxAdmin
     end
 
     private
+
+    def str_to_bytes(val, unit)
+      case unit
+      when 'K' then
+        val.to_f * 1_024 # 1.kilobytes
+      when 'M' then
+        val.to_f * 1_048_576 # 1.megabyte
+      when 'G' then
+        val.to_f * 1_073_741_824 # 1.gigabytes
+      end
+    end
+
+    def overlapping_ranges?(ranges)
+      ranges.find do |range1|
+        ranges.any? do |range2|
+          range1 != range2 &&
+            ranges_overlap?(range1, range2)
+        end
+      end
+    end
+
+    def ranges_overlap?(range1, range2) # copied from activesupport Range#overlaps?
+      range1.cover?(range2.first) || range2.cover?(range1.first)
+    end
+
+    def check_if_partitions_overlap(partitions)
+      ranges =
+        partitions.collect do |partition|
+          start  = partition[:start]
+          finish = partition[:end]
+          start.delete('%')
+          finish.delete('%')
+          start.to_f..finish.to_f
+        end
+
+      if overlapping_ranges?(ranges)
+        raise ArgumentError, "overlapping partitions"
+      end
+    end
+
+    def parted_output
+      # TODO: Should this really catch non-zero RC, set output to the default "" and silently return [] ?
+      #   If so, should other calls to parted also do the same?
+      # requires sudo
+      out = Common.run(Common.cmd(:parted),
+                :params => { nil => parted_options_array('print') }).output
+      split = []
+      out.each_line do |l|
+        if l =~ /^ [0-9].*/
+          split << l.split
+        end
+      end
+      split
+    end
+
+
+    def partition_from_parted(output_disk)
+      args = {:disk => self}
+      PARTED_FIELDS.each_index do |i|
+        val = output_disk[i]
+        case PARTED_FIELDS[i]
+        when :start_sector, :end_sector, :size
+          if val =~ /([0-9\.]*)([KMG])B/
+            val = str_to_bytes($1, $2)
+          end
+
+        when :id
+          val = val.to_i
+
+        end
+        args[PARTED_FIELDS[i]] = val
+      end
+
+      Partition.new(args)
+    end
 
     def parted_options_array(*args)
       args = args.first if args.first.kind_of?(Array)
