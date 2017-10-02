@@ -8,8 +8,6 @@ module LinuxAdmin
 
     attr_accessor :path
 
-    public
-
     def self.local
       Dir.glob(['/dev/[vhs]d[a-z]', '/dev/xvd[a-z]']).collect do |d|
         Disk.new :path => d
@@ -40,8 +38,6 @@ module LinuxAdmin
           partition_from_parted(disk)
         }
     end
-
-    public
 
     def create_partition_table(type = "msdos")
       Common.run!(Common.cmd(:parted), :params => {nil => parted_options_array("mklabel", type)})
