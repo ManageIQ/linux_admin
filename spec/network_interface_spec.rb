@@ -1,22 +1,7 @@
 describe LinuxAdmin::NetworkInterface do
+  let(:device_name) { "eth0" }
+  let(:config_file_path) { LinuxAdmin::NetworkInterfaceRH.path_to_interface_config_file(device_name) }
   context "on redhat systems" do
-    subject(:subj_success) do
-      allow_any_instance_of(described_class).to receive(:ip_show).and_return(nil)
-      allow(LinuxAdmin::Distros).to receive(:local).and_return(LinuxAdmin::Distros.rhel)
-      described_class.dist_class(true)
-      allow(File).to receive(:exist?).and_return(true)
-      allow(File).to receive(:foreach).and_return("")
-      described_class.new("eth0")
-    end
-
-    subject(:subj_failure) do
-      allow_any_instance_of(described_class).to receive(:ip_show).and_return(nil)
-      allow(LinuxAdmin::Distros).to receive(:local).and_return(LinuxAdmin::Distros.rhel)
-      described_class.dist_class(true)
-      allow(File).to receive(:exist?).and_return(false)
-      described_class.new("eth0")
-    end
-
     describe ".dist_class" do
       it "returns NetworkInterfaceRH" do
         allow(LinuxAdmin::Distros).to receive(:local).and_return(LinuxAdmin::Distros.rhel)
@@ -25,24 +10,29 @@ describe LinuxAdmin::NetworkInterface do
     end
 
     describe ".new" do
-      it "creates a NetworkInterfaceRH instance" do
-        expect(subj_success).to be_an_instance_of(LinuxAdmin::NetworkInterfaceRH)
+      before do
+        allow_any_instance_of(described_class).to receive(:ip_show).and_raise(LinuxAdmin::NetworkInterfaceError.new(nil, nil))
+        allow(LinuxAdmin::Distros).to receive(:local).and_return(LinuxAdmin::Distros.rhel)
+        described_class.dist_class(true)
+        allow(Pathname).to receive(:new).and_return(config_file_path)
       end
 
-      it "creates a NetworkInterfaceGeneric instance if the config file does not exist" do
-        expect(subj_failure).to be_an_instance_of(LinuxAdmin::NetworkInterfaceGeneric)
+      it "creates a NetworkInterfaceRH instance if the config file does exist" do
+        expect(config_file_path).to receive(:file?).and_return(true)
+        expect(File).to receive(:foreach).and_return("")
+
+        expect(described_class.new(device_name)).to be_an_instance_of(LinuxAdmin::NetworkInterfaceRH)
+      end
+
+      it "creates a NetworkInterfaceRH instance if the config file does not exist" do
+        expect(config_file_path).to receive(:file?).and_return(false)
+
+        expect(described_class.new(device_name)).to be_an_instance_of(LinuxAdmin::NetworkInterfaceRH)
       end
     end
   end
 
   context "on other linux systems" do
-    subject do
-      allow_any_instance_of(described_class).to receive(:ip_show).and_return(nil)
-      allow(LinuxAdmin::Distros).to receive(:local).and_return(LinuxAdmin::Distros.generic)
-      described_class.dist_class(true)
-      described_class.new("eth0")
-    end
-
     describe ".dist_class" do
       it "returns NetworkInterfaceGeneric" do
         allow(LinuxAdmin::Distros).to receive(:local).and_return(LinuxAdmin::Distros.generic)
@@ -51,6 +41,13 @@ describe LinuxAdmin::NetworkInterface do
     end
 
     describe ".new" do
+      subject do
+        allow_any_instance_of(described_class).to receive(:ip_show).and_raise(LinuxAdmin::NetworkInterfaceError.new(nil, nil))
+        allow(LinuxAdmin::Distros).to receive(:local).and_return(LinuxAdmin::Distros.generic)
+        described_class.dist_class(true)
+        described_class.new(device_name)
+      end
+
       it "creates a NetworkInterfaceGeneric instance" do
         expect(subject).to be_an_instance_of(LinuxAdmin::NetworkInterfaceGeneric)
       end
@@ -125,7 +122,7 @@ IP_OUT
       allow(AwesomeSpawn).to receive(:run!).with(*IP_SHOW_ARGS).and_return(result(IP_ADDR_OUT, 0))
       allow(AwesomeSpawn).to receive(:run!).with(*IP_ROUTE_ARGS).and_return(result(IP_ROUTE_OUT, 0))
       allow(AwesomeSpawn).to receive(:run!).with(*IP6_ROUTE_ARGS).and_return(result(IP6_ROUTE_OUT, 0))
-      described_class.new("eth0")
+      described_class.new(device_name)
     end
 
     subject(:subj6) do
@@ -135,7 +132,7 @@ IP_OUT
       allow(AwesomeSpawn).to receive(:run!).with(*IP_SHOW_ARGS).and_return(result(IP6_ADDR_OUT, 0))
       allow(AwesomeSpawn).to receive(:run!).with(*IP_ROUTE_ARGS).and_return(result(IP_ROUTE_OUT, 0))
       allow(AwesomeSpawn).to receive(:run!).with(*IP6_ROUTE_ARGS).and_return(result(IP6_ROUTE_OUT, 0))
-      described_class.new("eth0")
+      described_class.new(device_name)
     end
 
     subject(:subj_no_net) do
@@ -145,7 +142,7 @@ IP_OUT
       allow(AwesomeSpawn).to receive(:run!).with(*IP_SHOW_ARGS).and_return(result(IP_NONE_ADDR_OUT, 0))
       allow(AwesomeSpawn).to receive(:run!).with(*IP_ROUTE_ARGS).and_return(result(IP_ROUTE_OUT, 0))
       allow(AwesomeSpawn).to receive(:run!).with(*IP6_ROUTE_ARGS).and_return(result(IP6_ROUTE_OUT, 0))
-      described_class.new("eth0")
+      described_class.new(device_name)
     end
 
     def result(output, exit_status)
@@ -153,11 +150,11 @@ IP_OUT
     end
 
     describe "#reload" do
-      it "raises when ip addr show fails" do
+      it "returns false when ip addr show fails" do
         subj
         awesome_error = AwesomeSpawn::CommandResultError.new("", nil)
         allow(AwesomeSpawn).to receive(:run!).with(*IP_SHOW_ARGS).and_raise(awesome_error)
-        expect { subj.reload }.to raise_error(LinuxAdmin::NetworkInterfaceError)
+        expect(subj.reload).to eq(false)
       end
 
       it "raises when ip route fails" do

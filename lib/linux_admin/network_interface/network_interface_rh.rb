@@ -10,8 +10,7 @@ module LinuxAdmin
 
     # @param interface [String] Name of the network interface to manage
     def initialize(interface)
-      @interface_file = Pathname.new(IFACE_DIR).join("ifcfg-#{interface}")
-      raise MissingConfigurationFileError unless File.exist?(@interface_file)
+      @interface_file = self.class.path_to_interface_config_file(interface)
       super
       parse_conf
     end
@@ -20,12 +19,15 @@ module LinuxAdmin
     def parse_conf
       @interface_config = {}
 
-      File.foreach(@interface_file) do |line|
-        next if line =~ /^\s*#/
+      if @interface_file.file?
+        File.foreach(@interface_file) do |line|
+          next if line =~ /^\s*#/
 
-        key, value = line.split('=').collect(&:strip)
-        @interface_config[key] = value
+          key, value = line.split('=').collect(&:strip)
+          @interface_config[key] = value
+        end
       end
+
       @interface_config["NM_CONTROLLED"] = "no"
     end
 
@@ -159,7 +161,7 @@ module LinuxAdmin
     # @return [Boolean] true if the interface was successfully brought up with the
     #   new configuration, false otherwise
     def save
-      old_contents = File.read(@interface_file)
+      old_contents = @interface_file.file? ? File.read(@interface_file) : ""
 
       stop_success = stop
       # Stop twice because when configure both ipv4 and ipv6 as dhcp, ipv6 dhcp client will
@@ -178,7 +180,11 @@ module LinuxAdmin
         return false
       end
 
-      true
+      reload
+    end
+
+    def self.path_to_interface_config_file(interface)
+      Pathname.new(IFACE_DIR).join("ifcfg-#{interface}")
     end
 
     private

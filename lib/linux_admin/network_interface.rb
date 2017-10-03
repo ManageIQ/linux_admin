@@ -23,15 +23,12 @@ module LinuxAdmin
     # Creates an instance of the correct NetworkInterface subclass for the local distro
     def self.new(*args)
       self == LinuxAdmin::NetworkInterface ? dist_class.new(*args) : super
-    rescue MissingConfigurationFileError
-      NetworkInterfaceGeneric.new(*args)
     end
 
     # @return [String] the interface for networking operations
     attr_reader :interface
 
     # @param interface [String] Name of the network interface to manage
-    # @raise [NetworkInterfaceError] if network information cannot be retrieved
     def initialize(interface)
       @interface = interface
       reload
@@ -40,10 +37,13 @@ module LinuxAdmin
     # Gathers current network information for this interface
     #
     # @return [Boolean] true if network information was gathered successfully
-    # @raise [NetworkInterfaceError] if network information cannot be retrieved
     def reload
       @network_conf = {}
-      return false unless (ip_output = ip_show)
+      begin
+        ip_output = ip_show
+      rescue NetworkInterfaceError
+        return false
+      end
 
       parse_ip4(ip_output)
       parse_ip6(ip_output, :global)
