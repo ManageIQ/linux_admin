@@ -1,3 +1,3 @@
 module LinuxAdmin
-  VERSION = "0.20.2".freeze
+  VERSION = "1.0.0".freeze
 end
