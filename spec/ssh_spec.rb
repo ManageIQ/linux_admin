@@ -33,7 +33,7 @@ sV1Tr/acrE0aWBkD9RYrR2/UwG1zfXuIJeufdWf8c0SY3X6J7jJN
   end
 
   it "should create a call using agent" do
-    expect(Net::SSH).to receive(:start).with("127.0.0.1", "root", :paranoid => false, :forward_agent => true, :number_of_password_prompts => 0, :agent_socket_factory => Proc).and_return(true)
+    expect(Net::SSH).to receive(:start).with("127.0.0.1", "root", :verify_host_key => false, :forward_agent => true, :number_of_password_prompts => 0, :agent_socket_factory => Proc).and_return(true)
     ssh_agent = LinuxAdmin::SSHAgent.new(@example_ssh_key)
     ssh_agent.with_service do |socket|
       ssh = LinuxAdmin::SSH.new("127.0.0.1", "root")
@@ -42,12 +42,12 @@ sV1Tr/acrE0aWBkD9RYrR2/UwG1zfXuIJeufdWf8c0SY3X6J7jJN
   end
 
   it "should preform command using private key" do
-    expect(Net::SSH).to receive(:start).with("127.0.0.1", "root", :paranoid => false, :number_of_password_prompts => 0, :key_data => [@example_ssh_key]).and_return(true)
+    expect(Net::SSH).to receive(:start).with("127.0.0.1", "root", :verify_host_key => false, :number_of_password_prompts => 0, :key_data => [@example_ssh_key]).and_return(true)
     LinuxAdmin::SSH.new("127.0.0.1", "root", @example_ssh_key).perform_commands(%w("ls", "pwd"))
   end
 
   it "should preform command using password" do
-    expect(Net::SSH).to receive(:start).with("127.0.0.1", "root", :paranoid => false, :number_of_password_prompts => 0, :password => "password").and_return(true)
+    expect(Net::SSH).to receive(:start).with("127.0.0.1", "root", :verify_host_key => false, :number_of_password_prompts => 0, :password => "password").and_return(true)
     LinuxAdmin::SSH.new("127.0.0.1", "root", nil, "password").perform_commands(%w("ls", "pwd"))
   end
 end
