@@ -6,7 +6,7 @@ module LinuxAdmin
     module ClassMethods
       def mount_point_exists?(mount_point)
         result = Common.run!(Common.cmd(:mount))
-        result.output.split("\n").any? { |line| line.split[2] == mount_point }
+        result.output.split("\n").any? { |line| line.split[2] == mount_point.to_s }
       end
 
       def mount_point_available?(mount_point)

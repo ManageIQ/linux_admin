@@ -37,16 +37,32 @@ eos
     end
 
     context "disk mounted at specified location" do
-      it "returns true" do
+      before do
         expect(LinuxAdmin::Common).to receive(:run!).and_return(double(:output => @mount_out1))
+      end
+
+      it "returns true" do
         expect(TestMountable.mount_point_exists?('/mnt/usb')).to be_truthy
+      end
+
+      it "returns true when using a pathname" do
+        path = Pathname.new("/mnt/usb")
+        expect(TestMountable.mount_point_exists?(path)).to be_truthy
       end
     end
 
     context "no disk mounted at specified location" do
-      it "returns false" do
+      before do
         expect(LinuxAdmin::Common).to receive(:run!).and_return(double(:output => @mount_out2))
+      end
+
+      it "returns false" do
         expect(TestMountable.mount_point_exists?('/mnt/usb')).to be_falsey
+      end
+
+      it "returns false when using a pathname" do
+        path = Pathname.new("/mnt/usb")
+        expect(TestMountable.mount_point_exists?(path)).to be_falsey
       end
     end
   end
@@ -59,16 +75,32 @@ eos
     end
 
     context "disk mounted at specified location" do
-      it "returns false" do
+      before do
         expect(LinuxAdmin::Common).to receive(:run!).and_return(double(:output => @mount_out1))
+      end
+
+      it "returns false" do
         expect(TestMountable.mount_point_available?('/mnt/usb')).to be_falsey
+      end
+
+      it "returns false when using a pathname" do
+        path = Pathname.new("/mnt/usb")
+        expect(TestMountable.mount_point_available?(path)).to be_falsey
       end
     end
 
     context "no disk mounted at specified location" do
-      it "returns true" do
+      before do
         expect(LinuxAdmin::Common).to receive(:run!).and_return(double(:output => @mount_out2))
+      end
+
+      it "returns true" do
         expect(TestMountable.mount_point_available?('/mnt/usb')).to be_truthy
+      end
+
+      it "returns true when using a pathname" do
+        path = Pathname.new("/mnt/usb")
+        expect(TestMountable.mount_point_available?(path)).to be_truthy
       end
     end
   end
