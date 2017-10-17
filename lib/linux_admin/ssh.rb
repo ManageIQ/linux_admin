@@ -25,7 +25,7 @@ module LinuxAdmin
 
     def execute_commands(commands, agent_socket, stdin)
       result = nil
-      args = {:paranoid => false, :number_of_password_prompts => 0}
+      args = {:verify_host_key => false, :number_of_password_prompts => 0}
       if agent_socket
         args.merge!(:forward_agent              => true,
                     :agent_socket_factory       => -> { UNIXSocket.open(agent_socket) })
