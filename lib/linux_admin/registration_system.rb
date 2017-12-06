@@ -17,7 +17,7 @@ module LinuxAdmin
       end
     end
 
-    def registered?
+    def registered?(_options = nil)
       false
     end
 
