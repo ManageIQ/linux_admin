@@ -28,9 +28,36 @@ describe LinuxAdmin::RegistrationSystem do
     end
   end
 
-  it "#registered? when unregistered" do
-    stub_registered_to_system(nil)
-    expect(described_class.registered?).to be_falsey
+  context "#registered?" do
+    it "when unregistered" do
+      stub_registered_to_system(nil)
+      expect(described_class.registered?).to be_falsey
+    end
+
+    context "SubscriptionManager" do
+      it "with no args" do
+        expect(LinuxAdmin::Common).to receive(:run).with("subscription-manager identity").and_return(double(:exit_status => 0))
+
+        LinuxAdmin::SubscriptionManager.new.registered?
+      end
+
+      it "with a proxy" do
+        expect(LinuxAdmin::Common).to receive(:run).with(
+          "subscription-manager identity",
+          :params => {
+            "--proxy="         => "https://example.com",
+            "--proxyuser="     => "user",
+            "--proxypassword=" => "pass"
+          }
+        ).and_return(double(:exit_status => 0))
+
+        LinuxAdmin::SubscriptionManager.new.registered?(
+          :proxy_address  => "https://example.com",
+          :proxy_username => "user",
+          :proxy_password => "pass"
+        )
+      end
+    end
   end
 
   context ".method_missing" do
