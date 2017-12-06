@@ -5,6 +5,10 @@ module LinuxAdmin
     SATELLITE5_SERVER_CERT_PATH = "pub/rhn-org-trusted-ssl-cert-1.0-1.noarch.rpm"
     INSTALLED_SERVER_CERT_PATH  = "/usr/share/rhn/RHN-ORG-TRUSTED-SSL-CERT"
 
+    def initialize
+      warn("[DEPRECATION] 'LinuxAdmin::Rhn' is deprecated.  Please use 'LinuxAdmin::SubscriptionManager' instead.")
+    end
+
     def registered?(_options = nil)
       id = ""
       if File.exist?(systemid_file)
