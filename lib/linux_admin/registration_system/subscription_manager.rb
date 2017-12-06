@@ -15,8 +15,10 @@ module LinuxAdmin
       !!organizations(options)
     end
 
-    def registered?
-      Common.run("subscription-manager identity").exit_status == 0
+    def registered?(options = nil)
+      args = ["subscription-manager identity"]
+      args << {:params => proxy_params(options)} if options
+      Common.run(*args).exit_status.zero?
     end
 
     def refresh
