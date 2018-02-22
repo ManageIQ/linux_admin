@@ -1,4 +1,22 @@
 describe LinuxAdmin::SubscriptionManager do
+  context "#run!" do
+    it "raises a CredentialError if the error message contained a credential error" do
+      result = AwesomeSpawn::CommandResult.new("stuff", "things", "invalid username or password", 1)
+      err = AwesomeSpawn::CommandResultError.new("things", result)
+      expect(LinuxAdmin::Common).to receive(:run!).and_raise(err)
+
+      expect { subject.run!("stuff") }.to raise_error(LinuxAdmin::CredentialError)
+    end
+
+    it "raises a SubscriptionManagerError if the error message does not contain a credential error" do
+      result = AwesomeSpawn::CommandResult.new("stuff", "things", "not a credential error", 1)
+      err = AwesomeSpawn::CommandResultError.new("things", result)
+      expect(LinuxAdmin::Common).to receive(:run!).and_raise(err)
+
+      expect { subject.run!("stuff") }.to raise_error(LinuxAdmin::SubscriptionManagerError)
+    end
+  end
+
   context "#registered?" do
     it "system with subscription-manager commands" do
       expect(LinuxAdmin::Common).to receive(:run).once.with("subscription-manager identity")
