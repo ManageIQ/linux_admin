@@ -6,7 +6,7 @@ module LinuxAdmin
       Common.run!(cmd, options)
     rescue AwesomeSpawn::CommandResultError => err
       raise CredentialError.new(err.result) if err.result.error.downcase.include?("invalid username or password")
-      raise
+      raise SubscriptionManagerError.new(err.message, err.result)
     end
 
     SATELLITE6_SERVER_CERT_PATH = "pub/katello-ca-consumer-latest.noarch.rpm"
