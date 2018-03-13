@@ -5,9 +5,14 @@ describe LinuxAdmin::RegistrationSystem do
       expect(described_class.registration_type).to eq(LinuxAdmin::SubscriptionManager)
     end
 
-    it "when registered RHN" do
-      stub_registered_to_system(:sm, :rhn)
+    it "when registered RHN only" do
+      stub_registered_to_system(:rhn)
       expect(described_class.registration_type).to eq(LinuxAdmin::Rhn)
+    end
+
+    it "when registered both" do
+      stub_registered_to_system(:sm, :rhn)
+      expect(described_class.registration_type).to eq(LinuxAdmin::SubscriptionManager)
     end
 
     it "when unregistered" do
