@@ -1,4 +1,9 @@
 shared_context "RegistrationSystem.registration_type stubbing", :registered_system_stubbing do
+  # stub out `warn` messages from LinuxAdmin::Rhn
+  before do
+    allow_any_instance_of(LinuxAdmin::Rhn).to receive(:warn)
+  end
+
   def stub_registered_to_system(*system)
     allow_any_instance_of(LinuxAdmin::SubscriptionManager).to receive_messages(:registered? => system.include?(:sm))
     allow_any_instance_of(LinuxAdmin::Rhn).to receive_messages(:registered? => system.include?(:rhn))
