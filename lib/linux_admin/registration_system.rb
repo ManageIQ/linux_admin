@@ -24,7 +24,9 @@ module LinuxAdmin
     private
 
     def self.registration_type_uncached
-      if SubscriptionManager.new.registered?
+      if new.registered?
+        self
+      elsif SubscriptionManager.new.registered?
         SubscriptionManager
       elsif Rhn.new.registered?
         Rhn
