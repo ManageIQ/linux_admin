@@ -5,11 +5,6 @@ describe LinuxAdmin::RegistrationSystem do
       expect(described_class.registration_type).to eq(LinuxAdmin::SubscriptionManager)
     end
 
-    it "when registered RHN" do
-      stub_registered_to_system(:sm, :rhn)
-      expect(described_class.registration_type).to eq(LinuxAdmin::Rhn)
-    end
-
     it "when unregistered" do
       stub_registered_to_system(nil)
       expect(described_class.registration_type).to eq(described_class)
@@ -62,15 +57,11 @@ describe LinuxAdmin::RegistrationSystem do
 
   context ".method_missing" do
     before do
-      stub_registered_to_system(:rhn)
+      stub_registered_to_system(:sm)
     end
 
     it "exists on the subclass" do
       expect(LinuxAdmin::RegistrationSystem.registered?).to be_truthy
-    end
-
-    it "does not exist on the subclass" do
-      expect { LinuxAdmin::RegistrationSystem.organizations }.to raise_error(NotImplementedError)
     end
 
     it "is an unknown method" do
@@ -80,6 +71,5 @@ describe LinuxAdmin::RegistrationSystem do
 
   def stub_registered_to_system(*system)
     allow_any_instance_of(LinuxAdmin::SubscriptionManager).to receive_messages(:registered? => (system.include?(:sm)))
-    allow_any_instance_of(LinuxAdmin::Rhn).to receive_messages(:registered? => (system.include?(:rhn)))
   end
 end

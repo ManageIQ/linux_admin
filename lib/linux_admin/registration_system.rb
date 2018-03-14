@@ -3,6 +3,7 @@ module LinuxAdmin
     include Logging
 
     def self.registration_type(reload = false)
+      @registration_type ||= nil
       return @registration_type if @registration_type && !reload
       @registration_type = registration_type_uncached
     end
@@ -24,9 +25,7 @@ module LinuxAdmin
     private
 
     def self.registration_type_uncached
-      if Rhn.new.registered?
-        Rhn
-      elsif SubscriptionManager.new.registered?
+      if SubscriptionManager.new.registered?
         SubscriptionManager
       else
         self
@@ -36,7 +35,7 @@ module LinuxAdmin
 
     def self.white_list_methods
       @white_list_methods ||= begin
-        all_methods = RegistrationSystem.instance_methods(false) + Rhn.instance_methods(false) + SubscriptionManager.instance_methods(false)
+        all_methods = RegistrationSystem.instance_methods(false) + SubscriptionManager.instance_methods(false)
         all_methods.uniq
       end
     end
