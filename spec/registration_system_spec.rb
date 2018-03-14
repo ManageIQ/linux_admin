@@ -1,13 +1,30 @@
-describe LinuxAdmin::RegistrationSystem do
+shared_context "RegistrationSystem.registration_type stubbing", :registered_system_stubbing do
+  # stub out `warn` messages from LinuxAdmin::Rhn
+  before do
+    allow_any_instance_of(LinuxAdmin::Rhn).to receive(:warn)
+  end
+
+  def stub_registered_to_system(*system)
+    allow_any_instance_of(LinuxAdmin::SubscriptionManager).to receive_messages(:registered? => system.include?(:sm))
+    allow_any_instance_of(LinuxAdmin::Rhn).to receive_messages(:registered? => system.include?(:rhn))
+  end
+end
+
+describe LinuxAdmin::RegistrationSystem, :registered_system_stubbing do
   context ".registration_type" do
     it "when registered Subscription Manager" do
       stub_registered_to_system(:sm)
       expect(described_class.registration_type).to eq(LinuxAdmin::SubscriptionManager)
     end
 
-    it "when registered RHN" do
-      stub_registered_to_system(:sm, :rhn)
+    it "when registered RHN only" do
+      stub_registered_to_system(:rhn)
       expect(described_class.registration_type).to eq(LinuxAdmin::Rhn)
+    end
+
+    it "when registered both" do
+      stub_registered_to_system(:sm, :rhn)
+      expect(described_class.registration_type).to eq(LinuxAdmin::SubscriptionManager)
     end
 
     it "when unregistered" do
@@ -77,9 +94,22 @@ describe LinuxAdmin::RegistrationSystem do
       expect { LinuxAdmin::RegistrationSystem.method_does_not_exist }.to raise_error(NoMethodError)
     end
   end
+end
 
-  def stub_registered_to_system(*system)
-    allow_any_instance_of(LinuxAdmin::SubscriptionManager).to receive_messages(:registered? => (system.include?(:sm)))
-    allow_any_instance_of(LinuxAdmin::Rhn).to receive_messages(:registered? => (system.include?(:rhn)))
+describe LinuxAdmin::SubscriptionManager, :registered_system_stubbing do
+  context ".registration_type" do
+    it "when registered both" do
+      stub_registered_to_system(:sm, :rhn)
+      expect(described_class.registration_type).to eq(LinuxAdmin::SubscriptionManager)
+    end
+  end
+end
+
+describe LinuxAdmin::Rhn, :registered_system_stubbing do
+  context ".registration_type" do
+    it "when registered both" do
+      stub_registered_to_system(:sm, :rhn)
+      expect(described_class.registration_type).to eq(LinuxAdmin::Rhn)
+    end
   end
 end

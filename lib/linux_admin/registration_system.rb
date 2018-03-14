@@ -3,6 +3,7 @@ module LinuxAdmin
     include Logging
 
     def self.registration_type(reload = false)
+      @registration_type ||= nil # prevent ruby warning
       return @registration_type if @registration_type && !reload
       @registration_type = registration_type_uncached
     end
@@ -24,10 +25,12 @@ module LinuxAdmin
     private
 
     def self.registration_type_uncached
-      if Rhn.new.registered?
-        Rhn
+      if new.registered?
+        self
       elsif SubscriptionManager.new.registered?
         SubscriptionManager
+      elsif Rhn.new.registered?
+        Rhn
       else
         self
       end
