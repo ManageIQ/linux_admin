@@ -1,8 +1,10 @@
 describe LinuxAdmin::Disk do
   describe "#local" do
     it "returns local disks" do
-      expect(Dir).to receive(:glob).with(['/dev/[vhs]d[a-z]', '/dev/xvd[a-z]']).
-          and_return(['/dev/hda', '/dev/sda'])
+      expect(LinuxAdmin::Common).to receive(:run!).with(
+        LinuxAdmin::Common.cmd(:lsblk),
+        :params => {:d => nil, :n => nil, :p => nil, :o => "NAME"}
+      ).and_return(double("result", :output => "/dev/hda\n/dev/sda"))
       disks = LinuxAdmin::Disk.local
       paths = disks.collect { |disk| disk.path }
       expect(paths).to include('/dev/hda')
