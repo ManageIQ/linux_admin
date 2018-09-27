@@ -9,7 +9,8 @@ module LinuxAdmin
     attr_accessor :path
 
     def self.local
-      Dir.glob(['/dev/[vhs]d[a-z]', '/dev/xvd[a-z]']).collect do |d|
+      result = Common.run!(Common.cmd("lsblk"), :params => {:d => nil, :n => nil, :p => nil, :o => "NAME"})
+      result.output.split.collect do |d|
         Disk.new :path => d
       end
     end
