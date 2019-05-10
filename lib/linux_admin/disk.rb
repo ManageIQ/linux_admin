@@ -105,7 +105,7 @@ module LinuxAdmin
 
     def str_to_bytes(val, unit)
       case unit
-      when 'K' then
+      when 'K', 'k' then
         val.to_f * 1_024 # 1.kilobytes
       when 'M' then
         val.to_f * 1_048_576 # 1.megabyte
@@ -164,7 +164,7 @@ module LinuxAdmin
         val = output_disk[i]
         case PARTED_FIELDS[i]
         when :start_sector, :end_sector, :size
-          if val =~ /([0-9\.]*)([KMG])B/
+          if val =~ /([0-9\.]*)([kKMG])B/
             val = str_to_bytes($1, $2)
           end
 
