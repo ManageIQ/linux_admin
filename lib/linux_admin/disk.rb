@@ -6,7 +6,7 @@ module LinuxAdmin
       [:id, :start_sector, :end_sector,
        :size, :partition_type, :fs_type]
 
-    attr_accessor :path
+    attr_accessor :path, :model
 
     def self.local
       result = Common.run!(Common.cmd("lsblk"), :params => {:d => nil, :n => nil, :p => nil, :o => "NAME"})
@@ -16,7 +16,8 @@ module LinuxAdmin
     end
 
     def initialize(args = {})
-      @path = args[:path]
+      @path  = args[:path]
+      @model = "unknown"
     end
 
     def size
@@ -101,11 +102,20 @@ module LinuxAdmin
       self
     end
 
+    def partition_path(id)
+      case model
+      when "nvme"
+        "#{path}p#{id}"
+      else
+        "#{path}#{id}"
+      end
+    end
+
     private
 
     def str_to_bytes(val, unit)
       case unit
-      when 'K' then
+      when 'K', 'k' then
         val.to_f * 1_024 # 1.kilobytes
       when 'M' then
         val.to_f * 1_048_576 # 1.megabyte
@@ -152,11 +162,17 @@ module LinuxAdmin
       out.each_line do |l|
         if l =~ /^ [0-9].*/
           split << l.split
+        elsif l =~ /^Model:.*/
+          parse_model(l)
         end
       end
       split
     end
 
+    def parse_model(parted_line)
+      matches = parted_line.match(/^Model:.*\((?<model>\w+)\)$/)
+      @model = matches[:model] if matches
+    end
 
     def partition_from_parted(output_disk)
       args = {:disk => self}
@@ -164,7 +180,7 @@ module LinuxAdmin
         val = output_disk[i]
         case PARTED_FIELDS[i]
         when :start_sector, :end_sector, :size
-          if val =~ /([0-9\.]*)([KMG])B/
+          if val =~ /([0-9\.]*)([kKMG])B/
             val = str_to_bytes($1, $2)
           end
 

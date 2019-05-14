@@ -58,43 +58,104 @@ eos
       expect(disk.partitions).to eq([])
     end
 
-    it "sets partitons" do
-      partitions = <<eos
-Model: ATA TOSHIBA MK5061GS (scsi)
-Disk /dev/sda: 500GB
-Sector size (logical/physical): 512B/512B
-Partition Table: msdos
-Disk Flags:
+    context "with nvme parted output" do
+      let(:parted_output) do
+        <<~PARTED
+          Model: NVMe Device (nvme)
+          Disk /dev/nvme0n1: 512GB
+          Sector size (logical/physical): 512B/512B
+          Partition Table: msdos
+          Disk Flags:
 
-Number  Start   End     Size    Type      File system     Flags
- 1      1259MB  81.8GB  80.5GB  primary   ntfs
- 2      81.8GB  162GB   80.5GB  primary   ext4
- 3      162GB   163GB   1074MB  logical   linux-swap(v1)
-eos
-      disk = LinuxAdmin::Disk.new
-      expect(LinuxAdmin::Common).to receive(:run).and_return(double(:output => partitions))
+          Number  Start   End     Size    Type     File system  Flags
+           1      1049kB  1075MB  1074MB  primary  ext4         boot
+           2      1075MB  17.7GB  16.6GB  primary
+           3      17.7GB  512GB   494GB   primary
 
-      expect(disk.partitions[0].id).to eq(1)
-      expect(disk.partitions[0].disk).to eq(disk)
-      expect(disk.partitions[0].size).to eq(86_436_216_832.0) # 80.5.gigabytes
-      expect(disk.partitions[0].start_sector).to eq(1_320_157_184) # 1259.megabytes
-      expect(disk.partitions[0].end_sector).to eq(87_832_081_203.2) # 81.8.gigabytes
-      expect(disk.partitions[0].partition_type).to eq('primary')
-      expect(disk.partitions[0].fs_type).to eq('ntfs')
-      expect(disk.partitions[1].id).to eq(2)
-      expect(disk.partitions[1].disk).to eq(disk)
-      expect(disk.partitions[1].size).to eq(86_436_216_832.0) # 80.5.gigabytes
-      expect(disk.partitions[1].start_sector).to eq(87_832_081_203.2) # 81.8.gigabytes
-      expect(disk.partitions[1].end_sector).to eq(173_946_175_488) # 162.gigabytes
-      expect(disk.partitions[1].partition_type).to eq('primary')
-      expect(disk.partitions[1].fs_type).to eq('ext4')
-      expect(disk.partitions[2].id).to eq(3)
-      expect(disk.partitions[2].disk).to eq(disk)
-      expect(disk.partitions[2].size).to eq(1_126_170_624) # 1074.megabytes
-      expect(disk.partitions[2].start_sector).to eq(173_946_175_488) # 162.gigabytes
-      expect(disk.partitions[2].end_sector).to eq(175_019_917_312) # 163.gigabytes
-      expect(disk.partitions[2].partition_type).to eq('logical')
-      expect(disk.partitions[2].fs_type).to eq('linux-swap(v1)')
+        PARTED
+      end
+
+      it "sets partitons" do
+        expect(LinuxAdmin::Common).to receive(:run).and_return(double(:output => parted_output))
+        disk = LinuxAdmin::Disk.new(:path => "/dev/nvme0n1")
+        partitions = disk.partitions
+
+        expect(disk.model).to eq("nvme")
+
+        expect(partitions[0].id).to eq(1)
+        expect(partitions[0].disk).to eq(disk)
+        expect(partitions[0].size).to eq(1_126_170_624.0)
+        expect(partitions[0].start_sector).to eq(1_074_176.0)
+        expect(partitions[0].end_sector).to eq(1_127_219_200.0)
+        expect(partitions[0].partition_type).to eq('primary')
+        expect(partitions[0].fs_type).to eq('ext4')
+        expect(partitions[0].path).to eq('/dev/nvme0n1p1')
+        expect(partitions[1].id).to eq(2)
+        expect(partitions[1].disk).to eq(disk)
+        expect(partitions[1].size).to eq(17_824_114_278.4)
+        expect(partitions[1].start_sector).to eq(1_127_219_200.0)
+        expect(partitions[1].end_sector).to eq(19_005_230_284.8)
+        expect(partitions[1].partition_type).to eq('primary')
+        expect(partitions[1].path).to eq('/dev/nvme0n1p2')
+        expect(partitions[2].id).to eq(3)
+        expect(partitions[2].disk).to eq(disk)
+        expect(partitions[2].size).to eq(530_428_461_056.0)
+        expect(partitions[2].start_sector).to eq(19_005_230_284.8)
+        expect(partitions[2].end_sector).to eq(549_755_813_888.0)
+        expect(partitions[2].partition_type).to eq('primary')
+        expect(partitions[2].path).to eq('/dev/nvme0n1p3')
+      end
+    end
+
+    context "with scsi parted output" do
+      let(:parted_output) do
+        <<~PARTED
+          Model: ATA TOSHIBA MK5061GS (scsi)
+          Disk /dev/sda: 500GB
+          Sector size (logical/physical): 512B/512B
+          Partition Table: msdos
+          Disk Flags:
+
+          Number  Start   End     Size    Type      File system     Flags
+           1      1259kB  81.8GB  80.5GB  primary   ntfs
+           2      81.8GB  162GB   80.5GB  primary   ext4
+           3      162GB   163GB   1074MB  logical   linux-swap(v1)
+
+        PARTED
+      end
+
+      it "sets partitons" do
+        expect(LinuxAdmin::Common).to receive(:run).and_return(double(:output => parted_output))
+        disk = LinuxAdmin::Disk.new(:path => "/dev/sda")
+        partitions = disk.partitions
+
+        expect(disk.model).to eq("scsi")
+
+        expect(partitions[0].id).to eq(1)
+        expect(partitions[0].disk).to eq(disk)
+        expect(partitions[0].size).to eq(86_436_216_832.0)
+        expect(partitions[0].start_sector).to eq(1_289_216.0)
+        expect(partitions[0].end_sector).to eq(87_832_081_203.2)
+        expect(partitions[0].partition_type).to eq('primary')
+        expect(partitions[0].fs_type).to eq('ntfs')
+        expect(partitions[0].path).to eq('/dev/sda1')
+        expect(partitions[1].id).to eq(2)
+        expect(partitions[1].disk).to eq(disk)
+        expect(partitions[1].size).to eq(86_436_216_832.0)
+        expect(partitions[1].start_sector).to eq(87_832_081_203.2)
+        expect(partitions[1].end_sector).to eq(173_946_175_488)
+        expect(partitions[1].partition_type).to eq('primary')
+        expect(partitions[1].fs_type).to eq('ext4')
+        expect(partitions[1].path).to eq('/dev/sda2')
+        expect(partitions[2].id).to eq(3)
+        expect(partitions[2].disk).to eq(disk)
+        expect(partitions[2].size).to eq(1_126_170_624)
+        expect(partitions[2].start_sector).to eq(173_946_175_488)
+        expect(partitions[2].end_sector).to eq(175_019_917_312)
+        expect(partitions[2].partition_type).to eq('logical')
+        expect(partitions[2].fs_type).to eq('linux-swap(v1)')
+        expect(partitions[2].path).to eq('/dev/sda3')
+      end
     end
   end
 

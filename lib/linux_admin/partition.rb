@@ -22,7 +22,7 @@ module LinuxAdmin
     end
 
     def path
-      "#{disk.path}#{id}"
+      disk.partition_path(id)
     end
 
     def mount(mount_point=nil)
