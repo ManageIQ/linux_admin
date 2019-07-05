@@ -25,13 +25,13 @@ module LinuxAdmin
       comment = "##{comment}" unless comment.blank?
       columns = columns.chomp.split
 
-      FSTabEntry.new :device        => columns[0],
+      FSTabEntry.new(:device        => columns[0],
                      :mount_point   => columns[1],
                      :fs_type       => columns[2],
                      :mount_options => columns[3],
                      :dumpable      => columns[4],
                      :fsck_order    => columns[5],
-                     :comment       => comment
+                     :comment       => comment)
     end
 
     def has_content?
