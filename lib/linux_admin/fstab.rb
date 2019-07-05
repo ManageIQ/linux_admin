@@ -44,7 +44,7 @@ module LinuxAdmin
     end
 
     def column_lengths
-      self.columns.collect { |c| c ? c.size : 0 }
+      columns.collect { |c| c ? c.to_s.size : 0 }
     end
 
     def formatted_columns(max_lengths)
@@ -84,17 +84,23 @@ module LinuxAdmin
     end
 
     def refresh
-      @entries  = []
+      @entries  = LinuxAdmin::FSTab::EntryCollection.new
       @maximum_column_lengths = Array.new(7, 0) # # of columns
       read.each do |line|
         entry = FSTabEntry.from_line(line)
         @entries << entry
+      end
+    end
 
+    class EntryCollection < Array
+      def <<(entry)
         lengths = entry.column_lengths
         lengths.each_index do |i|
           @maximum_column_lengths[i] =
             lengths[i] if lengths[i] > @maximum_column_lengths[i]
         end
+
+        super
       end
     end
   end
