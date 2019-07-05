@@ -49,7 +49,7 @@ module LinuxAdmin
 
     def formatted_columns(max_lengths)
       self.columns.collect.
-        with_index { |col, i| col.to_s.rjust(max_lengths[i]) }.join(" ")
+        with_index { |col, i| col.to_s.rjust(max_lengths[i]) }.join(" ").rstrip
     end
   end
 
