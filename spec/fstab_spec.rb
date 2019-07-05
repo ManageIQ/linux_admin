@@ -64,6 +64,24 @@ eos
     end
   end
 
+  describe "#entries" do
+    it "#<< updates maximum_column_lengths" do
+      expect(File).to receive(:read).with("/etc/fstab").and_return("")
+
+      subject.instance.entries << LinuxAdmin::FSTabEntry.new(
+        :device        => '/dev/sda1',
+        :mount_point   => '/',
+        :fs_type       => 'ext4',
+        :mount_options => 'defaults',
+        :dumpable      => 1,
+        :fsck_order    => 1,
+        :comment       => "# more"
+      )
+
+      expect(subject.instance.entries.maximum_column_lengths).to eq([9, 1, 4, 8, 1, 1, 6])
+    end
+  end
+
   describe "integration test" do
     it "input equals output, just alignment changed" do
       original_fstab = <<~END_OF_FSTAB
