@@ -46,20 +46,20 @@ eos
 
   describe "#write!" do
     it "writes entries to /etc/fstab" do
-      # maually set fstab
-      entry = LinuxAdmin::FSTabEntry.new
-      entry.device        = '/dev/sda1'
-      entry.mount_point   = '/'
-      entry.fs_type       = 'ext4'
-      entry.mount_options = 'defaults'
-      entry.dumpable      = 1
-      entry.fsck_order    = 1
-      entry.comment = "# more"
-      allow_any_instance_of(subject).to receive(:refresh) # in case this is the first time we reference .instance
-      subject.instance.maximum_column_lengths = [9, 1, 4, 8, 1, 1, 1]
-      subject.instance.entries = [entry]
+      expect(File).to receive(:read).with("/etc/fstab").and_return("")
+
+      subject.instance.entries << LinuxAdmin::FSTabEntry.new(
+        :device        => '/dev/sda1',
+        :mount_point   => '/',
+        :fs_type       => 'ext4',
+        :mount_options => 'defaults',
+        :dumpable      => 1,
+        :fsck_order    => 1,
+        :comment       => "# more"
+      )
 
       expect(File).to receive(:write).with('/etc/fstab', "/dev/sda1 / ext4 defaults 1 1 # more\n")
+
       subject.instance.write!
     end
   end
