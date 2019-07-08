@@ -64,6 +64,10 @@ module LinuxAdmin
       @entries ||= LinuxAdmin::FSTab::EntryCollection.new
     end
 
+    def maximum_column_lengths
+      entries.maximum_column_lengths
+    end
+
     def write!
       content = ''
       entries.each do |entry|
