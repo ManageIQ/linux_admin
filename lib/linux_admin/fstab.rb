@@ -102,8 +102,7 @@ module LinuxAdmin
       def <<(entry)
         lengths = entry.column_lengths
         lengths.each_index do |i|
-          maximum_column_lengths[i] =
-            lengths[i] if lengths[i] > maximum_column_lengths[i]
+          maximum_column_lengths[i] = [lengths[i], maximum_column_lengths[i]].max
         end
 
         super
