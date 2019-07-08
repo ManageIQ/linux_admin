@@ -46,20 +46,86 @@ eos
 
   describe "#write!" do
     it "writes entries to /etc/fstab" do
-      # maually set fstab
-      entry = LinuxAdmin::FSTabEntry.new
-      entry.device        = '/dev/sda1'
-      entry.mount_point   = '/'
-      entry.fs_type       = 'ext4'
-      entry.mount_options = 'defaults'
-      entry.dumpable      = 1
-      entry.fsck_order    = 1
-      entry.comment = "# more"
-      allow_any_instance_of(subject).to receive(:refresh) # in case this is the first time we reference .instance
-      subject.instance.maximum_column_lengths = [9, 1, 4, 8, 1, 1, 1]
-      subject.instance.entries = [entry]
+      expect(File).to receive(:read).with("/etc/fstab").and_return("")
+
+      subject.instance.entries << LinuxAdmin::FSTabEntry.new(
+        :device        => '/dev/sda1',
+        :mount_point   => '/',
+        :fs_type       => 'ext4',
+        :mount_options => 'defaults',
+        :dumpable      => 1,
+        :fsck_order    => 1,
+        :comment       => "# more"
+      )
 
       expect(File).to receive(:write).with('/etc/fstab', "/dev/sda1 / ext4 defaults 1 1 # more\n")
+
+      subject.instance.write!
+    end
+  end
+
+  describe "#entries" do
+    it "#<< updates maximum_column_lengths" do
+      expect(File).to receive(:read).with("/etc/fstab").and_return("")
+
+      subject.instance.entries << LinuxAdmin::FSTabEntry.new(
+        :device        => '/dev/sda1',
+        :mount_point   => '/',
+        :fs_type       => 'ext4',
+        :mount_options => 'defaults',
+        :dumpable      => 1,
+        :fsck_order    => 1,
+        :comment       => "# more"
+      )
+
+      expect(subject.instance.entries.maximum_column_lengths).to eq([9, 1, 4, 8, 1, 1, 6])
+    end
+  end
+
+  describe "integration test" do
+    it "input equals output, just alignment changed" do
+      original_fstab = <<~END_OF_FSTAB
+
+        #
+        # /etc/fstab
+        # Created by anaconda on Wed May 29 12:37:40 2019
+        #
+        # Accessible filesystems, by reference, are maintained under '/dev/disk'
+        # See man pages fstab(5), findfs(8), mount(8) and/or blkid(8) for more info
+        #
+        /dev/mapper/VG--MIQ-lv_os /                       xfs     defaults        0 0
+        UUID=02bf07b5-2404-4779-b93c-d8eb7f2eedea /boot                   xfs     defaults        0 0
+        /dev/mapper/VG--MIQ-lv_home /home                   xfs     defaults        0 0
+        /dev/mapper/VG--MIQ-lv_tmp /tmp                    xfs     defaults        0 0
+        /dev/mapper/VG--MIQ-lv_var /var                    xfs     defaults        0 0
+        /dev/mapper/VG--MIQ-lv_var_log /var/log                xfs     defaults        0 0
+        /dev/mapper/VG--MIQ-lv_var_log_audit /var/log/audit          xfs     defaults        0 0
+        /dev/mapper/VG--MIQ-lv_log /var/www/miq/vmdb/log   xfs     defaults        0 0
+        /dev/mapper/VG--MIQ-lv_swap swap                    swap    defaults        0 0
+      END_OF_FSTAB
+
+      new_fstab = <<~END_OF_FSTAB
+
+        # /etc/fstab
+        # Created by anaconda on Wed May 29 12:37:40 2019
+
+        # Accessible filesystems, by reference, are maintained under '/dev/disk'
+        # See man pages fstab(5), findfs(8), mount(8) and/or blkid(8) for more info
+
+                        /dev/mapper/VG--MIQ-lv_os                     /  xfs defaults 0 0
+        UUID=02bf07b5-2404-4779-b93c-d8eb7f2eedea                 /boot  xfs defaults 0 0
+                      /dev/mapper/VG--MIQ-lv_home                 /home  xfs defaults 0 0
+                       /dev/mapper/VG--MIQ-lv_tmp                  /tmp  xfs defaults 0 0
+                       /dev/mapper/VG--MIQ-lv_var                  /var  xfs defaults 0 0
+                   /dev/mapper/VG--MIQ-lv_var_log              /var/log  xfs defaults 0 0
+             /dev/mapper/VG--MIQ-lv_var_log_audit        /var/log/audit  xfs defaults 0 0
+                       /dev/mapper/VG--MIQ-lv_log /var/www/miq/vmdb/log  xfs defaults 0 0
+                      /dev/mapper/VG--MIQ-lv_swap                  swap swap defaults 0 0
+      END_OF_FSTAB
+
+      expect(File).to receive(:read).with("/etc/fstab").and_return(original_fstab)
+      expect(File).to receive(:write).with("/etc/fstab", new_fstab)
+
       subject.instance.write!
     end
   end

@@ -25,13 +25,13 @@ module LinuxAdmin
       comment = "##{comment}" unless comment.blank?
       columns = columns.chomp.split
 
-      FSTabEntry.new :device        => columns[0],
+      FSTabEntry.new(:device        => columns[0],
                      :mount_point   => columns[1],
                      :fs_type       => columns[2],
                      :mount_options => columns[3],
                      :dumpable      => columns[4],
                      :fsck_order    => columns[5],
-                     :comment       => comment
+                     :comment       => comment)
     end
 
     def has_content?
@@ -44,30 +44,35 @@ module LinuxAdmin
     end
 
     def column_lengths
-      self.columns.collect { |c| c ? c.size : 0 }
+      columns.collect { |c| c ? c.to_s.size : 0 }
     end
 
     def formatted_columns(max_lengths)
       self.columns.collect.
-        with_index { |col, i| col.to_s.rjust(max_lengths[i]) }.join(" ")
+        with_index { |col, i| col.to_s.rjust(max_lengths[i]) }.join(" ").rstrip
     end
   end
 
   class FSTab
     include Singleton
 
-    attr_accessor :entries
-    attr_accessor :maximum_column_lengths
-
     def initialize
       refresh
     end
 
+    def entries
+      @entries ||= LinuxAdmin::FSTab::EntryCollection.new
+    end
+
+    def maximum_column_lengths
+      entries.maximum_column_lengths
+    end
+
     def write!
       content = ''
-      @entries.each do |entry|
+      entries.each do |entry|
         if entry.has_content?
-          content << entry.formatted_columns(@maximum_column_lengths) << "\n"
+          content << entry.formatted_columns(entries.maximum_column_lengths) << "\n"
         else
           content << "#{entry.comment}"
         end
@@ -84,17 +89,27 @@ module LinuxAdmin
     end
 
     def refresh
-      @entries  = []
-      @maximum_column_lengths = Array.new(7, 0) # # of columns
+      @entries = nil
       read.each do |line|
         entry = FSTabEntry.from_line(line)
-        @entries << entry
+        entries << entry
+      end
+    end
 
+    class EntryCollection < Array
+      attr_reader :maximum_column_lengths
+
+      def initialize
+        @maximum_column_lengths = Array.new(7, 0) # # of columns
+      end
+
+      def <<(entry)
         lengths = entry.column_lengths
         lengths.each_index do |i|
-          @maximum_column_lengths[i] =
-            lengths[i] if lengths[i] > @maximum_column_lengths[i]
+          maximum_column_lengths[i] = [lengths[i], maximum_column_lengths[i]].max
         end
+
+        super
       end
     end
   end
