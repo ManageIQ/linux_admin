@@ -12,7 +12,7 @@ module LinuxAdmin
       result = Common.run!(Common.cmd("lsblk"), :params => {:d => nil, :n => nil, :p => nil, :o => "NAME"})
       result.output.split.collect do |d|
         Disk.new :path => d
-      end
+      end.select { |disk| disk.size.nonzero? }
     end
 
     def initialize(args = {})
