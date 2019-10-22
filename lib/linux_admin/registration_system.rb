@@ -24,6 +24,10 @@ module LinuxAdmin
 
     private
 
+    def self.respond_to_missing?(method_name, include_private = false)
+      white_list_methods.include?(method_name)
+    end
+
     def self.registration_type_uncached
       if SubscriptionManager.new.registered?
         SubscriptionManager
