@@ -6,32 +6,20 @@ module LinuxAdmin
       [:id, :start_sector, :end_sector,
        :size, :partition_type, :fs_type]
 
-    attr_accessor :path, :model
+    attr_accessor :path, :model, :size
 
     def self.local
-      result = Common.run!(Common.cmd("lsblk"), :params => {:d => nil, :n => nil, :p => nil, :o => "NAME"})
-      result.output.split.collect do |d|
-        Disk.new :path => d
+      result = Common.run!(Common.cmd("lsblk"), :params => {:b => nil, :d => nil, :n => nil, :p => nil, :o => "NAME,SIZE"})
+      result.output.split("\n").collect do |d|
+        path, size = d.split
+        self.new(:path => path, :size => size.to_i)
       end
     end
 
     def initialize(args = {})
       @path  = args[:path]
       @model = "unknown"
-    end
-
-    def size
-      @size ||= begin
-        size = nil
-        out = Common.run!(Common.cmd(:fdisk), :params => {"-l" => nil}).output
-        out.each_line do |l|
-          /Disk #{path}: .*B, (\d+) bytes/.match(l) do |m|
-            size = m[1].to_i
-            break
-          end
-        end
-        size
-      end
+      @size  = args[:size]
     end
 
     def partitions
