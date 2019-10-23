@@ -9,16 +9,17 @@ module LinuxAdmin
     attr_accessor :path, :model
 
     def self.local
-      result = Common.run!(Common.cmd("lsblk"), :params => {:b => nil, :d => nil, :n => nil, :p => nil, :o => "NAME,SIZE"})
-      result.output.split("\n").collect do |d|
-        path, size = d.split
-        self.new(:path => path, :size => size.to_i)
-      end
+      result = Common.run!(Common.cmd("lsblk"), :params => {:b => nil, :d => nil, :n => nil, :p => nil, :o => "NAME,SIZE,MODEL"})
+      result.output.split("\n").collect do |string|
+        path, size, *model = string.split
+        model = model.join(' ')
+        self.new(:path => path, :size => size.to_i, :model => model)
+      end.select { |disk| disk.size.nonzero? }
     end
 
     def initialize(args = {})
       @path  = args[:path]
-      @model = "unknown"
+      @model = args[:model] || "unknown"
       @size  = args[:size]
     end
 

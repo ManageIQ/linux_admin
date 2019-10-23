@@ -3,12 +3,17 @@ describe LinuxAdmin::Disk do
     it "returns local disks" do
       expect(LinuxAdmin::Common).to receive(:run!).with(
         LinuxAdmin::Common.cmd(:lsblk),
-        :params => {:b => nil, :d => nil, :n => nil, :p => nil, :o => "NAME,SIZE"}
-      ).and_return(double("result", :output => "/dev/hda\n/dev/sda"))
+        :params => {:b => nil, :d => nil, :n => nil, :p => nil, :o => "NAME,SIZE,MODEL"}
+      ).and_return(double("result", :output => "/dev/hda 100000 samsung whatever\n/dev/sda 200000 western digital foo"))
       disks = LinuxAdmin::Disk.local
-      paths = disks.collect { |disk| disk.path }
-      expect(paths).to include('/dev/hda')
-      expect(paths).to include('/dev/sda')
+
+      expect(disks.first.path).to eql('/dev/hda')
+      expect(disks.first.size).to eql(100000)
+      expect(disks.first.model).to eql('samsung whatever')
+
+      expect(disks.last.path).to eql('/dev/sda')
+      expect(disks.last.size).to eql(200000)
+      expect(disks.last.model).to eql('western digital foo')
     end
   end
 
