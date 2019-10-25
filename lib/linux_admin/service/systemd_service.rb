@@ -14,8 +14,12 @@ module LinuxAdmin
       self
     end
 
-    def start
-      Common.run!(command_path, :params => ["start", name])
+    def start(enable = false)
+      if enable
+        Common.run!(command_path, :params => ["enable", "--now", name])
+      else
+        Common.run!(command_path, :params => ["start", name])
+      end
       self
     end
 

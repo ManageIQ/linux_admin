@@ -53,6 +53,11 @@ describe LinuxAdmin::SystemdService do
       @service.start
     end
 
+    it "enables the service if passed true" do
+      expect(LinuxAdmin::Common).to receive(:run!).with(command, :params => %w(enable --now foo))
+      @service.start(true)
+    end
+
     it "returns self" do
       expect(LinuxAdmin::Common).to receive(:run!)
       expect(@service.start).to eq(@service)

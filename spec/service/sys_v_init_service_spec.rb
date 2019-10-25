@@ -64,6 +64,16 @@ describe LinuxAdmin::SysVInitService do
       @service.start
     end
 
+    it "also enables the service if passed true" do
+      expect(LinuxAdmin::Common).to receive(:run!)
+        .with(LinuxAdmin::Common.cmd(:service),
+              :params => {nil => %w(foo start)})
+      expect(LinuxAdmin::Common).to receive(:run!)
+        .with(LinuxAdmin::Common.cmd(:chkconfig),
+              :params => {nil => %w(foo on)})
+      @service.start(true)
+    end
+
     it "returns self" do
       expect(LinuxAdmin::Common).to receive(:run!)
       expect(@service.start).to eq(@service)
