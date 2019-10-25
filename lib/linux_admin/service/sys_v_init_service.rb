@@ -17,9 +17,10 @@ module LinuxAdmin
       self
     end
 
-    def start
+    def start(enable = false)
       Common.run!(Common.cmd(:service),
                   :params => {nil => [name, "start"]})
+      self.enable if enable
       self
     end
 
