@@ -67,6 +67,14 @@ describe LinuxAdmin::RegistrationSystem do
     it "is an unknown method" do
       expect { LinuxAdmin::RegistrationSystem.method_does_not_exist }.to raise_error(NoMethodError)
     end
+
+    it "responds to whitelisted methods" do
+      expect(LinuxAdmin::RegistrationSystem).to respond_to(:refresh)
+    end
+
+    it "does not respond to methods that were not whitelisted" do
+      expect(LinuxAdmin::RegistrationSystem).to_not respond_to(:method_does_not_exist)
+    end
   end
 
   def stub_registered_to_system(*system)
