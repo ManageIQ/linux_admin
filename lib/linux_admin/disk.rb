@@ -12,8 +12,7 @@ module LinuxAdmin
       result = Common.run!(Common.cmd("lsblk"), :params => {:b => nil, :d => nil, :n => nil, :p => nil, :o => "NAME,SIZE,MODEL"})
       result.output.split("\n").collect do |string|
         path, size, *model = string.split
-        model = model.join(' ')
-        self.new(:path => path, :size => size.to_i, :model => model)
+        self.new(:path => path, :size => size.to_i, :model => model.join(' '))
       end.select { |disk| disk.size.nonzero? }
     end
 
