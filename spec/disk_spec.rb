@@ -1,14 +1,33 @@
 describe LinuxAdmin::Disk do
-  describe "#local" do
+  describe ".local" do
     it "returns local disks" do
       expect(LinuxAdmin::Common).to receive(:run!).with(
         LinuxAdmin::Common.cmd(:lsblk),
-        :params => {:d => nil, :n => nil, :p => nil, :o => "NAME"}
-      ).and_return(double("result", :output => "/dev/hda\n/dev/sda"))
+        :params => {:b => nil, :d => nil, :n => nil, :p => nil, :o => "NAME,SIZE,TYPE,MODEL"}
+      ).and_return(double("result", :output => "/dev/hda 100000 disk samsung whatever\n/dev/sda 200000 disk western digital foo"))
       disks = LinuxAdmin::Disk.local
-      paths = disks.collect { |disk| disk.path }
-      expect(paths).to include('/dev/hda')
-      expect(paths).to include('/dev/sda')
+
+      expect(disks.first.path).to eql('/dev/hda')
+      expect(disks.first.size).to eql(100000)
+      expect(disks.first.model).to eql('samsung whatever')
+
+      expect(disks.last.path).to eql('/dev/sda')
+      expect(disks.last.size).to eql(200000)
+      expect(disks.last.model).to eql('western digital foo')
+    end
+
+    it "does not include block devices that are not disks" do
+      expect(LinuxAdmin::Common).to receive(:run!).with(
+        LinuxAdmin::Common.cmd(:lsblk),
+        :params => {:b => nil, :d => nil, :n => nil, :p => nil, :o => "NAME,SIZE,TYPE,MODEL"}
+      ).and_return(double("result", :output => "/dev/sr0 532676608 rom IDE_CDROM\n/dev/sda 200000 disk western digital foo"))
+
+      disks = LinuxAdmin::Disk.local
+
+      expect(disks.size).to eql(1)
+      expect(disks.last.path).to eql('/dev/sda')
+      expect(disks.last.size).to eql(200000)
+      expect(disks.last.model).to eql('western digital foo')
     end
   end
 
