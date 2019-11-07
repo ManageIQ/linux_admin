@@ -8,12 +8,17 @@ module LinuxAdmin
 
     attr_accessor :path, :model
 
+    # Collect local disk information via the lsblk command. Only disks with a
+    # size greater than zero are returned.
+    #
     def self.local
-      result = Common.run!(Common.cmd("lsblk"), :params => {:b => nil, :d => nil, :n => nil, :p => nil, :o => "NAME,SIZE,MODEL"})
+      result = Common.run!(Common.cmd("lsblk"), :params => {:b => nil, :d => nil, :n => nil, :p => nil, :o => "NAME,SIZE,TYPE,MODEL"})
       result.output.split("\n").collect do |string|
-        path, size, *model = string.split
-        self.new(:path => path, :size => size.to_i, :model => model.join(' '))
-      end.select { |disk| disk.size.nonzero? }
+        path, size, type, *model = string.split
+        if type.casecmp?('disk') && size.to_i > 0
+          self.new(:path => path, :size => size.to_i, :model => model.join(' '))
+        end
+      end.compact
     end
 
     def initialize(args = {})
