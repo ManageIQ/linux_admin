@@ -24,7 +24,6 @@ registration, updates, etc.
   spec.files         = `git ls-files -- lib/*`.split("\n")
   spec.files        += %w[README.md LICENSE.txt]
   spec.executables   = `git ls-files -- bin/*`.split("\n")
-  spec.test_files    = `git ls-files -- spec/*`.split("\n")
   spec.require_paths = ["lib"]
 
   spec.required_ruby_version = ">= 2.0.0"
