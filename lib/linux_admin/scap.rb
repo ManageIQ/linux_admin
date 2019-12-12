@@ -83,7 +83,7 @@ module LinuxAdmin
     end
 
     def model_xml_element(doc)
-      doc.css("//nist_list|model", "nist_list" => "http://checklists.nist.gov/xccdf/1.2").detect { |model| model.namespace.prefix.nil? }
+      doc.xpath("//ns10:model").first
     end
   end
 end
