@@ -1,6 +1,7 @@
 describe LinuxAdmin::Chrony do
   CHRONY_CONF = <<-EOF
 # commented server baz.example.net
+pool bar.example.net iburst
 server foo.example.net
 server bar.example.net iburst
 driftfile /var/lib/chrony/drift
