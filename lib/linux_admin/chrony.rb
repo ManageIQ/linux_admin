@@ -10,6 +10,7 @@ module LinuxAdmin
     def clear_servers
       data = File.read(@conf)
       data.gsub!(/^server\s+.+\n/, "")
+      data.gsub!(/^pool\s+.+\n/, "")
       File.write(@conf, data)
     end
 
