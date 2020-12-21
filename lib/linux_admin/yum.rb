@@ -87,7 +87,6 @@ module LinuxAdmin
       parse_repo_list_output(output)
     end
 
-    private
 
     def self.parse_repo_dir(dir)
       repo_files = Dir.glob(File.join(dir, '*.repo'))
@@ -99,7 +98,7 @@ module LinuxAdmin
     def self.parse_repo_file(file)
       int_keys  = ["enabled", "cost", "gpgcheck", "sslverify", "metadata_expire"]
       content   = IniFile.load(file).to_h
-      content.each do |name, data|
+      content.each do |_name, data|
         int_keys.each { |k| data[k] = data[k].to_i if data.has_key?(k) }
       end
     end
@@ -122,4 +121,4 @@ module LinuxAdmin
   end
 end
 
-Dir.glob(File.join(File.dirname(__FILE__), "yum", "*.rb")).each { |f| require f }
+Dir.glob(File.join(File.dirname(__FILE__), "yum", "*.rb")).sort.each { |f| require f }

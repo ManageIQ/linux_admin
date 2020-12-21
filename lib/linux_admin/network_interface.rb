@@ -212,4 +212,4 @@ module LinuxAdmin
   end
 end
 
-Dir.glob(File.join(File.dirname(__FILE__), "network_interface", "*.rb")).each { |f| require f }
+Dir.glob(File.join(File.dirname(__FILE__), "network_interface", "*.rb")).sort.each { |f| require f }

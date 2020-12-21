@@ -1,6 +1,5 @@
 module LinuxAdmin
   class Volume
-    private
 
     def self.process_volume_display_line(line)
       groups = VolumeGroup.scan
@@ -10,7 +9,6 @@ module LinuxAdmin
       return fields, vg
     end
 
-    protected
 
     def self.scan_volumes(cmd)
       volumes = []

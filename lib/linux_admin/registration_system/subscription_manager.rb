@@ -81,7 +81,7 @@ module LinuxAdmin
       parse_output(output).each_with_object({}) { |i, h| h[i[:pool_id]] = i }
     end
 
-    def enable_repo(repo, options = nil)
+    def enable_repo(repo, _options = nil)
       cmd     = "subscription-manager repos"
       params  = {"--enable=" => repo}
 
@@ -89,14 +89,14 @@ module LinuxAdmin
       run!(cmd, :params => params)
     end
 
-    def disable_repo(repo, options = nil)
+    def disable_repo(repo, _options = nil)
       cmd     = "subscription-manager repos"
       params  = {"--disable=" => repo}
 
       run!(cmd, :params => params)
     end
 
-    def all_repos(options = nil)
+    def all_repos(_options = nil)
       cmd     = "subscription-manager repos"
       output  = run!(cmd).output
 

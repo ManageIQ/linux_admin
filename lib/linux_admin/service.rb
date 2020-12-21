@@ -8,7 +8,6 @@ module LinuxAdmin
     end
 
     class << self
-      private
       alias_method :orig_new, :new
     end
 
@@ -38,4 +37,4 @@ module LinuxAdmin
   end
 end
 
-Dir.glob(File.join(File.dirname(__FILE__), "service", "*.rb")).each { |f| require f }
+Dir.glob(File.join(File.dirname(__FILE__), "service", "*.rb")).sort.each { |f| require f }

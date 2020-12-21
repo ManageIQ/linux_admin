@@ -54,4 +54,4 @@ module LinuxAdmin
   end
 end
 
-Dir.glob(File.join(File.dirname(__FILE__), "registration_system", "*.rb")).each { |f| require f }
+Dir.glob(File.join(File.dirname(__FILE__), "registration_system", "*.rb")).sort.each { |f| require f }
