@@ -9,6 +9,7 @@ module LinuxAdmin
 
     class << self
       alias_method :orig_new, :new
+      private :orig_new
     end
 
     def self.new(*args)
