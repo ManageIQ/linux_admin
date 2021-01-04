@@ -87,7 +87,6 @@ module LinuxAdmin
       parse_repo_list_output(output)
     end
 
-
     def self.parse_repo_dir(dir)
       repo_files = Dir.glob(File.join(dir, '*.repo'))
       repo_files.each_with_object({}) do |file, content|

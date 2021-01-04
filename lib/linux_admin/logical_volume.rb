@@ -54,7 +54,6 @@ module LinuxAdmin
       self
     end
 
-
     def self.bytes_to_string(bytes)
       if bytes > 1_073_741_824 # 1.gigabytes
         (bytes / 1_073_741_824).to_s + "G"
@@ -67,6 +66,7 @@ module LinuxAdmin
       end
     end
 
+    private_class_method :bytes_to_string
 
     def self.create(name, vg, value)
       self.scan # initialize local logical volumes
