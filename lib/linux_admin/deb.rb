@@ -2,7 +2,7 @@ module LinuxAdmin
   class Deb < Package
     APT_CACHE_CMD = '/usr/bin/apt-cache'
 
-    def self.from_line(apt_cache_line, _in_description=false)
+    def self.from_line(apt_cache_line, _in_description = false)
       tag,value = apt_cache_line.split(':')
       tag = tag.strip.downcase
       [tag, value]
