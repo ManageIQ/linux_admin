@@ -5,7 +5,6 @@
 [![Code Climate](http://img.shields.io/codeclimate/github/ManageIQ/linux_admin.svg)](https://codeclimate.com/github/ManageIQ/linux_admin)
 [![Coverage Status](http://img.shields.io/coveralls/ManageIQ/linux_admin.svg)](https://coveralls.io/r/ManageIQ/linux_admin)
 [![Dependency Status](https://gemnasium.com/ManageIQ/linux_admin.svg)](https://gemnasium.com/ManageIQ/linux_admin)
-[![Security](https://hakiri.io/github/ManageIQ/linux_admin/master.svg)](https://hakiri.io/github/ManageIQ/linux_admin/master)
 
 
 LinuxAdmin is a module to simplify management of linux systems.
