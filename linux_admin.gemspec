@@ -28,7 +28,6 @@ registration, updates, etc.
 
   spec.required_ruby_version = ">= 2.0.0"
 
-  spec.add_development_dependency "coveralls"
   spec.add_development_dependency "manageiq-style"
   spec.add_development_dependency "rake"
   spec.add_development_dependency "rspec",    "~> 3.0"
@@ -40,4 +39,5 @@ registration, updates, etc.
   spec.add_dependency "net-ssh", "~> 4.2.0"
   spec.add_dependency "nokogiri",             ">= 1.8.5", "!=1.10.0", "!=1.10.1", "!=1.10.2", "<2"
   spec.add_dependency "openscap"
+  spec.add_development_dependency "simplecov", ">= 0.21.2"
 end
