@@ -1,3 +1,5 @@
+require "time"
+
 module LinuxAdmin
   class SystemdService < Service
     def running?
