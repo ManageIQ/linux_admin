@@ -25,6 +25,7 @@ jobs:
       with:
         ruby-version: ${{ matrix.ruby-version }}
         bundler-cache: true
+      timeout-minutes: 30
     - name: Run tests
       run: bundle exec rake
     - name: Report code coverage
