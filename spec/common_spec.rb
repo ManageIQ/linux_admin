@@ -21,14 +21,14 @@ describe LinuxAdmin::Common do
 
   describe ".run" do
     it "runs a command with AwesomeSpawn.run" do
-      expect(AwesomeSpawn).to receive(:run).with("echo", nil => "test")
+      expect(AwesomeSpawn).to receive(:run).with("echo", {nil => "test"})
       described_class.run("echo", nil => "test")
     end
   end
 
   describe ".run!" do
     it "runs a command with AwesomeSpawn.run!" do
-      expect(AwesomeSpawn).to receive(:run!).with("echo", nil => "test")
+      expect(AwesomeSpawn).to receive(:run!).with("echo", {nil => "test"})
       described_class.run!("echo", nil => "test")
     end
   end

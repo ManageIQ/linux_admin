@@ -75,13 +75,13 @@ describe LinuxAdmin::SubscriptionManager do
   context "#subscribe" do
     it "with pools" do
       expect(LinuxAdmin::Common).to receive(:run!).once
-        .with("subscription-manager attach", :params => [["--pool", 123], ["--pool", 456]])
+        .with("subscription-manager attach", {:params => [["--pool", 123], ["--pool", 456]]})
       described_class.new.subscribe({:pools => [123, 456]})
     end
 
     it "without pools" do
       expect(LinuxAdmin::Common).to receive(:run!).once
-        .with("subscription-manager attach", :params => {"--auto" => nil})
+        .with("subscription-manager attach", {:params => {"--auto" => nil}})
       described_class.new.subscribe({})
     end
   end
@@ -177,14 +177,14 @@ describe LinuxAdmin::SubscriptionManager do
 
   it "#enable_repo" do
     expect(LinuxAdmin::Common).to receive(:run!).once
-      .with("subscription-manager repos", :params => {"--enable=" => "abc"})
+      .with("subscription-manager repos", {:params => {"--enable=" => "abc"}})
 
     described_class.new.enable_repo("abc")
   end
 
   it "#disable_repo" do
     expect(LinuxAdmin::Common).to receive(:run!).once
-      .with("subscription-manager repos", :params => {"--disable=" => "abc"})
+      .with("subscription-manager repos", {:params => {"--disable=" => "abc"}})
 
     described_class.new.disable_repo("abc")
   end
