@@ -4,7 +4,7 @@ module LinuxAdmin
   module Common
     include Logging
 
-    BIN_DIRS = %w(/bin /sbin /usr/bin /usr/sbin /usr/local/bin /usr/local/sbin)
+    BIN_DIRS = ENV["PATH"].split(File::PATH_SEPARATOR).freeze
 
     def self.cmd(name)
       BIN_DIRS.collect { |dir| "#{dir}/#{name}" }.detect { |cmd| File.exist?(cmd) }
