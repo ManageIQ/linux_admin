@@ -38,11 +38,12 @@ describe LinuxAdmin::RegistrationSystem do
 
       it "with a proxy" do
         expect(LinuxAdmin::Common).to receive(:run).with(
-          "subscription-manager identity",
-          :params => {
-            "--proxy="         => "https://example.com",
-            "--proxyuser="     => "user",
-            "--proxypassword=" => "pass"
+          "subscription-manager identity", {
+            :params => {
+              "--proxy="         => "https://example.com",
+              "--proxyuser="     => "user",
+              "--proxypassword=" => "pass"
+            }
           }
         ).and_return(double(:exit_status => 0))
 
