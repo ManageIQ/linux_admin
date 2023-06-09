@@ -32,7 +32,7 @@ module LinuxAdmin
     end
 
     def stop
-      system({'SSH_AGENT_PID' => @pid}, '(ssh-agent -k) &> /dev/null') if process_exists?(@pid)
+      system({'SSH_AGENT_PID' => @pid}, '(ssh-agent -k) >/dev/null 2>&1') if process_exists?(@pid)
       File.delete(@socket) if File.exist?(@socket)
       @socket = nil
       @pid = nil
