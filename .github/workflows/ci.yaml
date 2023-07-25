@@ -19,7 +19,7 @@ jobs:
     env:
       CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
@@ -31,4 +31,4 @@ jobs:
     - name: Report code coverage
       if: ${{ github.ref == 'refs/heads/master' && matrix.ruby-version == '3.0' }}
       continue-on-error: true
-      uses: paambaati/codeclimate-action@v3.0.0
+      uses: paambaati/codeclimate-action@v5
