@@ -146,7 +146,7 @@ IP_OUT
     end
 
     def result(output, exit_status)
-      AwesomeSpawn::CommandResult.new("", output, "", exit_status)
+      AwesomeSpawn::CommandResult.new("", output, "", nil, exit_status)
     end
 
     describe "#reload" do

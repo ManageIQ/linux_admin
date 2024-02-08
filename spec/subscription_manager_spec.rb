@@ -1,7 +1,7 @@
 describe LinuxAdmin::SubscriptionManager do
   context "#run!" do
     it "raises a CredentialError if the error message contained a credential error" do
-      result = AwesomeSpawn::CommandResult.new("stuff", "things", "invalid username or password", 1)
+      result = AwesomeSpawn::CommandResult.new("stuff", "things", "invalid username or password", 55, 1)
       err = AwesomeSpawn::CommandResultError.new("things", result)
       expect(LinuxAdmin::Common).to receive(:run!).and_raise(err)
 
@@ -9,7 +9,7 @@ describe LinuxAdmin::SubscriptionManager do
     end
 
     it "raises a SubscriptionManagerError if the error message does not contain a credential error" do
-      result = AwesomeSpawn::CommandResult.new("stuff", "things", "not a credential error", 1)
+      result = AwesomeSpawn::CommandResult.new("stuff", "things", "not a credential error", 55, 1)
       err = AwesomeSpawn::CommandResultError.new("things", result)
       expect(LinuxAdmin::Common).to receive(:run!).and_raise(err)
 
@@ -205,12 +205,10 @@ describe LinuxAdmin::SubscriptionManager do
 
     it "with invalid credentials" do
       run_options = ["subscription-manager orgs", {:params => {"--username=" => "BadUser", "--password=" => "BadPass"}}]
+      result = AwesomeSpawn::CommandResult.new("", "", "Invalid username or password. To create a login, please visit https://www.redhat.com/wapps/ugc/register.html", 55, 255)
       error = AwesomeSpawn::CommandResultError.new(
         "",
-        double(
-          :error       => "Invalid username or password. To create a login, please visit https://www.redhat.com/wapps/ugc/register.html",
-          :exit_status => 255
-        )
+        result
       )
       expect(AwesomeSpawn).to receive(:run!).once.with(*run_options).and_raise(error)
       expect { described_class.new.organizations({:username => "BadUser", :password => "BadPass"}) }.to raise_error(LinuxAdmin::CredentialError)

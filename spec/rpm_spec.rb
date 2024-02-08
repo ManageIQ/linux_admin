@@ -59,7 +59,7 @@ files and to do system management tasks (as in Perl).  It is simple,
 straight-forward, and extensible.
 EOS
       arguments = [described_class.rpm_cmd, :params => {"-qi" => "ruby"}]
-      result = AwesomeSpawn::CommandResult.new("", data, "", 0)
+      result = AwesomeSpawn::CommandResult.new("", data, "", 55, 0)
       expect(LinuxAdmin::Common).to receive(:run!).with(*arguments).and_return(result)
       metadata = described_class.info("ruby")
       expect(metadata['name']).to eq('ruby')

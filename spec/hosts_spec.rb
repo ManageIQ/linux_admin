@@ -136,13 +136,13 @@ EOT
     end
 
     it "returns the hostname" do
-      result = AwesomeSpawn::CommandResult.new("", TEST_HOSTNAME, nil, 0)
+      result = AwesomeSpawn::CommandResult.new("", TEST_HOSTNAME, "", 55, 0)
       expect(AwesomeSpawn).to receive(:run).with(*spawn_args).and_return(result)
       expect(@instance.hostname).to eq(TEST_HOSTNAME)
     end
 
     it "returns nil when the command fails" do
-      result = AwesomeSpawn::CommandResult.new("", "", "An error has happened", 1)
+      result = AwesomeSpawn::CommandResult.new("", "", "An error has happened", 55, 1)
       expect(AwesomeSpawn).to receive(:run).with(*spawn_args).and_return(result)
       expect(@instance.hostname).to be_nil
     end
