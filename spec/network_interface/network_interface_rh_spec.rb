@@ -34,7 +34,7 @@ EOF
   end
 
   def result(output, exit_status)
-    AwesomeSpawn::CommandResult.new("", output, "", exit_status)
+    AwesomeSpawn::CommandResult.new("", output, "", 55, exit_status)
   end
 
   subject(:dhcp_interface) do

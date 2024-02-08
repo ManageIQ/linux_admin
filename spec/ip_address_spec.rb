@@ -49,7 +49,7 @@ default via 192.168.1.1 dev eth0  proto static  metric 100
 IP_OUT
 
   def result(output, exit_status)
-    AwesomeSpawn::CommandResult.new("", output, "", exit_status)
+    AwesomeSpawn::CommandResult.new("", output, "", 55, exit_status)
   end
 
   describe "#address" do

@@ -3,7 +3,7 @@ describe LinuxAdmin::TimeDate do
 
   def timedatectl_result
     output = File.read(Pathname.new(data_file_path("time_date/timedatectl_output")))
-    AwesomeSpawn::CommandResult.new("", output, "", 0)
+    AwesomeSpawn::CommandResult.new("", output, "", 55, 0)
   end
 
   describe ".system_timezone_detailed" do
@@ -56,7 +56,7 @@ America/Argentina/Ushuaia
         RUN_COMMAND,
         :params => ["list-timezones"]
       ]
-      result = AwesomeSpawn::CommandResult.new("", timezones, "", 0)
+      result = AwesomeSpawn::CommandResult.new("", timezones, "", 55, 0)
       expect(AwesomeSpawn).to receive(:run!).with(*awesome_spawn_args).and_return(result)
       expect(described_class.timezones).to eq(timezones.split("\n"))
     end
