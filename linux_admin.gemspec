@@ -33,7 +33,7 @@ registration, updates, etc.
   spec.add_development_dependency "rspec",    "~> 3.0"
   spec.add_development_dependency "rubocop"
 
-  spec.add_dependency "awesome_spawn",        "~> 1.3"
+  spec.add_dependency "awesome_spawn",        "~> 1.6"
   spec.add_dependency "inifile"
   spec.add_dependency "more_core_extensions", "~> 4.0"
   spec.add_dependency "net-ssh", "~> 4.2.0"
