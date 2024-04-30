@@ -47,7 +47,8 @@ module LinuxAdmin
     private_class_method :white_list_methods
 
     def install_server_certificate(server, cert_path)
-      host = server.start_with?("http") ? URI.parse(server).host : server
+      require 'uri'
+      host = server.start_with?("http") ? ::URI.parse(server).host : server
 
       LinuxAdmin::Rpm.upgrade("http://#{host}/#{cert_path}")
     end

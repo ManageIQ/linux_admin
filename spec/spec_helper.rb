@@ -85,6 +85,7 @@ RSpec.configure do |config|
   end
 end
 
+require 'rspec/support/differ'
 require 'linux_admin'
 
 def etc_issue_contains(contents)
