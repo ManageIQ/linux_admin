@@ -35,7 +35,7 @@ registration, updates, etc.
 
   spec.add_dependency "awesome_spawn",        "~> 1.6"
   spec.add_dependency "bcrypt_pbkdf",         ">= 1.0", "< 2.0"
-  spec.add_dependency "ed25519",              ">= 1.2", "< 1.3"
+  spec.add_dependency "ed25519",              ">= 1.2", "< 2.0"
   spec.add_dependency "inifile"
   spec.add_dependency "more_core_extensions", "~> 4.0"
   spec.add_dependency "net-ssh",              "~> 7.2.3"
