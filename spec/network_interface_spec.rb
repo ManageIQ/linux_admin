@@ -55,12 +55,19 @@ describe LinuxAdmin::NetworkInterface do
   end
 
   context "on all systems" do
-    let(:ip_show_args)   { [LinuxAdmin::Common.cmd("ip"),     {:params => %w[addr show eth0]}] }
-    let(:ip_route_args)  { [LinuxAdmin::Common.cmd("ip"),     {:params => ['-4', 'route']}] }
-    let(:ip6_route_args) { [LinuxAdmin::Common.cmd("ip"),     {:params => ['-6', 'route']}] }
-    let(:ifup_args)      { [LinuxAdmin::Common.cmd("ifup"),   {:params => ["eth0"]}] }
-    let(:ifdown_args)    { [LinuxAdmin::Common.cmd("ifdown"), {:params => ["eth0"]}] }
-    let(:ip_addr_out) do
+    let(:ip_link_args)      { [LinuxAdmin::Common.cmd("ip"),     {:params => %w[--json link]}] }
+    let(:ip_show_eth0_args) { [LinuxAdmin::Common.cmd("ip"),     {:params => %w[addr show eth0]}] }
+    let(:ip_show_lo_args)   { [LinuxAdmin::Common.cmd("ip"),     {:params => %w[addr show lo]}] }
+    let(:ip_route_args)     { [LinuxAdmin::Common.cmd("ip"),     {:params => ['-4', 'route']}] }
+    let(:ip6_route_args)    { [LinuxAdmin::Common.cmd("ip"),     {:params => ['-6', 'route']}] }
+    let(:ifup_args)         { [LinuxAdmin::Common.cmd("ifup"),   {:params => ["eth0"]}] }
+    let(:ifdown_args)       { [LinuxAdmin::Common.cmd("ifdown"), {:params => ["eth0"]}] }
+    let(:ip_link_out) do
+      <<~IP_OUT
+        [{"ifindex":1,"ifname":"lo","flags":["LOOPBACK","UP","LOWER_UP"],"mtu":65536,"qdisc":"noqueue","operstate":"UNKNOWN","linkmode":"DEFAULT","group":"default","txqlen":1000,"link_type":"loopback","address":"00:00:00:00:00:00","broadcast":"00:00:00:00:00:00"},{"ifindex":2,"ifname":"eth0","flags":["BROADCAST","MULTICAST","UP","LOWER_UP"],"mtu":1500,"qdisc":"fq_codel","operstate":"UP","linkmode":"DEFAULT","group":"default","txqlen":1000,"link_type":"ether","address":"52:54:00:e8:67:81","broadcast":"ff:ff:ff:ff:ff:ff","altnames":["enp0s2","ens2"]}]
+      IP_OUT
+    end
+    let(:ip_addr_eth0_out) do
       <<~IP_OUT
         2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP qlen 1000
             link/ether 00:0c:29:ed:0e:8b brd ff:ff:ff:ff:ff:ff
@@ -69,6 +76,16 @@ describe LinuxAdmin::NetworkInterface do
             inet6 fe80::20c:29ff:feed:e8b/64 scope link
                valid_lft forever preferred_lft forever
             inet6 fd12:3456:789a:1::1/96 scope global
+               valid_lft forever preferred_lft forever
+      IP_OUT
+    end
+    let(:ip_addr_lo_out) do
+      <<~IP_OUT
+        1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+            link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+            inet 127.0.0.1/8 scope host lo
+               valid_lft forever preferred_lft forever
+            inet6 ::1/128 scope host
                valid_lft forever preferred_lft forever
       IP_OUT
     end
@@ -102,11 +119,23 @@ describe LinuxAdmin::NetworkInterface do
       IP_OUT
     end
 
+    subject(:subj_list) do
+      allow(LinuxAdmin::Distros).to receive(:local).and_return(LinuxAdmin::Distros.generic)
+      described_class.dist_class(true)
+
+      allow(AwesomeSpawn).to receive(:run!).with(*ip_link_args).and_return(result(ip_link_out, 0))
+      allow(AwesomeSpawn).to receive(:run!).with(*ip_show_lo_args).and_return(result(ip_addr_lo_out, 0))
+      allow(AwesomeSpawn).to receive(:run!).with(*ip_show_eth0_args).and_return(result(ip_addr_eth0_out, 0))
+      allow(AwesomeSpawn).to receive(:run!).with(*ip_route_args).and_return(result(ip_route_out, 0))
+      allow(AwesomeSpawn).to receive(:run!).with(*ip6_route_args).and_return(result(ip6_route_out, 0))
+      described_class.list
+    end
+
     subject(:subj) do
       allow(LinuxAdmin::Distros).to receive(:local).and_return(LinuxAdmin::Distros.generic)
       described_class.dist_class(true)
 
-      allow(AwesomeSpawn).to receive(:run!).with(*ip_show_args).and_return(result(ip_addr_out, 0))
+      allow(AwesomeSpawn).to receive(:run!).with(*ip_show_eth0_args).and_return(result(ip_addr_eth0_out, 0))
       allow(AwesomeSpawn).to receive(:run!).with(*ip_route_args).and_return(result(ip_route_out, 0))
       allow(AwesomeSpawn).to receive(:run!).with(*ip6_route_args).and_return(result(ip6_route_out, 0))
       described_class.new(device_name)
@@ -116,7 +145,7 @@ describe LinuxAdmin::NetworkInterface do
       allow(LinuxAdmin::Distros).to receive(:local).and_return(LinuxAdmin::Distros.generic)
       described_class.dist_class(true)
 
-      allow(AwesomeSpawn).to receive(:run!).with(*ip_show_args).and_return(result(ip6_addr_out, 0))
+      allow(AwesomeSpawn).to receive(:run!).with(*ip_show_eth0_args).and_return(result(ip6_addr_out, 0))
       allow(AwesomeSpawn).to receive(:run!).with(*ip_route_args).and_return(result(ip_route_out, 0))
       allow(AwesomeSpawn).to receive(:run!).with(*ip6_route_args).and_return(result(ip6_route_out, 0))
       described_class.new(device_name)
@@ -126,7 +155,7 @@ describe LinuxAdmin::NetworkInterface do
       allow(LinuxAdmin::Distros).to receive(:local).and_return(LinuxAdmin::Distros.generic)
       described_class.dist_class(true)
 
-      allow(AwesomeSpawn).to receive(:run!).with(*ip_show_args).and_return(result(ip_none_addr_out, 0))
+      allow(AwesomeSpawn).to receive(:run!).with(*ip_show_eth0_args).and_return(result(ip_none_addr_out, 0))
       allow(AwesomeSpawn).to receive(:run!).with(*ip_route_args).and_return(result(ip_route_out, 0))
       allow(AwesomeSpawn).to receive(:run!).with(*ip6_route_args).and_return(result(ip6_route_out, 0))
       described_class.new(device_name)
@@ -136,18 +165,26 @@ describe LinuxAdmin::NetworkInterface do
       AwesomeSpawn::CommandResult.new("", output, "", nil, exit_status)
     end
 
+    describe ".list" do
+      it "returns a list of NetworkInterface objects" do
+        interfaces = subj_list
+        expect(interfaces.count).to eq(2)
+        expect(interfaces.map(&:interface)).to match_array(["eth0", "lo"])
+      end
+    end
+
     describe "#reload" do
       it "returns false when ip addr show fails" do
         subj
         awesome_error = AwesomeSpawn::CommandResultError.new("", nil)
-        allow(AwesomeSpawn).to receive(:run!).with(*ip_show_args).and_raise(awesome_error)
+        allow(AwesomeSpawn).to receive(:run!).with(*ip_show_eth0_args).and_raise(awesome_error)
         expect(subj.reload).to eq(false)
       end
 
       it "raises when ip route fails" do
         subj
         awesome_error = AwesomeSpawn::CommandResultError.new("", nil)
-        allow(AwesomeSpawn).to receive(:run!).with(*ip_show_args).and_return(result(ip_addr_out, 0))
+        allow(AwesomeSpawn).to receive(:run!).with(*ip_show_eth0_args).and_return(result(ip_addr_eth0_out, 0))
         allow(AwesomeSpawn).to receive(:run!).with(*ip_route_args).and_raise(awesome_error)
         allow(AwesomeSpawn).to receive(:run!).with(*ip6_route_args).and_raise(awesome_error)
         expect { subj.reload }.to raise_error(LinuxAdmin::NetworkInterfaceError)
@@ -155,7 +192,7 @@ describe LinuxAdmin::NetworkInterface do
 
       it "doesn't blow up when given only ipv6 addresses" do
         subj6
-        allow(AwesomeSpawn).to receive(:run!).with(*ip_show_args).and_return(result(ip6_addr_out, 0))
+        allow(AwesomeSpawn).to receive(:run!).with(*ip_show_eth0_args).and_return(result(ip6_addr_out, 0))
         allow(AwesomeSpawn).to receive(:run!).with(*ip_route_args).and_return(result(ip_route_out, 0))
         allow(AwesomeSpawn).to receive(:run!).with(*ip6_route_args).and_return(result(ip6_route_out, 0))
         expect { subj.reload }.to_not raise_error
