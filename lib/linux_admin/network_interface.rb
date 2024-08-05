@@ -20,6 +20,21 @@ module LinuxAdmin
       end
     end
 
+    def self.list
+      ip_link.pluck("ifname").map { |iface| new(iface) }
+    rescue AwesomeSpawn::CommandResultError => e
+      raise NetworkInterfaceError.new(e.message, e.result)
+    end
+
+    private_class_method def self.ip_link
+      require "json"
+
+      result = Common.run!(Common.cmd("ip"), :params => ["--json", "link"])
+      JSON.parse(result.output)
+    rescue AwesomeSpawn::CommandResultError, JSON::ParserError => e
+      raise NetworkInterfaceError.new(e.message, e.result)
+    end
+
     # Creates an instance of the correct NetworkInterface subclass for the local distro
     def self.new(*args)
       self == LinuxAdmin::NetworkInterface ? dist_class.new(*args) : super
