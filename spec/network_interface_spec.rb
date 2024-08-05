@@ -56,10 +56,10 @@ describe LinuxAdmin::NetworkInterface do
 
   context "on all systems" do
     let(:ip_link_args)      { [LinuxAdmin::Common.cmd("ip"),     {:params => %w[--json link]}] }
-    let(:ip_show_eth0_args) { [LinuxAdmin::Common.cmd("ip"),     {:params => %w[addr show eth0]}] }
-    let(:ip_show_lo_args)   { [LinuxAdmin::Common.cmd("ip"),     {:params => %w[addr show lo]}] }
-    let(:ip_route_args)     { [LinuxAdmin::Common.cmd("ip"),     {:params => ['-4', 'route']}] }
-    let(:ip6_route_args)    { [LinuxAdmin::Common.cmd("ip"),     {:params => ['-6', 'route']}] }
+    let(:ip_show_eth0_args) { [LinuxAdmin::Common.cmd("ip"),     {:params => %w[--json addr show eth0]}] }
+    let(:ip_show_lo_args)   { [LinuxAdmin::Common.cmd("ip"),     {:params => %w[--json addr show lo]}] }
+    let(:ip_route_args)     { [LinuxAdmin::Common.cmd("ip"),     {:params => %w[--json -4 route show default]}] }
+    let(:ip6_route_args)    { [LinuxAdmin::Common.cmd("ip"),     {:params => %w[--json -6 route show default]}] }
     let(:ifup_args)         { [LinuxAdmin::Common.cmd("ifup"),   {:params => ["eth0"]}] }
     let(:ifdown_args)       { [LinuxAdmin::Common.cmd("ifdown"), {:params => ["eth0"]}] }
     let(:ip_link_out) do
@@ -69,53 +69,32 @@ describe LinuxAdmin::NetworkInterface do
     end
     let(:ip_addr_eth0_out) do
       <<~IP_OUT
-        2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP qlen 1000
-            link/ether 00:0c:29:ed:0e:8b brd ff:ff:ff:ff:ff:ff
-            inet 192.168.1.9/24 brd 192.168.1.255 scope global dynamic eth0
-               valid_lft 1297sec preferred_lft 1297sec
-            inet6 fe80::20c:29ff:feed:e8b/64 scope link
-               valid_lft forever preferred_lft forever
-            inet6 fd12:3456:789a:1::1/96 scope global
-               valid_lft forever preferred_lft forever
+        [{"ifindex":2,"ifname":"eth0","flags":["BROADCAST","MULTICAST","UP","LOWER_UP"],"mtu":1500,"qdisc":"fq_codel","operstate":"UP","group":"default","txqlen":1000,"link_type":"ether","address":"00:0c:29:ed:0e:8b","broadcast":"ff:ff:ff:ff:ff:ff","altnames":["enp0s2","ens2"],"addr_info":[{"family":"inet","local":"192.168.1.9","prefixlen":24,"broadcast":"192.168.255","scope":"global","noprefixroute":true,"label":"eth0","valid_life_time":4294967295,"preferred_life_time":4294967295},{"family":"inet6","local":"fe80::20c:29ff:feed:e8b","prefixlen":64,"scope":"link","noprefixroute":true,"valid_life_time":"forever","preferred_life_time":"forever"},{"family":"inet6","local":"fd12:3456:789a:1::1","prefixlen":96,"scope":"global","noprefixroute":true,"valid_life_time":"forever","preferred_life_time":"forever"}]}]
       IP_OUT
     end
     let(:ip_addr_lo_out) do
       <<~IP_OUT
-        1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
-            link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
-            inet 127.0.0.1/8 scope host lo
-               valid_lft forever preferred_lft forever
-            inet6 ::1/128 scope host
-               valid_lft forever preferred_lft forever
+        [{"ifindex":1,"ifname":"lo","flags":["LOOPBACK","UP","LOWER_UP"],"mtu":65536,"qdisc":"noqueue","operstate":"UNKNOWN","group":"default","txqlen":1000,"link_type":"loopback","address":"00:00:00:00:00:00","broadcast":"00:00:00:00:00:00","addr_info":[{"family":"inet","local":"127.0.0.1","prefixlen":8,"scope":"host","label":"lo","valid_life_time":4294967295,"preferred_life_time":4294967295},{"family":"inet6","local":"::1","prefixlen":128,"scope":"host","valid_life_time":"forever","preferred_life_time":"forever"}]}]
       IP_OUT
     end
     let(:ip6_addr_out) do
       <<~IP_OUT
-        2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP qlen 1000
-            link/ether 00:0c:29:ed:0e:8b brd ff:ff:ff:ff:ff:ff
-            inet6 fe80::20c:29ff:feed:e8b/64 scope link
-               valid_lft forever preferred_lft forever
-            inet6 fd12:3456:789a:1::1/96 scope global
-               valid_lft forever preferred_lft forever
+        [{"ifindex":2,"ifname":"eth0","flags":["BROADCAST","MULTICAST","UP","LOWER_UP"],"mtu":1500,"qdisc":"fq_codel","operstate":"UP","group":"default","txqlen":1000,"link_type":"ether","address":"00:0c:29:ed:0e:8b","broadcast":"ff:ff:ff:ff:ff:ff","altnames":["enp0s2","ens2"],"addr_info":[{"family":"inet6","local":"fe80::20c:29ff:feed:e8b","prefixlen":64,"scope":"link","noprefixroute":true,"valid_life_time":"forever","preferred_life_time":"forever"},{"family":"inet6","local":"fd12:3456:789a:1::1","prefixlen":96,"scope":"global","noprefixroute":true,"valid_life_time":"forever","preferred_life_time":"forever"}]}]
       IP_OUT
     end
     let(:ip_route_out) do
       <<~IP_OUT
-        default via 192.168.1.1 dev eth0  proto static  metric 100
-        192.168.1.0/24 dev eth0  proto kernel  scope link  src 192.168.1.9  metric 100
+        [{"dst":"default","gateway":"192.168.1.1","dev":"eth0","protocol":"static","metric":100,"flags":[]}]
       IP_OUT
     end
     let(:ip6_route_out) do
       <<~IP_OUT
-        default via d:e:a:d:b:e:e:f dev eth0  proto static  metric 100
-        fc00:dead:beef:a::/64 dev virbr1  proto kernel  metric 256 linkdown  pref medium
-        fe80::/64 dev eth0  proto kernel  scope link metric 100
+        [{"dst":"default","gateway":"d:e:a:d:b:e:e:f","dev":"eth0","protocol":"static","metric":100,"flags":[]}]
       IP_OUT
     end
     let(:ip_none_addr_out) do
       <<~IP_OUT
-        2: eth0: <BROADCAST,MULTICAST> mtu 1500 qdisc fq_codel master virbr1 state DOWN group default qlen 1000
-            link/ether 52:54:00:ce:b4:f4 brd ff:ff:ff:ff:ff:ff
+        [{"ifindex":2,"ifname":"eth0","flags":["BROADCAST","MULTICAST","UP","LOWER_UP"],"mtu":1500,"qdisc":"fq_codel","operstate":"UP","group":"default","txqlen":1000,"link_type":"ether","address":"00:0c:29:ed:0e:8b","broadcast":"ff:ff:ff:ff:ff:ff","altnames":["enp0s2","ens2"],"addr_info":[]}]
       IP_OUT
     end
 
