@@ -12,7 +12,15 @@ module LinuxAdmin
     def initialize(interface)
       @interface_file = self.class.path_to_interface_config_file(interface)
       super
+    end
+
+    # Gathers current network information for this interface
+    #
+    # @return [Boolean] true if network information was gathered successfully
+    def reload
+      super
       parse_conf
+      true
     end
 
     # Parses the interface configuration file into the @interface_config hash
