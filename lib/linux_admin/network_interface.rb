@@ -1,7 +1,8 @@
-require 'ipaddr'
-
 module LinuxAdmin
   class NetworkInterface
+    require "ipaddr"
+    require "json"
+
     # Cached class instance variable for what distro we are running on
     @dist_class = nil
 
@@ -60,14 +61,16 @@ module LinuxAdmin
         return false
       end
 
-      parse_ip4(ip_output)
-      parse_ip6(ip_output, :global)
-      parse_ip6(ip_output, :link)
+      addr_info = ip_output["addr_info"]
 
-      @network_conf[:mac] = parse_ip_output(ip_output, %r{link/ether}, 1)
+      parse_ip4(addr_info)
+      parse_ip6(addr_info, "global")
+      parse_ip6(addr_info, "link")
+
+      @network_conf[:mac] = ip_output["address"]
 
       [4, 6].each do |version|
-        @network_conf["gateway#{version}".to_sym] = parse_ip_output(ip_route(version), /^default/, 2)
+        @network_conf["gateway#{version}".to_sym] = ip_route(version, "default")&.dig("gateway")
       end
       true
     end
@@ -168,23 +171,15 @@ module LinuxAdmin
 
     private
 
-    # Parses the output of `ip addr show`
-    #
-    # @param output [String] The command output
-    # @param regex  [Regexp] Regular expression to match the desired output line
-    # @param col    [Fixnum] The whitespace delimited column to be returned
-    # @return [String] The parsed data
-    def parse_ip_output(output, regex, col)
-      the_line = output.split("\n").detect { |l| l =~ regex }
-      the_line.nil? ? nil : the_line.strip.split(' ')[col]
-    end
-
     # Runs the command `ip addr show <interface>`
     #
     # @return [String] The command output
     # @raise [NetworkInterfaceError] if the command fails
     def ip_show
-      Common.run!(Common.cmd("ip"), :params => ["addr", "show", @interface]).output
+      output = Common.run!(Common.cmd("ip"), :params => ["--json", "addr", "show", @interface]).output
+      return {} if output.blank?
+
+      JSON.parse(output).first
     rescue AwesomeSpawn::CommandResultError => e
       raise NetworkInterfaceError.new(e.message, e.result)
     end
@@ -194,8 +189,11 @@ module LinuxAdmin
     # @param version [Fixnum] Version of IP protocol (4 or 6)
     # @return [String] The command output
     # @raise [NetworkInterfaceError] if the command fails
-    def ip_route(version)
-      Common.run!(Common.cmd("ip"), :params => ["-#{version}", 'route']).output
+    def ip_route(version, route = "default")
+      output = Common.run!(Common.cmd("ip"), :params => ["--json", "-#{version}", "route", "show", route]).output
+      return {} if output.blank?
+
+      JSON.parse(output).first
     rescue AwesomeSpawn::CommandResultError => e
       raise NetworkInterfaceError.new(e.message, e.result)
     end
@@ -203,26 +201,24 @@ module LinuxAdmin
     # Parses the IPv4 information from the output of `ip addr show <device>`
     #
     # @param ip_output [String] The command output
-    def parse_ip4(ip_output)
-      cidr_ip = parse_ip_output(ip_output, /inet /, 1)
-      return unless cidr_ip
+    def parse_ip4(addr_info)
+      inet = addr_info&.detect { |addr| addr["family"] == "inet" }
+      return if inet.nil?
 
-      parts = cidr_ip.split('/')
-      @network_conf[:address] = parts[0]
-      @network_conf[:prefix] = parts[1].to_i
+      @network_conf[:address] = inet["local"]
+      @network_conf[:prefix]  = inet["prefixlen"]
     end
 
     # Parses the IPv6 information from the output of `ip addr show <device>`
     #
     # @param ip_output [String] The command output
     # @param scope     [Symbol] The IPv6 scope (either `:global` or `:local`)
-    def parse_ip6(ip_output, scope)
-      cidr_ip = parse_ip_output(ip_output, /inet6 .* scope #{scope}/, 1)
-      return unless cidr_ip
+    def parse_ip6(addr_info, scope)
+      inet6 = addr_info&.detect { |addr| addr["family"] == "inet6" && addr["scope"] == scope }
+      return if inet6.nil?
 
-      parts = cidr_ip.split('/')
-      @network_conf["address6_#{scope}".to_sym] = parts[0]
-      @network_conf["prefix6_#{scope}".to_sym] = parts[1].to_i
+      @network_conf["address6_#{scope}".to_sym] = inet6["local"]
+      @network_conf["prefix6_#{scope}".to_sym]  = inet6["prefixlen"]
     end
   end
 end
