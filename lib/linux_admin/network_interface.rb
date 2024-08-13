@@ -42,7 +42,7 @@ module LinuxAdmin
     end
 
     # @return [String] the interface for networking operations
-    attr_reader :interface
+    attr_reader :interface, :link_type
 
     # @param interface [String] Name of the network interface to manage
     def initialize(interface)
@@ -61,7 +61,8 @@ module LinuxAdmin
         return false
       end
 
-      addr_info = ip_output["addr_info"]
+      @link_type = ip_output["link_type"]
+      addr_info  = ip_output["addr_info"]
 
       parse_ip4(addr_info)
       parse_ip6(addr_info, "global")
@@ -73,6 +74,10 @@ module LinuxAdmin
         @network_conf["gateway#{version}".to_sym] = ip_route(version, "default")&.dig("gateway")
       end
       true
+    end
+
+    def loopback?
+      @link_type == "loopback"
     end
 
     # Retrieve the IPv4 address assigned to the interface
