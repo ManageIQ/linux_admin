@@ -13,8 +13,11 @@ module LinuxAdmin
     def self.dist_class(clear_cache = false)
       @dist_class = nil if clear_cache
       @dist_class ||= begin
-        if [Distros.rhel, Distros.fedora].include?(Distros.local)
+        case Distros.local
+        when Distros.rhel, Distros.fedora
           NetworkInterfaceRH
+        when Distros.darwin
+          NetworkInterfaceDarwin
         else
           NetworkInterfaceGeneric
         end
