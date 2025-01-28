@@ -18,8 +18,12 @@ module LinuxAdmin
       @ubuntu ||= Distro.new(:ubuntu, nil, ['ubuntu'], LinuxAdmin::Deb)
     end
 
+    def self.darwin
+      @darwin ||= Distro.new(:darwin, "/System/Library/CoreServices/SystemVersion.plist", ['darwin'], LinuxAdmin::Homebrew)
+    end
+
     def self.all
-      @distros ||= [rhel, fedora, ubuntu, generic]
+      @distros ||= [rhel, fedora, ubuntu, darwin, generic]
     end
 
     def self.local

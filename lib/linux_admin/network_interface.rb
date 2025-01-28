@@ -15,6 +15,8 @@ module LinuxAdmin
       @dist_class ||= begin
         if [Distros.rhel, Distros.fedora].include?(Distros.local)
           NetworkInterfaceRH
+        elsif Distros.local == Distros.darwin
+          NetworkInterfaceDarwin
         else
           NetworkInterfaceGeneric
         end

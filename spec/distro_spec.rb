@@ -13,7 +13,7 @@ describe LinuxAdmin::Distros::Distro do
       context "/etc/issue contains '#{i}'" do
         before(:each) do
           etc_issue_contains(i)
-          exists("/etc/fedora-release" => false, "/etc/redhat-release" => false)
+          exists("/etc/fedora-release" => false, "/etc/redhat-release" => false, "/System/Library/CoreServices/SystemVersion.plist" => false)
         end
 
         it "returns Distros.#{d}" do
@@ -43,9 +43,15 @@ describe LinuxAdmin::Distros::Distro do
       end
     end
 
+    it "returns Distro.darwin" do
+      etc_issue_contains('')
+      exists("/etc/fedora-release" => false, "/etc/redhat-release" => false, "/System/Library/CoreServices/SystemVersion.plist" => true)
+      expect(subject).to eq(LinuxAdmin::Distros.darwin)
+    end
+
     it "returns Distros.generic" do
       etc_issue_contains('')
-      exists("/etc/fedora-release" => false, "/etc/redhat-release" => false)
+      exists("/etc/fedora-release" => false, "/etc/redhat-release" => false, "/System/Library/CoreServices/SystemVersion.plist" => false)
       expect(subject).to eq(LinuxAdmin::Distros.generic)
     end
   end

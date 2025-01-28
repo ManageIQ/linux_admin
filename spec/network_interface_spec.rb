@@ -32,6 +32,28 @@ describe LinuxAdmin::NetworkInterface do
     end
   end
 
+  context "on darwin systems" do
+    describe ".dist_class" do
+      it "returns NetworkInterfaceDarwin" do
+        allow(LinuxAdmin::Distros).to receive(:local).and_return(LinuxAdmin::Distros.darwin)
+        expect(described_class.dist_class(true)).to eq(LinuxAdmin::NetworkInterfaceDarwin)
+      end
+    end
+
+    describe ".new" do
+      before do
+        allow_any_instance_of(described_class).to receive(:ip_show).and_raise(LinuxAdmin::NetworkInterfaceError.new(nil, nil))
+        allow(LinuxAdmin::Distros).to receive(:local).and_return(LinuxAdmin::Distros.darwin)
+        described_class.dist_class(true)
+        allow(Pathname).to receive(:new).and_return(config_file_path)
+      end
+
+      it "creates a NetworkInterfaceDarwin instance" do
+        expect(described_class.new(device_name)).to be_an_instance_of(LinuxAdmin::NetworkInterfaceDarwin)
+      end
+    end
+  end
+
   context "on other linux systems" do
     describe ".dist_class" do
       it "returns NetworkInterfaceGeneric" do
