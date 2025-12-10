@@ -2,8 +2,6 @@
 
 [![Gem Version](https://badge.fury.io/rb/linux_admin.svg)](http://badge.fury.io/rb/linux_admin)
 [![CI](https://github.com/ManageIQ/linux_admin/actions/workflows/ci.yaml/badge.svg)](https://github.com/ManageIQ/linux_admin/actions/workflows/ci.yaml)
-[![Code Climate](https://codeclimate.com/github/ManageIQ/linux_admin.svg)](https://codeclimate.com/github/ManageIQ/linux_admin)
-[![Test Coverage](https://codeclimate.com/github/ManageIQ/linux_admin/badges/coverage.svg)](https://codeclimate.com/github/ManageIQ/linux_admin/coverage)
 
 LinuxAdmin is a module to simplify management of linux systems.
 It should be a single place to manage various system level configurations,
