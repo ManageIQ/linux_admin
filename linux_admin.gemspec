@@ -38,7 +38,7 @@ registration, updates, etc.
   spec.add_dependency "ed25519",              ">= 1.2", "< 2.0"
   spec.add_dependency "inifile"
   spec.add_dependency "more_core_extensions", "~> 4.5", ">= 4.5.1"
-  spec.add_dependency "net-ssh",              "~> 7.2.3"
+  spec.add_dependency "net-ssh",              "~> 7.2", ">= 7.2.3"
   spec.add_dependency "nokogiri",             ">= 1.8.5", "!=1.10.0", "!=1.10.1", "!=1.10.2", "<2"
   spec.add_dependency "openscap"
   spec.add_development_dependency "simplecov", ">= 0.21.2"
