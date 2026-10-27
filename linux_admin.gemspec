@@ -26,7 +26,7 @@ registration, updates, etc.
   spec.executables   = `git ls-files -- bin/*`.split("\n")
   spec.require_paths = ["lib"]
 
-  spec.required_ruby_version = Gem::Requirement.new(">= 2.6")
+  spec.required_ruby_version = Gem::Requirement.new(">= 3.0")
 
   spec.add_development_dependency "manageiq-style"
   spec.add_development_dependency "rake"
